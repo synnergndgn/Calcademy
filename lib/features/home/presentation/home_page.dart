@@ -1,3 +1,9 @@
+import 'package:calcademy/app/theme/app_colors.dart';
+import 'package:calcademy/app/theme/app_radius.dart';
+import 'package:calcademy/app/theme/app_spacing.dart';
+import 'package:calcademy/core/widgets/calcademy_logo.dart';
+import 'package:calcademy/core/widgets/empty_state.dart';
+import 'package:calcademy/features/history/domain/calculation_record.dart';
 import 'package:calcademy/features/history/presentation/history_controller.dart';
 import 'package:calcademy/features/home/models/academy_module.dart';
 import 'package:calcademy/features/settings/presentation/settings_controller.dart';
@@ -12,97 +18,64 @@ class HomePage extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final recent = ref.watch(historyProvider).take(3).toList();
-    final settings = ref.watch(settingsProvider);
+    final availableModules = academyModules.where((item) => item.available);
+    final comingModules = academyModules.where((item) => !item.available);
     return Scaffold(
       appBar: AppBar(
-        title: Text(context.l10n.t('appName')),
-        actions: [
-          IconButton(
-            tooltip: context.l10n.t('theme'),
-            onPressed: () {
-              final next = settings.themeMode == ThemeMode.dark
-                  ? ThemeMode.light
-                  : ThemeMode.dark;
-              ref.read(settingsProvider.notifier).setThemeMode(next);
-            },
-            icon: Icon(
-              settings.themeMode == ThemeMode.dark
-                  ? Icons.light_mode_rounded
-                  : Icons.dark_mode_rounded,
-            ),
-          ),
-          const SizedBox(width: 8),
+        title: const _HomeBrand(),
+        actions: const [
+          _ThemeButton(),
+          SizedBox(width: AppSpacing.xs),
         ],
       ),
       body: CustomScrollView(
         slivers: [
-          SliverToBoxAdapter(child: _HeroCard()),
+          const SliverToBoxAdapter(child: _HeroCard()),
           SliverToBoxAdapter(child: _SectionTitle(context.l10n.t('available'))),
-          SliverToBoxAdapter(child: _ModuleCard(module: academyModules.first)),
-          SliverToBoxAdapter(child: _SectionTitle(context.l10n.t('recent'))),
           SliverToBoxAdapter(
-            child: recent.isEmpty
-                ? Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 16),
-                    child: Card(
-                      child: ListTile(
-                        leading: const Icon(Icons.history_toggle_off_rounded),
-                        title: Text(context.l10n.t('noRecent')),
-                      ),
-                    ),
-                  )
-                : Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 16),
-                    child: Card(
-                      child: Column(
-                        children: [
-                          for (final item in recent)
-                            ListTile(
-                              title: Text(
-                                item.expression,
-                                maxLines: 1,
-                                overflow: TextOverflow.ellipsis,
-                              ),
-                              subtitle: Text('= ${item.result}'),
-                              trailing: const Icon(Icons.arrow_forward_rounded),
-                              onTap: () => context.push(
-                                '/calculator?expression=${Uri.encodeQueryComponent(item.expression)}',
-                              ),
-                            ),
-                        ],
-                      ),
-                    ),
-                  ),
+            child: Column(
+              children: [
+                for (final module in availableModules)
+                  _ModuleCard(module: module),
+              ],
+            ),
           ),
+          SliverToBoxAdapter(child: _SectionTitle(context.l10n.t('recent'))),
+          SliverToBoxAdapter(child: _RecentCalculations(records: recent)),
           SliverToBoxAdapter(
             child: _SectionTitle(context.l10n.t('comingSoon')),
           ),
-          SliverPadding(
-            padding: const EdgeInsets.fromLTRB(16, 0, 16, 32),
-            sliver: SliverLayoutBuilder(
-              builder: (context, constraints) {
-                final width = constraints.crossAxisExtent;
-                final columns = width >= 1000
-                    ? 3
-                    : width >= 620
-                    ? 2
-                    : 1;
-                return SliverGrid(
-                  gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                    crossAxisCount: columns,
-                    mainAxisSpacing: 12,
-                    crossAxisSpacing: 12,
-                    childAspectRatio: columns == 1 ? 2.7 : 1.8,
-                  ),
-                  delegate: SliverChildBuilderDelegate(
-                    (context, index) => _ModuleCard(
-                      module: academyModules[index + 1],
-                      compact: true,
-                    ),
-                    childCount: academyModules.length - 1,
-                  ),
-                );
-              },
+          SliverToBoxAdapter(
+            child: Padding(
+              padding: const EdgeInsets.fromLTRB(
+                AppSpacing.md,
+                0,
+                AppSpacing.md,
+                AppSpacing.xxl,
+              ),
+              child: LayoutBuilder(
+                builder: (context, constraints) {
+                  final columns = constraints.maxWidth >= 960
+                      ? 3
+                      : constraints.maxWidth >= 600
+                      ? 2
+                      : 1;
+                  final itemWidth =
+                      (constraints.maxWidth - AppSpacing.sm * (columns - 1)) /
+                      columns;
+                  return Wrap(
+                    spacing: AppSpacing.sm,
+                    runSpacing: AppSpacing.sm,
+                    children: [
+                      for (final module in comingModules)
+                        SizedBox(
+                          width: itemWidth,
+                          child: _ModuleCard(module: module, compact: true),
+                        ),
+                    ],
+                  );
+                },
+              ),
             ),
           ),
         ],
@@ -111,102 +84,254 @@ class HomePage extends ConsumerWidget {
   }
 }
 
+class _HomeBrand extends StatelessWidget {
+  const _HomeBrand();
+
+  @override
+  Widget build(BuildContext context) {
+    final compactAccessibilityLayout =
+        MediaQuery.sizeOf(context).width < 360 &&
+        MediaQuery.textScalerOf(context).scale(1) > 1.2;
+    return CalcademyLogo(size: 36, showWordmark: !compactAccessibilityLayout);
+  }
+}
+
+class _ThemeButton extends ConsumerWidget {
+  const _ThemeButton();
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    return IconButton(
+      tooltip: context.l10n.t('theme'),
+      onPressed: () => ref
+          .read(settingsProvider.notifier)
+          .setThemeMode(isDark ? ThemeMode.light : ThemeMode.dark),
+      icon: Icon(isDark ? Icons.light_mode_rounded : Icons.dark_mode_rounded),
+    );
+  }
+}
+
 class _HeroCard extends StatelessWidget {
+  const _HeroCard();
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final colors = theme.colorScheme;
+    final copy = Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          context.l10n.t('welcome'),
+          style: theme.textTheme.headlineSmall?.copyWith(
+            color: colors.onPrimaryContainer,
+          ),
+        ),
+        const SizedBox(height: AppSpacing.xs),
+        Text(
+          context.l10n.t('welcomeBody'),
+          style: theme.textTheme.bodyLarge?.copyWith(
+            color: colors.onPrimaryContainer,
+          ),
+        ),
+      ],
+    );
+    const graphic = _GraphAccent();
+
+    return Container(
+      margin: const EdgeInsets.fromLTRB(
+        AppSpacing.md,
+        AppSpacing.xs,
+        AppSpacing.md,
+        AppSpacing.xs,
+      ),
+      padding: const EdgeInsets.all(AppSpacing.xl),
+      decoration: BoxDecoration(
+        color: colors.primaryContainer,
+        borderRadius: AppRadius.hero,
+        border: Border.all(color: colors.outlineVariant),
+      ),
+      child: LayoutBuilder(
+        builder: (context, constraints) {
+          if (constraints.maxWidth < 340) {
+            return Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                graphic,
+                const SizedBox(height: AppSpacing.md),
+                copy,
+              ],
+            );
+          }
+          return Row(
+            children: [
+              Expanded(child: copy),
+              const SizedBox(width: AppSpacing.lg),
+              graphic,
+            ],
+          );
+        },
+      ),
+    );
+  }
+}
+
+class _GraphAccent extends StatelessWidget {
+  const _GraphAccent();
+
   @override
   Widget build(BuildContext context) {
     final colors = Theme.of(context).colorScheme;
-    return Container(
-      margin: const EdgeInsets.fromLTRB(16, 8, 16, 8),
-      padding: const EdgeInsets.all(24),
-      decoration: BoxDecoration(
-        gradient: LinearGradient(colors: [colors.primary, colors.tertiary]),
-        borderRadius: BorderRadius.circular(28),
-      ),
-      child: Row(
-        children: [
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  context.l10n.t('welcome'),
-                  style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-                    color: colors.onPrimary,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-                const SizedBox(height: 8),
-                Text(
-                  context.l10n.t('welcomeBody'),
-                  style: Theme.of(
-                    context,
-                  ).textTheme.bodyLarge?.copyWith(color: colors.onPrimary),
-                ),
-                const SizedBox(height: 12),
-                Text(
-                  context.l10n.t('tagline'),
-                  style: Theme.of(
-                    context,
-                  ).textTheme.labelLarge?.copyWith(color: colors.onPrimary),
-                ),
-              ],
-            ),
+    return Stack(
+      clipBehavior: Clip.none,
+      children: [
+        Container(
+          padding: const EdgeInsets.all(AppSpacing.md),
+          decoration: BoxDecoration(
+            color: colors.surface.withValues(alpha: 0.7),
+            borderRadius: AppRadius.card,
           ),
-          const SizedBox(width: 16),
-          Icon(Icons.auto_graph_rounded, size: 64, color: colors.onPrimary),
-        ],
-      ),
+          child: Icon(
+            Icons.auto_graph_rounded,
+            size: 42,
+            color: colors.primary,
+          ),
+        ),
+        const Positioned(
+          right: 8,
+          bottom: 9,
+          child: DecoratedBox(
+            decoration: BoxDecoration(
+              color: AppColors.dataPoint,
+              shape: BoxShape.circle,
+            ),
+            child: SizedBox.square(dimension: 10),
+          ),
+        ),
+      ],
     );
   }
 }
 
 class _SectionTitle extends StatelessWidget {
   const _SectionTitle(this.title);
+
   final String title;
+
   @override
   Widget build(BuildContext context) => Padding(
-    padding: const EdgeInsets.fromLTRB(20, 24, 20, 10),
-    child: Text(
-      title,
-      style: Theme.of(
-        context,
-      ).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold),
+    padding: const EdgeInsets.fromLTRB(
+      AppSpacing.lg,
+      AppSpacing.xl,
+      AppSpacing.lg,
+      AppSpacing.sm,
+    ),
+    child: Row(
+      children: [
+        const DecoratedBox(
+          decoration: BoxDecoration(
+            color: AppColors.dataPoint,
+            shape: BoxShape.circle,
+          ),
+          child: SizedBox.square(dimension: 8),
+        ),
+        const SizedBox(width: AppSpacing.xs),
+        Expanded(
+          child: Text(title, style: Theme.of(context).textTheme.titleLarge),
+        ),
+      ],
     ),
   );
 }
 
+class _RecentCalculations extends StatelessWidget {
+  const _RecentCalculations({required this.records});
+
+  final List<CalculationRecord> records;
+
+  @override
+  Widget build(BuildContext context) {
+    if (records.isEmpty) {
+      return Padding(
+        padding: const EdgeInsets.symmetric(horizontal: AppSpacing.md),
+        child: Card(
+          child: EmptyState(
+            icon: Icons.history_toggle_off_rounded,
+            title: context.l10n.t('noRecentTitle'),
+            body: context.l10n.t('noRecent'),
+          ),
+        ),
+      );
+    }
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: AppSpacing.md),
+      child: Card(
+        child: Column(
+          children: [
+            for (final item in records)
+              ListTile(
+                title: Text(
+                  item.expression,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                ),
+                subtitle: Text('= ${item.result}'),
+                trailing: const Icon(Icons.arrow_forward_rounded),
+                onTap: () => context.push(
+                  '/calculator?expression=${Uri.encodeQueryComponent(item.expression)}',
+                ),
+              ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
 class _ModuleCard extends StatelessWidget {
   const _ModuleCard({required this.module, this.compact = false});
+
   final AcademyModule module;
   final bool compact;
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final colors = theme.colorScheme;
     final card = Card(
       margin: compact
           ? EdgeInsets.zero
-          : const EdgeInsets.symmetric(horizontal: 16),
+          : const EdgeInsets.symmetric(horizontal: AppSpacing.md),
+      color: module.available
+          ? colors.primaryContainer.withValues(alpha: 0.62)
+          : colors.surfaceContainerLow,
       clipBehavior: Clip.antiAlias,
       child: InkWell(
         onTap: () => module.available
-            ? context.push('/calculator')
+            ? context.push(module.route!)
             : context.push('/coming-soon/${module.id}'),
         child: Padding(
-          padding: EdgeInsets.all(compact ? 16 : 20),
+          padding: EdgeInsets.all(compact ? AppSpacing.md : AppSpacing.lg),
           child: Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Container(
-                padding: const EdgeInsets.all(12),
+                padding: const EdgeInsets.all(AppSpacing.sm),
                 decoration: BoxDecoration(
-                  color: Theme.of(context).colorScheme.primaryContainer,
-                  borderRadius: BorderRadius.circular(16),
+                  color: module.available
+                      ? colors.primary
+                      : colors.surfaceContainerHighest,
+                  borderRadius: AppRadius.control,
                 ),
                 child: Icon(
                   module.icon,
-                  color: Theme.of(context).colorScheme.onPrimaryContainer,
+                  color: module.available
+                      ? colors.onPrimary
+                      : colors.onSurfaceVariant,
                 ),
               ),
-              const SizedBox(width: 16),
+              const SizedBox(width: AppSpacing.md),
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -214,29 +339,26 @@ class _ModuleCard extends StatelessWidget {
                   children: [
                     Text(
                       context.l10n.t(module.titleKey),
-                      style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                        fontWeight: FontWeight.bold,
-                      ),
+                      style: theme.textTheme.titleMedium,
                       maxLines: 2,
                       overflow: TextOverflow.ellipsis,
                     ),
-                    const SizedBox(height: 4),
+                    const SizedBox(height: AppSpacing.xxs),
                     Text(
-                      module.available
-                          ? context.l10n.t('calculatorDescription')
-                          : context.l10n.t('plannedFeature'),
-                      maxLines: compact ? 2 : 3,
+                      context.l10n.t(module.descriptionKey),
+                      maxLines: compact ? 3 : 2,
                       overflow: TextOverflow.ellipsis,
+                      style: theme.textTheme.bodyMedium?.copyWith(
+                        color: colors.onSurfaceVariant,
+                      ),
                     ),
+                    const SizedBox(height: AppSpacing.sm),
+                    _ModuleStatus(available: module.available),
                   ],
                 ),
               ),
-              const SizedBox(width: 8),
-              Chip(
-                label: Text(
-                  context.l10n.t(module.available ? 'open' : 'comingSoon'),
-                ),
-              ),
+              const SizedBox(width: AppSpacing.xs),
+              Icon(Icons.chevron_right_rounded, color: colors.onSurfaceVariant),
             ],
           ),
         ),
@@ -245,5 +367,55 @@ class _ModuleCard extends StatelessWidget {
     return compact
         ? card
         : Padding(padding: const EdgeInsets.only(bottom: 4), child: card);
+  }
+}
+
+class _ModuleStatus extends StatelessWidget {
+  const _ModuleStatus({required this.available});
+
+  final bool available;
+
+  @override
+  Widget build(BuildContext context) {
+    final colors = Theme.of(context).colorScheme;
+    return Align(
+      alignment: AlignmentDirectional.centerStart,
+      child: Container(
+        padding: const EdgeInsets.symmetric(
+          horizontal: AppSpacing.sm,
+          vertical: AppSpacing.xxs,
+        ),
+        decoration: BoxDecoration(
+          color: available
+              ? colors.secondaryContainer
+              : colors.tertiaryContainer,
+          borderRadius: AppRadius.button,
+        ),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(
+              available ? Icons.check_circle_outline : Icons.schedule_rounded,
+              size: 15,
+              color: available ? colors.primary : colors.tertiary,
+            ),
+            const SizedBox(width: AppSpacing.xxs),
+            Flexible(
+              child: Text(
+                context.l10n.t(available ? 'availableStatus' : 'comingSoon'),
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                style: Theme.of(context).textTheme.labelMedium?.copyWith(
+                  color: available
+                      ? colors.onSecondaryContainer
+                      : colors.onTertiaryContainer,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
   }
 }

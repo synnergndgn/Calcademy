@@ -49,6 +49,42 @@ void main() {
       );
     });
 
+    test('enforces inverse trigonometric real-number domains', () {
+      for (final expression in [
+        'asin(-1)',
+        'asin(0)',
+        'asin(1)',
+        'acos(-1)',
+        'acos(0)',
+        'acos(1)',
+        'atan(-100)',
+        'atan(0)',
+        'atan(100)',
+      ]) {
+        expect(
+          engine.evaluate(expression).isFinite,
+          isTrue,
+          reason: expression,
+        );
+      }
+      for (final expression in [
+        'asin(1.0001)',
+        'asin(-1.0001)',
+        'acos(2)',
+        'acos(-5)',
+      ]) {
+        expect(
+          () => engine.evaluate(expression),
+          throwsA(
+            predicate<CalculatorException>(
+              (error) => error.type == CalculatorErrorType.domain,
+            ),
+          ),
+          reason: expression,
+        );
+      }
+    });
+
     test('evaluates logarithms', () {
       expect(engine.evaluate('log(1000)'), closeTo(3, 1e-12));
       expect(engine.evaluate('ln(e)'), closeTo(1, 1e-12));

@@ -1,0 +1,15 @@
+<svg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="bg3" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#8FAE9E"/>
+      <stop offset="1" stop-color="#63897A"/>
+    </linearGradient>
+  </defs>
+  <rect x="4" y="4" width="192" height="192" rx="46" fill="url(#bg3)"/>
+  <!-- C shaped like a smooth graph curve, open to the right -->
+  <path d="M138 66 C 96 50, 56 72, 56 100 C 56 128, 96 150, 138 134"
+        fill="none" stroke="#FBFAF5" stroke-width="11" stroke-linecap="round"/>
+  <!-- data point at curve end -->
+  <circle cx="138" cy="134" r="7" fill="#E7B77D"/>
+  <circle cx="138" cy="66" r="4" fill="#FBFAF5" opacity="0.6"/>
+</svg>

@@ -1,3 +1,5 @@
+import 'package:calcademy/app/theme/app_colors.dart';
+import 'package:calcademy/app/theme/app_radius.dart';
 import 'package:calcademy/features/calculator/domain/calculator_error.dart';
 import 'package:calcademy/features/calculator/presentation/calculator_controller.dart';
 import 'package:calcademy/features/calculator/presentation/calculator_keypad.dart';
@@ -19,6 +21,26 @@ class CalculatorPage extends ConsumerStatefulWidget {
 }
 
 class _CalculatorPageState extends ConsumerState<CalculatorPage> {
+  static const _functionInsertions = <String, String>{
+    'sin': 'sin(',
+    'cos': 'cos(',
+    'tan': 'tan(',
+    'ln': 'ln(',
+    'log': 'log(',
+    'asin': 'asin(',
+    'acos': 'acos(',
+    'atan': 'atan(',
+    'floor': 'floor(',
+    'ceil': 'ceil(',
+    'round': 'round(',
+    '√': 'sqrt(',
+    '|x|': 'abs(',
+    '1/x': '1/(',
+  };
+  static const _replaceableOperators = <String>{'+', '−', '×', '÷', '^'};
+  static final _newExpressionPattern = RegExp(r'^[0-9a-zA-Zπ.(]');
+  static final _trailingOperatorPattern = RegExp(r'[+−×÷^]$');
+
   late final TextEditingController _textController;
   final _focusNode = FocusNode();
 
@@ -41,45 +63,17 @@ class _CalculatorPageState extends ConsumerState<CalculatorPage> {
 
   @override
   Widget build(BuildContext context) {
-    final state = ref.watch(calculatorProvider);
-    final settings = ref.watch(settingsProvider);
     return Scaffold(
       appBar: AppBar(
         title: Text(context.l10n.t('calculator')),
         actions: [
-          TextButton(
-            onPressed: () {
-              final next = settings.angleMode == AngleMode.degrees
-                  ? AngleMode.radians
-                  : AngleMode.degrees;
-              ref.read(settingsProvider.notifier).setAngleMode(next);
-            },
-            child: Text(
-              settings.angleMode == AngleMode.degrees ? 'DEG' : 'RAD',
-            ),
-          ),
+          const _AngleModeButton(),
           IconButton(
             tooltip: context.l10n.t('history'),
             onPressed: () => context.push('/history'),
             icon: const Icon(Icons.history_rounded),
           ),
-          PopupMenuButton<String>(
-            onSelected: (value) {
-              if (value == 'copyExpression') _copy(state.expression);
-              if (value == 'copyResult') _copy(state.result);
-            },
-            itemBuilder: (context) => [
-              PopupMenuItem(
-                value: 'copyExpression',
-                child: Text(context.l10n.t('copyExpression')),
-              ),
-              PopupMenuItem(
-                value: 'copyResult',
-                enabled: state.result.isNotEmpty,
-                child: Text(context.l10n.t('copyResult')),
-              ),
-            ],
-          ),
+          _CalculatorCopyMenu(onCopy: _copy),
         ],
       ),
       body: SafeArea(
@@ -111,18 +105,10 @@ class _CalculatorPageState extends ConsumerState<CalculatorPage> {
                     onSubmitted: (_) => _evaluate(),
                   ),
                   const SizedBox(height: 12),
-                  _ResultPanel(
-                    state: state,
-                    errorText: state.error == null
-                        ? null
-                        : _errorText(state.error!),
-                    onCopy: state.result.isEmpty
-                        ? null
-                        : () => _copy(state.result),
-                    onSave: state.lastRecord == null ? null : _save,
-                    onUse: state.result.isEmpty
-                        ? null
-                        : () => _replaceText(state.result),
+                  _CalculatorResultPanel(
+                    onCopy: _copy,
+                    onSave: _save,
+                    onUse: _replaceText,
                   ),
                   const SizedBox(height: 16),
                   CalculatorKeypad(
@@ -144,28 +130,12 @@ class _CalculatorPageState extends ConsumerState<CalculatorPage> {
       await _evaluate();
       return;
     }
-    final functions = {
-      'sin': 'sin(',
-      'cos': 'cos(',
-      'tan': 'tan(',
-      'ln': 'ln(',
-      'log': 'log(',
-      'asin': 'asin(',
-      'acos': 'acos(',
-      'atan': 'atan(',
-      'floor': 'floor(',
-      'ceil': 'ceil(',
-      'round': 'round(',
-      '√': 'sqrt(',
-      '|x|': 'abs(',
-      '1/x': '1/(',
-    };
     if (key == 'x²') {
       _insert('^2');
     } else if (key == 'x!') {
       _insert('!');
     } else {
-      _insert(functions[key] ?? key);
+      _insert(_functionInsertions[key] ?? key);
     }
     final settings = ref.read(settingsProvider);
     if (settings.hapticsEnabled) HapticFeedback.selectionClick();
@@ -174,7 +144,7 @@ class _CalculatorPageState extends ConsumerState<CalculatorPage> {
 
   void _insert(String value) {
     final state = ref.read(calculatorProvider);
-    if (state.justEvaluated && RegExp(r'^[0-9a-zA-Zπ.(]').hasMatch(value)) {
+    if (state.justEvaluated && _newExpressionPattern.hasMatch(value)) {
       _replaceText('');
     }
     final selection = _textController.selection;
@@ -184,12 +154,10 @@ class _CalculatorPageState extends ConsumerState<CalculatorPage> {
     final end = selection.isValid ? selection.end : _textController.text.length;
     var insert = value;
     final current = _textController.text;
-    if (['+', '−', '×', '÷', '^'].contains(value) &&
+    if (_replaceableOperators.contains(value) &&
         start > 0 &&
-        RegExp(r'[+−×÷^]$').hasMatch(current.substring(0, start))) {
-      _textController.text = current.replaceRange(start - 1, end, value);
-      _textController.selection = TextSelection.collapsed(offset: start);
-      ref.read(calculatorProvider.notifier).setExpression(_textController.text);
+        _trailingOperatorPattern.hasMatch(current.substring(0, start))) {
+      _setTextAndSelection(current.replaceRange(start - 1, end, value), start);
       return;
     }
     if (value == ')' &&
@@ -202,12 +170,11 @@ class _CalculatorPageState extends ConsumerState<CalculatorPage> {
       if (number.contains('.')) return;
       if (number.isEmpty) insert = '0.';
     }
-    _textController.text = current.replaceRange(start, end, insert);
-    _textController.selection = TextSelection.collapsed(
-      offset: start + insert.length,
+    _setTextAndSelection(
+      current.replaceRange(start, end, insert),
+      start + insert.length,
+      requestFocus: true,
     );
-    ref.read(calculatorProvider.notifier).setExpression(_textController.text);
-    _focusNode.requestFocus();
   }
 
   void _backspace() {
@@ -219,13 +186,10 @@ class _CalculatorPageState extends ConsumerState<CalculatorPage> {
     final end = selection.isValid ? selection.end : _textController.text.length;
     if (start == 0 && end == 0) return;
     final deleteStart = start == end ? start - 1 : start;
-    _textController.text = _textController.text.replaceRange(
+    _setTextAndSelection(
+      _textController.text.replaceRange(deleteStart, end, ''),
       deleteStart,
-      end,
-      '',
     );
-    _textController.selection = TextSelection.collapsed(offset: deleteStart);
-    ref.read(calculatorProvider.notifier).setExpression(_textController.text);
   }
 
   void _clear() {
@@ -235,9 +199,20 @@ class _CalculatorPageState extends ConsumerState<CalculatorPage> {
   }
 
   void _replaceText(String text) {
-    _textController.text = text;
-    _textController.selection = TextSelection.collapsed(offset: text.length);
+    _setTextAndSelection(text, text.length);
+  }
+
+  void _setTextAndSelection(
+    String text,
+    int selectionOffset, {
+    bool requestFocus = false,
+  }) {
+    _textController.value = TextEditingValue(
+      text: text,
+      selection: TextSelection.collapsed(offset: selectionOffset),
+    );
     ref.read(calculatorProvider.notifier).setExpression(text);
+    if (requestFocus) _focusNode.requestFocus();
   }
 
   Future<void> _evaluate() => ref.read(calculatorProvider.notifier).evaluate();
@@ -295,82 +270,144 @@ class _CalculatorPageState extends ConsumerState<CalculatorPage> {
     title.dispose();
     note.dispose();
   }
-
-  String _errorText(CalculatorErrorType type) => switch (type) {
-    CalculatorErrorType.empty => context.l10n.t('emptyExpression'),
-    CalculatorErrorType.incomplete => context.l10n.t('incompleteExpression'),
-    CalculatorErrorType.parentheses => context.l10n.t('parenthesesError'),
-    CalculatorErrorType.divisionByZero => context.l10n.t('divisionByZero'),
-    CalculatorErrorType.domain => context.l10n.t('domainError'),
-    CalculatorErrorType.undefined => context.l10n.t('undefinedResult'),
-    CalculatorErrorType.overflow => context.l10n.t('resultTooLarge'),
-    CalculatorErrorType.invalid => context.l10n.t('invalidExpression'),
-  };
 }
 
-class _ResultPanel extends StatelessWidget {
-  const _ResultPanel({
-    required this.state,
-    required this.errorText,
+class _AngleModeButton extends ConsumerWidget {
+  const _AngleModeButton();
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final angleMode = ref.watch(
+      settingsProvider.select((settings) => settings.angleMode),
+    );
+    return TextButton(
+      onPressed: () {
+        final next = angleMode == AngleMode.degrees
+            ? AngleMode.radians
+            : AngleMode.degrees;
+        ref.read(settingsProvider.notifier).setAngleMode(next);
+      },
+      child: Text(angleMode == AngleMode.degrees ? 'DEG' : 'RAD'),
+    );
+  }
+}
+
+class _CalculatorCopyMenu extends ConsumerWidget {
+  const _CalculatorCopyMenu({required this.onCopy});
+
+  final ValueChanged<String> onCopy;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final hasResult = ref.watch(
+      calculatorProvider.select((state) => state.result.isNotEmpty),
+    );
+    return PopupMenuButton<String>(
+      onSelected: (value) {
+        final state = ref.read(calculatorProvider);
+        if (value == 'copyExpression') onCopy(state.expression);
+        if (value == 'copyResult') onCopy(state.result);
+      },
+      itemBuilder: (context) => [
+        PopupMenuItem(
+          value: 'copyExpression',
+          child: Text(context.l10n.t('copyExpression')),
+        ),
+        PopupMenuItem(
+          value: 'copyResult',
+          enabled: hasResult,
+          child: Text(context.l10n.t('copyResult')),
+        ),
+      ],
+    );
+  }
+}
+
+class _CalculatorResultPanel extends ConsumerWidget {
+  const _CalculatorResultPanel({
     required this.onCopy,
     required this.onSave,
     required this.onUse,
   });
 
-  final CalculatorState state;
-  final String? errorText;
-  final VoidCallback? onCopy;
-  final VoidCallback? onSave;
-  final VoidCallback? onUse;
+  final ValueChanged<String> onCopy;
+  final VoidCallback onSave;
+  final ValueChanged<String> onUse;
 
   @override
-  Widget build(BuildContext context) {
-    final colors = Theme.of(context).colorScheme;
+  Widget build(BuildContext context, WidgetRef ref) {
+    final panelState = ref.watch(
+      calculatorProvider.select(
+        (state) => (
+          result: state.result,
+          error: state.error,
+          lastRecord: state.lastRecord,
+          hasResult: state.result.isNotEmpty,
+        ),
+      ),
+    );
+    final theme = Theme.of(context);
+    final colors = theme.colorScheme;
+    final errorText = panelState.error == null
+        ? null
+        : _errorText(context, panelState.error!);
     return Container(
+      key: const Key('resultPanel'),
       constraints: const BoxConstraints(minHeight: 112),
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         color: errorText == null
             ? colors.primaryContainer
             : colors.errorContainer,
-        borderRadius: BorderRadius.circular(22),
+        borderRadius: AppRadius.card,
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          Text(
-            context.l10n.t('result'),
-            style: Theme.of(context).textTheme.labelLarge,
+          Row(
+            children: [
+              Text(context.l10n.t('result'), style: theme.textTheme.labelLarge),
+              if (errorText == null && panelState.hasResult) ...[
+                const SizedBox(width: 8),
+                const DecoratedBox(
+                  decoration: BoxDecoration(
+                    color: AppColors.dataPoint,
+                    shape: BoxShape.circle,
+                  ),
+                  child: SizedBox.square(dimension: 8),
+                ),
+              ],
+            ],
           ),
           const SizedBox(height: 4),
           SelectableText(
-            errorText ?? (state.result.isEmpty ? '—' : state.result),
+            errorText ?? (panelState.hasResult ? panelState.result : '—'),
             key: const Key('resultText'),
             textAlign: TextAlign.end,
-            style: Theme.of(context).textTheme.headlineMedium?.copyWith(
+            style: theme.textTheme.headlineMedium?.copyWith(
               color: errorText == null
                   ? colors.onPrimaryContainer
                   : colors.onErrorContainer,
             ),
           ),
-          if (state.result.isNotEmpty) ...[
+          if (panelState.hasResult) ...[
             const SizedBox(height: 8),
             Row(
               mainAxisAlignment: MainAxisAlignment.end,
               children: [
                 IconButton(
                   tooltip: context.l10n.t('copyResult'),
-                  onPressed: onCopy,
+                  onPressed: () => onCopy(panelState.result),
                   icon: const Icon(Icons.copy_rounded),
                 ),
                 IconButton(
                   tooltip: context.l10n.t('saveResult'),
-                  onPressed: onSave,
+                  onPressed: panelState.lastRecord == null ? null : onSave,
                   icon: const Icon(Icons.bookmark_add_outlined),
                 ),
                 IconButton(
                   tooltip: context.l10n.t('useResult'),
-                  onPressed: onUse,
+                  onPressed: () => onUse(panelState.result),
                   icon: const Icon(Icons.call_made_rounded),
                 ),
               ],
@@ -381,3 +418,15 @@ class _ResultPanel extends StatelessWidget {
     );
   }
 }
+
+String _errorText(BuildContext context, CalculatorErrorType type) =>
+    switch (type) {
+      CalculatorErrorType.empty => context.l10n.t('emptyExpression'),
+      CalculatorErrorType.incomplete => context.l10n.t('incompleteExpression'),
+      CalculatorErrorType.parentheses => context.l10n.t('parenthesesError'),
+      CalculatorErrorType.divisionByZero => context.l10n.t('divisionByZero'),
+      CalculatorErrorType.domain => context.l10n.t('domainError'),
+      CalculatorErrorType.undefined => context.l10n.t('undefinedResult'),
+      CalculatorErrorType.overflow => context.l10n.t('resultTooLarge'),
+      CalculatorErrorType.invalid => context.l10n.t('invalidExpression'),
+    };

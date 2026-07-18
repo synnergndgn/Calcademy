@@ -1,5 +1,6 @@
 import 'package:calcademy/core/services/preferences.dart';
 import 'package:calcademy/features/calculator/presentation/calculator_page.dart';
+import 'package:calcademy/features/calculator/presentation/calculator_keypad.dart';
 import 'package:calcademy/features/history/presentation/history_page.dart';
 import 'package:calcademy/features/settings/presentation/settings_controller.dart';
 import 'package:calcademy/features/settings/presentation/settings_page.dart';
@@ -39,6 +40,27 @@ void main() {
       find.byKey(const Key('expressionField')),
     );
     expect(field.controller!.text, isEmpty);
+  });
+
+  testWidgets('expression changes do not rebuild the calculator keypad', (
+    tester,
+  ) async {
+    tester.view.physicalSize = const Size(800, 1000);
+    tester.view.devicePixelRatio = 1;
+    addTearDown(tester.view.resetPhysicalSize);
+    addTearDown(tester.view.resetDevicePixelRatio);
+    await _pump(tester, const CalculatorPage());
+
+    final keypadBefore = tester.widget<CalculatorKeypad>(
+      find.byType(CalculatorKeypad),
+    );
+    await tester.enterText(find.byKey(const Key('expressionField')), '123.45');
+    await tester.pump();
+    final keypadAfter = tester.widget<CalculatorKeypad>(
+      find.byType(CalculatorKeypad),
+    );
+
+    expect(identical(keypadAfter, keypadBefore), isTrue);
   });
 
   testWidgets('history shows its empty state', (tester) async {

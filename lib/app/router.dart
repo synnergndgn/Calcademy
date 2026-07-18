@@ -1,9 +1,13 @@
 import 'package:calcademy/app/navigation_shell.dart';
 import 'package:calcademy/features/calculator/presentation/calculator_page.dart';
 import 'package:calcademy/features/history/presentation/history_page.dart';
+import 'package:calcademy/features/graph/presentation/graph_page.dart';
 import 'package:calcademy/features/home/presentation/coming_soon_page.dart';
 import 'package:calcademy/features/home/presentation/home_page.dart';
 import 'package:calcademy/features/home/presentation/splash_page.dart';
+import 'package:calcademy/features/matrix/presentation/matrix_home_page.dart';
+import 'package:calcademy/features/linear_programming/presentation/linear_program_page.dart';
+import 'package:calcademy/features/integer_programming/presentation/integer_program_home_page.dart';
 import 'package:calcademy/features/saved/presentation/saved_page.dart';
 import 'package:calcademy/features/settings/presentation/about_page.dart';
 import 'package:calcademy/features/settings/presentation/settings_page.dart';
@@ -36,6 +40,29 @@ final appRouter = GoRouter(
       path: '/calculator',
       builder: (context, state) => CalculatorPage(
         initialExpression: state.uri.queryParameters['expression'],
+      ),
+    ),
+    GoRoute(
+      path: '/graph',
+      builder: (context, state) => GraphPage(
+        savedGraphId: state.uri.queryParameters['graphId'],
+        shareOnOpen: state.uri.queryParameters['share'] == '1',
+      ),
+    ),
+    GoRoute(
+      path: '/matrix',
+      builder: (context, state) =>
+          MatrixHomePage(savedMatrixId: state.uri.queryParameters['savedId']),
+    ),
+    GoRoute(
+      path: '/linear-programming',
+      builder: (context, state) =>
+          LinearProgramPage(savedId: state.uri.queryParameters['savedId']),
+    ),
+    GoRoute(
+      path: '/integer-programming',
+      builder: (context, state) => IntegerProgramHomePage(
+        savedId: state.uri.queryParameters['savedId'],
       ),
     ),
     GoRoute(

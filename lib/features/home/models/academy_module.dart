@@ -5,12 +5,16 @@ class AcademyModule {
     required this.id,
     required this.titleKey,
     required this.icon,
+    this.route,
+    this.descriptionKey = 'plannedFeature',
     this.available = false,
   });
 
   final String id;
   final String titleKey;
   final IconData icon;
+  final String? route;
+  final String descriptionKey;
   final bool available;
 }
 
@@ -19,17 +23,25 @@ const academyModules = [
     id: 'calculator',
     titleKey: 'calculator',
     icon: Icons.calculate_rounded,
+    route: '/calculator',
+    descriptionKey: 'calculatorDescription',
     available: true,
   ),
   AcademyModule(
     id: 'graphing',
     titleKey: 'graphing',
     icon: Icons.show_chart_rounded,
+    route: '/graph',
+    descriptionKey: 'graphDescription',
+    available: true,
   ),
   AcademyModule(
     id: 'matrices',
     titleKey: 'matrices',
     icon: Icons.grid_on_rounded,
+    route: '/matrix',
+    descriptionKey: 'matrixDescription',
+    available: true,
   ),
   AcademyModule(
     id: 'equations',
@@ -50,11 +62,17 @@ const academyModules = [
     id: 'linear-programming',
     titleKey: 'linearProgramming',
     icon: Icons.polyline_rounded,
+    route: '/linear-programming',
+    descriptionKey: 'linearProgrammingDescription',
+    available: true,
   ),
   AcademyModule(
     id: 'integer-programming',
     titleKey: 'integerProgramming',
     icon: Icons.scatter_plot_rounded,
+    route: '/integer-programming',
+    descriptionKey: 'integerProgrammingDescription',
+    available: true,
   ),
   AcademyModule(
     id: 'nonlinear-optimization',

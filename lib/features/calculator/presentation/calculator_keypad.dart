@@ -1,3 +1,4 @@
+import 'package:calcademy/app/theme/app_radius.dart';
 import 'package:flutter/material.dart';
 
 class CalculatorKeypad extends StatelessWidget {
@@ -12,7 +13,7 @@ class CalculatorKeypad extends StatelessWidget {
   final VoidCallback onBackspace;
   final VoidCallback onClear;
 
-  static const keys = [
+  static const keys = <String>[
     'sin',
     'cos',
     'tan',
@@ -56,10 +57,49 @@ class CalculatorKeypad extends StatelessWidget {
     '+',
     '=',
   ];
+  static const _operatorKeys = <String>{'÷', '×', '−', '+', '^', 'mod'};
+  static const _scientificKeys = <String>{
+    'sin',
+    'cos',
+    'tan',
+    'ln',
+    'log',
+    '√',
+    'asin',
+    'acos',
+    'atan',
+    'floor',
+    'ceil',
+    'round',
+    'π',
+    'e',
+    'x²',
+    'x!',
+    '|x|',
+    '1/x',
+  };
 
   @override
   Widget build(BuildContext context) {
-    final colors = Theme.of(context).colorScheme;
+    final theme = Theme.of(context);
+    final colors = theme.colorScheme;
+    final standardTextStyle = theme.textTheme.titleMedium?.copyWith(
+      color: colors.onSurface,
+      fontWeight: FontWeight.w500,
+    );
+    final operatorTextStyle = theme.textTheme.titleMedium?.copyWith(
+      color: colors.onSecondaryContainer,
+      fontWeight: FontWeight.w700,
+    );
+    final primaryTextStyle = operatorTextStyle?.copyWith(
+      color: colors.onPrimary,
+    );
+    final scientificTextStyle = standardTextStyle?.copyWith(
+      color: colors.onPrimaryContainer,
+    );
+    final destructiveTextStyle = standardTextStyle?.copyWith(
+      color: colors.onErrorContainer,
+    );
     return LayoutBuilder(
       builder: (context, constraints) {
         final ratio = constraints.maxWidth > 600 ? 1.75 : 1.15;
@@ -77,7 +117,8 @@ class CalculatorKeypad extends StatelessWidget {
             final key = keys[index];
             final isPrimary = key == '=';
             final isDestructive = key == 'AC' || key == '⌫';
-            final isOperator = ['÷', '×', '−', '+', '^', 'mod'].contains(key);
+            final isOperator = _operatorKeys.contains(key);
+            final isScientific = _scientificKeys.contains(key);
             return Semantics(
               button: true,
               label: _semanticLabel(key),
@@ -88,10 +129,12 @@ class CalculatorKeypad extends StatelessWidget {
                     ? colors.errorContainer
                     : isOperator
                     ? colors.secondaryContainer
+                    : isScientific
+                    ? colors.primaryContainer.withValues(alpha: 0.58)
                     : colors.surfaceContainerHigh,
-                borderRadius: BorderRadius.circular(16),
+                borderRadius: AppRadius.control,
                 child: InkWell(
-                  borderRadius: BorderRadius.circular(16),
+                  borderRadius: AppRadius.control,
                   onTap: () {
                     if (key == 'AC') {
                       onClear();
@@ -107,13 +150,15 @@ class CalculatorKeypad extends StatelessWidget {
                       fit: BoxFit.scaleDown,
                       child: Text(
                         key,
-                        style: Theme.of(context).textTheme.titleMedium
-                            ?.copyWith(
-                              color: isPrimary ? colors.onPrimary : null,
-                              fontWeight: isPrimary || isOperator
-                                  ? FontWeight.w700
-                                  : FontWeight.w500,
-                            ),
+                        style: isPrimary
+                            ? primaryTextStyle
+                            : isDestructive
+                            ? destructiveTextStyle
+                            : isOperator
+                            ? operatorTextStyle
+                            : isScientific
+                            ? scientificTextStyle
+                            : standardTextStyle,
                       ),
                     ),
                   ),
