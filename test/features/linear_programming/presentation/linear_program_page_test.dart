@@ -29,9 +29,10 @@ void main() {
     await tester.tap(find.byTooltip('Add variable'));
     await tester.pump();
     expect(find.byKey(const Key('lp-objective-2')), findsOneWidget);
-    await tester.drag(find.byType(ListView).first, const Offset(0, -700));
+    final addButton = find.byKey(const Key('lp-add-constraint'));
+    await tester.ensureVisible(addButton);
     await tester.pumpAndSettle();
-    await tester.tap(find.byTooltip('Add constraint'));
+    await tester.tap(addButton);
     await tester.pumpAndSettle();
     expect(find.text('2/20'), findsOneWidget);
   });
@@ -42,14 +43,16 @@ void main() {
     await _pump(tester);
     await tester.tap(find.widgetWithText(ActionChip, 'Product mix'));
     await tester.pump();
-    await tester.drag(find.byType(ListView).first, const Offset(0, -1000));
+    final solveFinder = find.byKey(const Key('lp-solve'));
+    await tester.ensureVisible(solveFinder);
     await tester.pumpAndSettle();
-    final solve = tester.widget<FilledButton>(
-      find.byKey(const Key('lp-solve')),
-    );
+    final solve = tester.widget<FilledButton>(solveFinder);
     solve.onPressed!();
     await tester.pumpAndSettle();
-    expect(find.text('Optimal solution'), findsOneWidget);
+    final resultFinder = find.text('Optimal solution');
+    await tester.ensureVisible(resultFinder);
+    await tester.pumpAndSettle();
+    expect(resultFinder, findsOneWidget);
     expect(find.text('z = 10'), findsOneWidget);
     expect(find.text('x1 = 2'), findsOneWidget);
   });

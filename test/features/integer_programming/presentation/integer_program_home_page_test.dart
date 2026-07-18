@@ -39,9 +39,10 @@ void main() {
   ) async {
     await _pump(tester);
     expect(find.text('1/20'), findsOneWidget);
-    await tester.drag(find.byType(ListView).first, const Offset(0, -700));
+    final addButton = find.byKey(const Key('mip-add-constraint'));
+    await tester.ensureVisible(addButton);
     await tester.pumpAndSettle();
-    await tester.tap(find.byTooltip('Add constraint'));
+    await tester.tap(addButton);
     await tester.pumpAndSettle();
     expect(find.text('2/20'), findsOneWidget);
   });
@@ -102,13 +103,15 @@ void main() {
     tester,
   ) async {
     await _pump(tester);
-    await tester.drag(find.byType(ListView).first, const Offset(0, -700));
+    final addButton = find.byKey(const Key('mip-add-constraint'));
+    await tester.ensureVisible(addButton);
     await tester.pumpAndSettle();
-    await tester.tap(find.byTooltip('Add constraint'));
+    await tester.tap(addButton);
     await tester.pumpAndSettle();
-    await tester.drag(find.byType(ListView).first, const Offset(0, -300));
+    final summary = find.text('Model summary');
+    await tester.ensureVisible(summary);
     await tester.pumpAndSettle();
-    await tester.tap(find.text('Model summary'));
+    await tester.tap(summary);
     await tester.pumpAndSettle();
     expect(find.textContaining('C2'), findsWidgets);
   });

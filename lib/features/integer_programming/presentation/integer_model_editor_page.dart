@@ -6,8 +6,8 @@ import 'package:calcademy/features/integer_programming/presentation/integer_mode
 import 'package:calcademy/features/integer_programming/presentation/integer_program_draft.dart';
 import 'package:calcademy/features/integer_programming/presentation/variable_type_selector.dart';
 import 'package:calcademy/features/linear_programming/domain/linear_program.dart';
-import 'package:calcademy/features/linear_programming/presentation/linear_program_draft.dart'
-    show ConstraintDraft;
+import 'package:calcademy/features/optimization/presentation/widgets/constraint_relation_options.dart';
+import 'package:calcademy/features/optimization/presentation/widgets/responsive_constraint_card.dart';
 import 'package:calcademy/l10n/app_localizations.dart';
 import 'package:flutter/material.dart';
 
@@ -179,32 +179,23 @@ class _IntegerModelEditorState extends State<IntegerModelEditor> {
                 Text(
                   '${_draft.constraints.length}/${MipConstants.maxConstraints}',
                 ),
-                IconButton(
-                  tooltip: l10n.t('lpAddConstraint'),
-                  onPressed:
-                      _draft.constraints.length >= MipConstants.maxConstraints
-                      ? null
-                      : () => setState(() {
-                          _draft.addConstraint();
-                          widget.onChanged();
-                        }),
-                  icon: const Icon(Icons.add),
-                ),
               ],
             ),
+            const SizedBox(height: AppSpacing.xs),
             for (var index = 0; index < _draft.constraints.length; index++)
-              _ConstraintEditor(
-                key: ValueKey(_draft.constraints[index].id),
-                draft: _draft.constraints[index],
-                variableNames: _draft.variableNames,
-                onChanged: widget.onChanged,
-                onDelete: _draft.constraints.length == 1
-                    ? null
-                    : () => setState(() {
-                        _draft.removeConstraint(index);
-                        widget.onChanged();
-                      }),
-              ),
+              _buildConstraintCard(context, index),
+            FilledButton.tonalIcon(
+              key: const Key('mip-add-constraint'),
+              onPressed:
+                  _draft.constraints.length >= MipConstants.maxConstraints
+                  ? null
+                  : () => setState(() {
+                      _draft.addConstraint();
+                      widget.onChanged();
+                    }),
+              icon: const Icon(Icons.add),
+              label: Text(l10n.t('lpAddConstraint')),
+            ),
             const SizedBox(height: AppSpacing.sm),
             IntegerModelSummaryView(draft: _draft),
             const SizedBox(height: AppSpacing.sm),
@@ -217,6 +208,50 @@ class _IntegerModelEditorState extends State<IntegerModelEditor> {
           ],
         ),
       ),
+    );
+  }
+
+  Widget _buildConstraintCard(BuildContext context, int index) {
+    final l10n = context.l10n;
+    final draft = _draft.constraints[index];
+    final atCapacity = _draft.constraints.length >= MipConstants.maxConstraints;
+    return ResponsiveConstraintCard<ConstraintRelation>(
+      key: ValueKey(draft.id),
+      title: '${l10n.t('constraintLabel')} ${index + 1}',
+      variableLabels: [for (final name in _draft.variableNames) name.text],
+      coefficientControllers: draft.coefficients,
+      coefficientCellKeys: [
+        for (var i = 0; i < draft.coefficients.length; i++)
+          Key('mip-cell-${draft.id}-$i'),
+      ],
+      relation: draft.relation,
+      relationOptions: constraintRelationOptions(l10n),
+      onRelationChanged: (value) => setState(() {
+        draft.relation = value;
+        widget.onChanged();
+      }),
+      rhsController: draft.rhs,
+      rhsFieldKey: Key('mip-rhs-${draft.id}'),
+      relationFieldKey: Key('mip-relation-${draft.id}'),
+      nameController: draft.name,
+      relationLabel: l10n.t('relationLabel'),
+      rhsLabel: l10n.t('rhsLabel'),
+      nameLabel: l10n.t('lpConstraintName'),
+      onChanged: widget.onChanged,
+      deleteTooltip: l10n.t('delete'),
+      onDelete: _draft.constraints.length == 1
+          ? null
+          : () => setState(() {
+              _draft.removeConstraint(index);
+              widget.onChanged();
+            }),
+      copyTooltip: l10n.t('lpCopyConstraint'),
+      onCopy: atCapacity
+          ? null
+          : () => setState(() {
+              _draft.constraints.insert(index + 1, draft.copy(index + 1));
+              widget.onChanged();
+            }),
     );
   }
 }
@@ -254,137 +289,4 @@ class _PerformanceWarning extends StatelessWidget {
       ),
     );
   }
-}
-
-class _ConstraintEditor extends StatefulWidget {
-  const _ConstraintEditor({
-    super.key,
-    required this.draft,
-    required this.variableNames,
-    required this.onChanged,
-    this.onDelete,
-  });
-
-  final ConstraintDraft draft;
-  final List<TextEditingController> variableNames;
-  final VoidCallback onChanged;
-  final VoidCallback? onDelete;
-
-  @override
-  State<_ConstraintEditor> createState() => _ConstraintEditorState();
-}
-
-class _ConstraintEditorState extends State<_ConstraintEditor> {
-  final _cellsScrollController = ScrollController();
-
-  @override
-  void dispose() {
-    _cellsScrollController.dispose();
-    super.dispose();
-  }
-
-  @override
-  Widget build(BuildContext context) => Card.outlined(
-    child: Padding(
-      padding: const EdgeInsets.all(8),
-      child: Column(
-        children: [
-          Row(
-            children: [
-              Expanded(
-                child: TextField(
-                  controller: widget.draft.name,
-                  onChanged: (_) => widget.onChanged(),
-                  decoration: InputDecoration(
-                    labelText: context.l10n.t('lpConstraintName'),
-                  ),
-                ),
-              ),
-              IconButton(
-                tooltip: context.l10n.t('delete'),
-                onPressed: widget.onDelete,
-                icon: const Icon(Icons.delete_outline),
-              ),
-            ],
-          ),
-          // The coefficient/relation/RHS row can be wider than the screen
-          // once a model has more than a couple of variables (each cell is
-          // a fixed width so every column stays aligned across
-          // constraints). A visible Scrollbar makes that explicit instead
-          // of leaving the relation and RHS fields silently off-screen
-          // with no hint that the row scrolls.
-          Padding(
-            padding: const EdgeInsets.only(bottom: AppSpacing.xs),
-            child: Scrollbar(
-              controller: _cellsScrollController,
-              thumbVisibility: true,
-              child: SingleChildScrollView(
-                controller: _cellsScrollController,
-                scrollDirection: Axis.horizontal,
-                padding: const EdgeInsets.only(bottom: AppSpacing.sm),
-                child: Row(
-                  children: [
-                    for (
-                      var index = 0;
-                      index < widget.draft.coefficients.length;
-                      index++
-                    ) ...[
-                      SizedBox(
-                        width: 76,
-                        child: TextField(
-                          key: Key('mip-cell-${widget.draft.id}-$index'),
-                          controller: widget.draft.coefficients[index],
-                          onChanged: (_) => widget.onChanged(),
-                          textAlign: TextAlign.end,
-                          decoration: InputDecoration(
-                            labelText: widget.variableNames[index].text,
-                          ),
-                        ),
-                      ),
-                      const SizedBox(width: 4),
-                    ],
-                    SizedBox(
-                      width: 96,
-                      child: DropdownButtonFormField<ConstraintRelation>(
-                        initialValue: widget.draft.relation,
-                        items: const [
-                          DropdownMenuItem(
-                            value: ConstraintRelation.lessOrEqual,
-                            child: Text('≤'),
-                          ),
-                          DropdownMenuItem(
-                            value: ConstraintRelation.greaterOrEqual,
-                            child: Text('≥'),
-                          ),
-                          DropdownMenuItem(
-                            value: ConstraintRelation.equal,
-                            child: Text('='),
-                          ),
-                        ],
-                        onChanged: (value) {
-                          if (value != null) {
-                            setState(() => widget.draft.relation = value);
-                            widget.onChanged();
-                          }
-                        },
-                      ),
-                    ),
-                    const SizedBox(width: 4),
-                    SizedBox(
-                      width: 88,
-                      child: TextField(
-                        controller: widget.draft.rhs,
-                        onChanged: (_) => widget.onChanged(),
-                        decoration: const InputDecoration(labelText: 'RHS'),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ),
-          ),
-        ],
-      ),
-    ),
-  );
 }

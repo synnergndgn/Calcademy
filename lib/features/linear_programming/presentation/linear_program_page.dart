@@ -13,6 +13,8 @@ import 'package:calcademy/features/linear_programming/presentation/linear_progra
 import 'package:calcademy/features/linear_programming/presentation/linear_program_draft.dart';
 import 'package:calcademy/features/linear_programming/presentation/lp_graph_view.dart';
 import 'package:calcademy/features/linear_programming/presentation/simplex_steps_page.dart';
+import 'package:calcademy/features/optimization/presentation/widgets/constraint_relation_options.dart';
+import 'package:calcademy/features/optimization/presentation/widgets/responsive_constraint_card.dart';
 import 'package:calcademy/l10n/app_localizations.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -73,30 +75,37 @@ class _LinearProgramPageState extends ConsumerState<LinearProgramPage> {
   @override
   Widget build(BuildContext context) => Scaffold(
     appBar: AppBar(title: Text(context.l10n.t('linearProgramming'))),
-    body: ListView(
-      padding: const EdgeInsets.all(AppSpacing.md),
-      children: [
-        Text(
-          context.l10n.t('lpWelcome'),
-          style: Theme.of(context).textTheme.headlineSmall,
+    // Same bounded-width workspace as the integer programming editor so
+    // the two optimization modules keep one layout language on tablets.
+    body: Center(
+      child: ConstrainedBox(
+        constraints: const BoxConstraints(maxWidth: 840),
+        child: ListView(
+          padding: const EdgeInsets.all(AppSpacing.md),
+          children: [
+            Text(
+              context.l10n.t('lpWelcome'),
+              style: Theme.of(context).textTheme.headlineSmall,
+            ),
+            const SizedBox(height: AppSpacing.xs),
+            Text(context.l10n.t('lpWelcomeBody')),
+            const SizedBox(height: AppSpacing.md),
+            _Examples(onSelect: _replaceDraft),
+            const SizedBox(height: AppSpacing.md),
+            _buildEditor(context),
+            const SizedBox(height: AppSpacing.md),
+            ValueListenableBuilder<bool>(
+              valueListenable: _dirty,
+              builder: (context, dirty, _) => _ResultPanel(
+                dirty: dirty,
+                activeSavedId: _activeSavedId,
+                onSave: _save,
+                onNew: _new,
+              ),
+            ),
+          ],
         ),
-        const SizedBox(height: AppSpacing.xs),
-        Text(context.l10n.t('lpWelcomeBody')),
-        const SizedBox(height: AppSpacing.md),
-        _Examples(onSelect: _replaceDraft),
-        const SizedBox(height: AppSpacing.md),
-        _buildEditor(context),
-        const SizedBox(height: AppSpacing.md),
-        ValueListenableBuilder<bool>(
-          valueListenable: _dirty,
-          builder: (context, dirty, _) => _ResultPanel(
-            dirty: dirty,
-            activeSavedId: _activeSavedId,
-            onSave: _save,
-            onNew: _new,
-          ),
-        ),
-      ],
+      ),
     ),
   );
 
@@ -224,55 +233,22 @@ class _LinearProgramPageState extends ConsumerState<LinearProgramPage> {
               Text(
                 '${_draft.constraints.length}/${LpConstants.maxConstraints}',
               ),
-              IconButton(
-                tooltip: context.l10n.t('lpAddConstraint'),
-                onPressed:
-                    _draft.constraints.length >= LpConstants.maxConstraints
-                    ? null
-                    : () => setState(() {
-                        _draft.addConstraint();
-                        _markDirty();
-                      }),
-                icon: const Icon(Icons.add),
-              ),
             ],
           ),
+          const SizedBox(height: AppSpacing.xs),
           for (var index = 0; index < _draft.constraints.length; index++)
-            _ConstraintEditor(
-              key: ValueKey(_draft.constraints[index].id),
-              draft: _draft.constraints[index],
-              variableNames: _draft.variableNames,
-              onChanged: _markDirty,
-              onDelete: _draft.constraints.length == 1
-                  ? null
-                  : () => setState(() {
-                      _draft.removeConstraint(index);
-                      _markDirty();
-                    }),
-              onCopy: _draft.constraints.length >= LpConstants.maxConstraints
-                  ? null
-                  : () => setState(() {
-                      _draft.constraints.insert(
-                        index + 1,
-                        _draft.constraints[index].copy(index + 1),
-                      );
-                      _markDirty();
-                    }),
-              onUp: index == 0
-                  ? null
-                  : () => setState(() {
-                      final item = _draft.constraints.removeAt(index);
-                      _draft.constraints.insert(index - 1, item);
-                      _markDirty();
-                    }),
-              onDown: index == _draft.constraints.length - 1
-                  ? null
-                  : () => setState(() {
-                      final item = _draft.constraints.removeAt(index);
-                      _draft.constraints.insert(index + 1, item);
-                      _markDirty();
-                    }),
-            ),
+            _buildConstraintCard(context, index),
+          FilledButton.tonalIcon(
+            key: const Key('lp-add-constraint'),
+            onPressed: _draft.constraints.length >= LpConstants.maxConstraints
+                ? null
+                : () => setState(() {
+                    _draft.addConstraint();
+                    _markDirty();
+                  }),
+            icon: const Icon(Icons.add),
+            label: Text(context.l10n.t('lpAddConstraint')),
+          ),
           ExpansionTile(
             title: Text(context.l10n.t('lpSummary')),
             children: [
@@ -293,6 +269,68 @@ class _LinearProgramPageState extends ConsumerState<LinearProgramPage> {
       ),
     ),
   );
+
+  Widget _buildConstraintCard(BuildContext context, int index) {
+    final l10n = context.l10n;
+    final draft = _draft.constraints[index];
+    return ResponsiveConstraintCard<ConstraintRelation>(
+      key: ValueKey(draft.id),
+      title: '${l10n.t('constraintLabel')} ${index + 1}',
+      variableLabels: [for (final name in _draft.variableNames) name.text],
+      coefficientControllers: draft.coefficients,
+      coefficientCellKeys: [
+        for (var i = 0; i < draft.coefficients.length; i++)
+          Key('lp-cell-${draft.id}-$i'),
+      ],
+      relation: draft.relation,
+      relationOptions: constraintRelationOptions(l10n),
+      onRelationChanged: (value) => setState(() {
+        draft.relation = value;
+        _markDirty();
+      }),
+      rhsController: draft.rhs,
+      rhsFieldKey: Key('lp-rhs-${draft.id}'),
+      relationFieldKey: Key('lp-relation-${draft.id}'),
+      nameController: draft.name,
+      relationLabel: l10n.t('relationLabel'),
+      rhsLabel: l10n.t('rhsLabel'),
+      nameLabel: l10n.t('lpConstraintName'),
+      onChanged: _markDirty,
+      deleteTooltip: l10n.t('delete'),
+      onDelete: _draft.constraints.length == 1
+          ? null
+          : () => setState(() {
+              _draft.removeConstraint(index);
+              _markDirty();
+            }),
+      copyTooltip: l10n.t('lpCopyConstraint'),
+      onCopy: _draft.constraints.length >= LpConstants.maxConstraints
+          ? null
+          : () => setState(() {
+              _draft.constraints.insert(
+                index + 1,
+                _draft.constraints[index].copy(index + 1),
+              );
+              _markDirty();
+            }),
+      moveUpTooltip: l10n.t('lpMoveUp'),
+      onMoveUp: index == 0
+          ? null
+          : () => setState(() {
+              final item = _draft.constraints.removeAt(index);
+              _draft.constraints.insert(index - 1, item);
+              _markDirty();
+            }),
+      moveDownTooltip: l10n.t('lpMoveDown'),
+      onMoveDown: index == _draft.constraints.length - 1
+          ? null
+          : () => setState(() {
+              final item = _draft.constraints.removeAt(index);
+              _draft.constraints.insert(index + 1, item);
+              _markDirty();
+            }),
+    );
+  }
 
   String _summaryText() {
     try {
@@ -417,140 +455,6 @@ class _Examples extends StatelessWidget {
                   onPressed: () => onSelect(LpExamples.all[index]),
                 ),
             ],
-          ),
-        ],
-      ),
-    ),
-  );
-}
-
-class _ConstraintEditor extends StatefulWidget {
-  const _ConstraintEditor({
-    super.key,
-    required this.draft,
-    required this.variableNames,
-    required this.onChanged,
-    this.onDelete,
-    this.onCopy,
-    this.onUp,
-    this.onDown,
-  });
-  final ConstraintDraft draft;
-  final List<TextEditingController> variableNames;
-  final VoidCallback onChanged;
-  final VoidCallback? onDelete;
-  final VoidCallback? onCopy;
-  final VoidCallback? onUp;
-  final VoidCallback? onDown;
-
-  @override
-  State<_ConstraintEditor> createState() => _ConstraintEditorState();
-}
-
-class _ConstraintEditorState extends State<_ConstraintEditor> {
-  @override
-  Widget build(BuildContext context) => Card.outlined(
-    child: Padding(
-      padding: const EdgeInsets.all(8),
-      child: Column(
-        children: [
-          TextField(
-            controller: widget.draft.name,
-            onChanged: (_) => widget.onChanged(),
-            decoration: InputDecoration(
-              labelText: context.l10n.t('lpConstraintName'),
-            ),
-          ),
-          Align(
-            alignment: AlignmentDirectional.centerEnd,
-            child: SingleChildScrollView(
-              scrollDirection: Axis.horizontal,
-              child: Row(
-                children: [
-                  IconButton(
-                    tooltip: context.l10n.t('lpMoveUp'),
-                    onPressed: widget.onUp,
-                    icon: const Icon(Icons.arrow_upward),
-                  ),
-                  IconButton(
-                    tooltip: context.l10n.t('lpMoveDown'),
-                    onPressed: widget.onDown,
-                    icon: const Icon(Icons.arrow_downward),
-                  ),
-                  IconButton(
-                    tooltip: context.l10n.t('lpCopyConstraint'),
-                    onPressed: widget.onCopy,
-                    icon: const Icon(Icons.copy),
-                  ),
-                  IconButton(
-                    tooltip: context.l10n.t('delete'),
-                    onPressed: widget.onDelete,
-                    icon: const Icon(Icons.delete_outline),
-                  ),
-                ],
-              ),
-            ),
-          ),
-          SingleChildScrollView(
-            scrollDirection: Axis.horizontal,
-            child: Row(
-              children: [
-                for (
-                  var index = 0;
-                  index < widget.draft.coefficients.length;
-                  index++
-                ) ...[
-                  SizedBox(
-                    width: 76,
-                    child: TextField(
-                      key: Key('lp-cell-${widget.draft.id}-$index'),
-                      controller: widget.draft.coefficients[index],
-                      onChanged: (_) => widget.onChanged(),
-                      textAlign: TextAlign.end,
-                      decoration: InputDecoration(
-                        labelText: widget.variableNames[index].text,
-                      ),
-                    ),
-                  ),
-                  const SizedBox(width: 4),
-                ],
-                SizedBox(
-                  width: 96,
-                  child: DropdownButtonFormField<ConstraintRelation>(
-                    initialValue: widget.draft.relation,
-                    items: const [
-                      DropdownMenuItem(
-                        value: ConstraintRelation.lessOrEqual,
-                        child: Text('≤'),
-                      ),
-                      DropdownMenuItem(
-                        value: ConstraintRelation.greaterOrEqual,
-                        child: Text('≥'),
-                      ),
-                      DropdownMenuItem(
-                        value: ConstraintRelation.equal,
-                        child: Text('='),
-                      ),
-                    ],
-                    onChanged: (value) {
-                      if (value != null) {
-                        setState(() => widget.draft.relation = value);
-                        widget.onChanged();
-                      }
-                    },
-                  ),
-                ),
-                const SizedBox(width: 4),
-                SizedBox(
-                  width: 88,
-                  child: TextField(
-                    controller: widget.draft.rhs,
-                    onChanged: (_) => widget.onChanged(),
-                    decoration: const InputDecoration(labelText: 'RHS'),
-                  ),
-                ),
-              ],
-            ),
           ),
         ],
       ),
