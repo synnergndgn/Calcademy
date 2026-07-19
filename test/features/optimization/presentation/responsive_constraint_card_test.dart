@@ -345,4 +345,132 @@ void main() {
       reason: 'relation/RHS row sits below the coefficient strip',
     );
   });
+
+  group('coefficient strip scroll hints', () {
+    // Builds the LP editor with 10 variables at 320px so the strip
+    // overflows, then drives the strip's own ScrollPosition directly
+    // (gesture-based drags on a row of TextFields are ambiguous in the
+    // gesture arena and would make these tests flaky).
+    Future<ScrollPosition> setUpOverflowingStrip(WidgetTester tester) async {
+      setPhone(tester);
+      await pumpModule(tester, const LinearProgramPage());
+      final addVariable = find.byTooltip('Add variable');
+      for (var i = 0; i < 10 && addVariable.evaluate().isEmpty; i++) {
+        await tester.drag(find.byType(ListView).first, const Offset(0, -300));
+        await tester.pumpAndSettle();
+      }
+      await tester.ensureVisible(addVariable);
+      await tester.pumpAndSettle();
+      for (var i = 0; i < 8; i++) {
+        await tester.tap(addVariable);
+        await tester.pump();
+      }
+      await tester.pumpAndSettle();
+      await showConstraintCard(tester);
+      final stripScrollable = find
+          .ancestor(of: cellOf('lp').first, matching: find.byType(Scrollable))
+          .first;
+      return tester.state<ScrollableState>(stripScrollable).position;
+    }
+
+    testWidgets('no always-visible scrollbar overlays the inputs', (
+      tester,
+    ) async {
+      await setUpOverflowingStrip(tester);
+      final card = find
+          .byWidgetPredicate((w) => w is ResponsiveConstraintCard)
+          .first;
+      expect(
+        find.descendant(of: card, matching: find.byType(Scrollbar)),
+        findsNothing,
+      );
+      expect(
+        find.descendant(of: card, matching: find.byType(RawScrollbar)),
+        findsNothing,
+      );
+    });
+
+    testWidgets('at the start only the right hint shows', (tester) async {
+      await setUpOverflowingStrip(tester);
+      expect(find.byIcon(Icons.chevron_right), findsWidgets);
+      expect(find.byIcon(Icons.chevron_left), findsNothing);
+    });
+
+    testWidgets('scrolling away from the start reveals the left hint', (
+      tester,
+    ) async {
+      final position = await setUpOverflowingStrip(tester);
+      position.jumpTo(position.maxScrollExtent / 2);
+      await tester.pumpAndSettle();
+      expect(find.byIcon(Icons.chevron_left), findsWidgets);
+      expect(find.byIcon(Icons.chevron_right), findsWidgets);
+    });
+
+    testWidgets('reaching the end hides the right hint', (tester) async {
+      final position = await setUpOverflowingStrip(tester);
+      position.jumpTo(position.maxScrollExtent);
+      await tester.pumpAndSettle();
+      expect(find.byIcon(Icons.chevron_right), findsNothing);
+      expect(find.byIcon(Icons.chevron_left), findsWidgets);
+    });
+
+    testWidgets('hints sit inside IgnorePointer and do not block input', (
+      tester,
+    ) async {
+      final position = await setUpOverflowingStrip(tester);
+      position.jumpTo(position.maxScrollExtent / 2);
+      await tester.pumpAndSettle();
+
+      for (final chevron in [Icons.chevron_left, Icons.chevron_right]) {
+        expect(
+          find.ancestor(
+            of: find.byIcon(chevron).first,
+            matching: find.byType(IgnorePointer),
+          ),
+          findsWidgets,
+          reason: '$chevron hint must not participate in hit testing',
+        );
+      }
+
+      // Tap a point inside the left hint zone that overlaps a coefficient
+      // cell; the tap must land on the TextField, not the hint. The hint
+      // zone spans the first 28px of the strip itself, not of the screen.
+      final stripRect = tester.getRect(
+        find
+            .ancestor(of: cellOf('lp').first, matching: find.byType(Scrollable))
+            .first,
+      );
+      final hintZoneRight = stripRect.left + 28;
+      final cells = cellOf('lp');
+      Rect? overlap;
+      for (var i = 0; i < cells.evaluate().length; i++) {
+        final rect = tester.getRect(cells.at(i));
+        final zone = Rect.fromLTRB(
+          stripRect.left,
+          rect.top,
+          hintZoneRight,
+          rect.bottom,
+        ).intersect(rect);
+        if (zone.width > 4) {
+          overlap = zone;
+          break;
+        }
+      }
+      expect(
+        overlap,
+        isNotNull,
+        reason: 'expected a cell under the left hint zone',
+      );
+      await tester.tapAt(overlap!.center);
+      await tester.pump();
+      final focused = find.byWidgetPredicate(
+        (w) => w is EditableText && w.focusNode.hasFocus,
+      );
+      expect(
+        focused,
+        findsOneWidget,
+        reason: 'the cell under the hint must receive the tap',
+      );
+    });
+  });
 }

@@ -23,8 +23,13 @@ class RelationOption<T> {
 ///
 /// Only the coefficient cells scroll; the relation and RHS fields live
 /// outside this strip so they always stay inside the viewport. The
-/// scrollbar thumb is always visible so the scrollability is discoverable
-/// even before the first drag.
+/// Scrollability is signalled by soft edge hints (a theme-derived fade
+/// plus a chevron) rather than an always-visible scrollbar: an overlay
+/// scrollbar draws on top of the text fields on touch devices, while the
+/// hints sit behind an [IgnorePointer] and never block input. The right
+/// hint shows while more content remains to the right, the left hint once
+/// the strip has scrolled away from its start, and each disappears at its
+/// respective edge - the standard "there is more here" affordance.
 class CoefficientInputStrip extends StatefulWidget {
   const CoefficientInputStrip({
     super.key,
@@ -49,47 +54,149 @@ class CoefficientInputStrip extends StatefulWidget {
 }
 
 class _CoefficientInputStripState extends State<CoefficientInputStrip> {
+  static const _edgeEpsilon = 2.0;
+
   final _scrollController = ScrollController();
+  var _canScrollLeft = false;
+  var _canScrollRight = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _scrollController.addListener(_updateEdgeHints);
+    // The scroll extent only exists after the first layout; reading
+    // position earlier would throw on an unattached controller.
+    WidgetsBinding.instance.addPostFrameCallback((_) => _updateEdgeHints());
+  }
+
+  @override
+  void didUpdateWidget(CoefficientInputStrip oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (oldWidget.controllers.length != widget.controllers.length) {
+      WidgetsBinding.instance.addPostFrameCallback((_) => _updateEdgeHints());
+    }
+  }
 
   @override
   void dispose() {
+    _scrollController.removeListener(_updateEdgeHints);
     _scrollController.dispose();
     super.dispose();
   }
 
+  void _updateEdgeHints() {
+    if (!mounted || !_scrollController.hasClients) return;
+    final position = _scrollController.position;
+    final canLeft = position.pixels > _edgeEpsilon;
+    final canRight = position.pixels < position.maxScrollExtent - _edgeEpsilon;
+    if (canLeft != _canScrollLeft || canRight != _canScrollRight) {
+      setState(() {
+        _canScrollLeft = canLeft;
+        _canScrollRight = canRight;
+      });
+    }
+  }
+
   @override
-  Widget build(BuildContext context) => Scrollbar(
-    controller: _scrollController,
-    thumbVisibility: true,
-    child: SingleChildScrollView(
-      controller: _scrollController,
-      scrollDirection: Axis.horizontal,
-      padding: const EdgeInsets.only(bottom: AppSpacing.sm),
-      child: Row(
-        children: [
-          for (var index = 0; index < widget.controllers.length; index++) ...[
-            ConstrainedBox(
-              constraints: BoxConstraints(minWidth: widget.minCellWidth),
-              child: IntrinsicWidth(
-                child: TextField(
-                  key: widget.cellKeys?[index],
-                  controller: widget.controllers[index],
-                  onChanged: (_) => widget.onChanged(),
-                  textAlign: TextAlign.end,
-                  decoration: InputDecoration(
-                    labelText: widget.labels[index],
-                    isDense: true,
+  Widget build(BuildContext context) => Stack(
+    children: [
+      // Recomputes the hints when the scrollable *extent* changes (viewport
+      // resize, cells growing as the user types) - cases a plain position
+      // listener would miss.
+      NotificationListener<ScrollMetricsNotification>(
+        onNotification: (_) {
+          _updateEdgeHints();
+          return false;
+        },
+        child: SingleChildScrollView(
+          controller: _scrollController,
+          scrollDirection: Axis.horizontal,
+          padding: const EdgeInsets.only(bottom: AppSpacing.xs),
+          child: Row(
+            children: [
+              for (
+                var index = 0;
+                index < widget.controllers.length;
+                index++
+              ) ...[
+                ConstrainedBox(
+                  constraints: BoxConstraints(minWidth: widget.minCellWidth),
+                  child: IntrinsicWidth(
+                    child: TextField(
+                      key: widget.cellKeys?[index],
+                      controller: widget.controllers[index],
+                      onChanged: (_) => widget.onChanged(),
+                      textAlign: TextAlign.end,
+                      decoration: InputDecoration(
+                        labelText: widget.labels[index],
+                        isDense: true,
+                      ),
+                    ),
                   ),
                 ),
-              ),
-            ),
-            if (index < widget.controllers.length - 1)
-              const SizedBox(width: AppSpacing.xs),
-          ],
-        ],
+                if (index < widget.controllers.length - 1)
+                  const SizedBox(width: AppSpacing.xs),
+              ],
+            ],
+          ),
+        ),
       ),
-    ),
+      if (_canScrollLeft)
+        Positioned(
+          left: 0,
+          top: 0,
+          bottom: AppSpacing.xs,
+          child: IgnorePointer(
+            child: _ScrollEdgeHint(direction: TextDirection.ltr),
+          ),
+        ),
+      if (_canScrollRight)
+        Positioned(
+          right: 0,
+          top: 0,
+          bottom: AppSpacing.xs,
+          child: IgnorePointer(
+            child: _ScrollEdgeHint(direction: TextDirection.rtl),
+          ),
+        ),
+    ],
   );
+}
+
+/// A soft gradient fading toward the card background with a small chevron:
+/// the non-blocking "more content this way" cue at a strip edge.
+/// [direction] ltr = the left edge (chevron points left), rtl = the right
+/// edge (chevron points right).
+class _ScrollEdgeHint extends StatelessWidget {
+  const _ScrollEdgeHint({required this.direction});
+
+  final TextDirection direction;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final colors = theme.colorScheme;
+    // Fade toward the actual card background (the app's CardThemeData sets
+    // it explicitly), falling back to the scheme surface.
+    final base = theme.cardTheme.color ?? colors.surface;
+    final isLeft = direction == TextDirection.ltr;
+    return Container(
+      width: 28,
+      alignment: isLeft ? Alignment.centerLeft : Alignment.centerRight,
+      decoration: BoxDecoration(
+        gradient: LinearGradient(
+          begin: isLeft ? Alignment.centerRight : Alignment.centerLeft,
+          end: isLeft ? Alignment.centerLeft : Alignment.centerRight,
+          colors: [base.withValues(alpha: 0), base.withValues(alpha: 0.9)],
+        ),
+      ),
+      child: Icon(
+        isLeft ? Icons.chevron_left : Icons.chevron_right,
+        size: 16,
+        color: colors.onSurfaceVariant,
+      ),
+    );
+  }
 }
 
 /// A constraint editor card shared by the Linear and Integer Programming
