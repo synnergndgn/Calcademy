@@ -63,6 +63,9 @@ const academyModules = [
     id: 'statistics',
     titleKey: 'statistics',
     icon: Icons.bar_chart_rounded,
+    route: '/statistics',
+    descriptionKey: 'statisticsDescription',
+    available: true,
   ),
   AcademyModule(
     id: 'linear-programming',

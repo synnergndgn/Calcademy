@@ -309,8 +309,10 @@ class AppLocalizations {
       'mipExample5': 'Infeasible integer model',
       'mipExample6': 'Fractional relaxation',
       'mipSolving': 'Solving model',
-      'mipNumericError': 'The model could not be solved due to a numerical error.',
-      'mipResultStale': 'The model changed - solve again to see an up-to-date result.',
+      'mipNumericError':
+          'The model could not be solved due to a numerical error.',
+      'mipResultStale':
+          'The model changed - solve again to see an up-to-date result.',
       'mipResult': 'Result',
       'mipRootRelaxation': 'LP relaxation bound',
       'mipBranchingStrategy': 'Branching strategy',
@@ -428,8 +430,7 @@ class AppLocalizations {
       'calcErrorBounds':
           'The lower bound must be a number smaller than the upper bound.',
       'calcErrorSubintervals': 'Subinterval count must be between 2 and 10000.',
-      'calcErrorOddSimpson':
-          'Simpson 1/3 requires an even subinterval count.',
+      'calcErrorOddSimpson': 'Simpson 1/3 requires an even subinterval count.',
       'calcErrorUndefined':
           'The function is undefined in the evaluated region.',
       'calcErrorAnalysisRange':
@@ -502,8 +503,7 @@ class AppLocalizations {
           'The derivative is near zero - try a different starting point.',
       'eqErrorMaxIterations':
           'The iteration limit was reached before convergence.',
-      'eqErrorNonFinite':
-          'The function is undefined in the evaluated region.',
+      'eqErrorNonFinite': 'The function is undefined in the evaluated region.',
       'eqErrorSingular': 'The system matrix is singular.',
       'eqErrorSystemSize': 'System size must be between 2 and 10.',
       'constraintLabel': 'Constraint',
@@ -516,6 +516,131 @@ class AppLocalizations {
       'equations': 'Equation Solver',
       'calculus': 'Calculus',
       'statistics': 'Statistics',
+      'statisticsDescription':
+          'Summarize data, calculate probabilities, and estimate confidence intervals.',
+      'statsWelcome': 'Statistics',
+      'statsWelcomeBody':
+          'Explore reliable descriptive measures, probability distributions, and confidence intervals.',
+      'statsDescriptive': 'Descriptive Statistics',
+      'statsDistributions': 'Probability Distributions',
+      'statsConfidenceIntervals': 'Confidence Intervals',
+      'statsDataset': 'Dataset',
+      'statsDatasetHelp':
+          'Separate values with commas, spaces, semicolons, or new lines. Use semicolons or new lines for decimal commas (for example 1,5; 2,5).',
+      'statsCalculate': 'Calculate',
+      'statsResult': 'Statistics result',
+      'statsMethod': 'Method',
+      'statsApproximate': 'Approximate',
+      'statsNotAvailable': 'Not available',
+      'statsNone': 'None',
+      'statsMethodDescriptive': 'Descriptive statistics',
+      'statsMethodNormalErf': 'Normal CDF (erf approximation)',
+      'statsMethodBinomialLogSum': 'Binomial log-sum',
+      'statsMethodPoissonLogSum': 'Poisson log-sum',
+      'statsMethodZInterval': 'Two-sided z interval',
+      'statsMethodTInterval': 'Two-sided Student t interval',
+      'statsMethodWilsonInterval': 'Wilson score interval',
+      'statsCalculationFailed': 'Calculation failed',
+      'statsDiagnosticQuartileMethod':
+          'Quartiles use the median-of-halves method.',
+      'statsDiagnosticNumericalApproximation':
+          'The probability is computed numerically and reported as an approximation.',
+      'statsDiagnosticTwoSided': 'A two-sided confidence interval is shown.',
+      'statsDiagnosticStudentTable':
+          'Critical t values use a verified table through 30 degrees of freedom and a tested asymptotic expansion above it.',
+      'statsDiagnosticWilson':
+          'Wilson score is used instead of the less reliable Wald interval.',
+      'statsCount': 'Count',
+      'statsSum': 'Sum',
+      'statsMean': 'Mean',
+      'statsMedian': 'Median',
+      'statsMode': 'Mode',
+      'statsNoMode': 'No repeated mode',
+      'statsMinimum': 'Minimum',
+      'statsMaximum': 'Maximum',
+      'statsRange': 'Range',
+      'statsPopulationVariance': 'Population variance',
+      'statsSampleVariance': 'Sample variance',
+      'statsPopulationStd': 'Population standard deviation',
+      'statsSampleStd': 'Sample standard deviation',
+      'statsOutliers': 'Outliers (1.5×IQR)',
+      'statsDistribution': 'Distribution',
+      'statsOperation': 'Operation',
+      'statsProbability': 'Probability',
+      'statsOpEqual': 'P(X = k)',
+      'statsOpLessOrEqual': 'Lower tail',
+      'statsOpGreaterOrEqual': 'Upper tail',
+      'statsOpBetween': 'Between bounds',
+      'statsNormalDistribution': 'Normal distribution',
+      'statsBinomialDistribution': 'Binomial distribution',
+      'statsPoissonDistribution': 'Poisson distribution',
+      'statsNormalLessOrEqual': 'P(X ≤ x)',
+      'statsNormalGreaterOrEqual': 'P(X ≥ x)',
+      'statsNormalBetween': 'P(a ≤ X ≤ b)',
+      'statsDiscreteEqual': 'P(X = k)',
+      'statsDiscreteLessOrEqual': 'P(X ≤ k)',
+      'statsDiscreteGreaterOrEqual': 'P(X ≥ k)',
+      'statsMeanMu': 'Mean μ',
+      'statsStandardDeviationSigma': 'Standard deviation σ',
+      'statsXValue': 'x value',
+      'statsLowerA': 'Lower bound a',
+      'statsUpperB': 'Upper bound b',
+      'statsIntervalType': 'Interval type',
+      'statsConfidenceLevel': 'Confidence level',
+      'statsKnownSigmaMean': 'Mean — known σ',
+      'statsUnknownSigmaMean': 'Mean — unknown σ',
+      'statsProportionInterval': 'Proportion — Wilson',
+      'statsSampleMean': 'Sample mean',
+      'statsKnownSigma': 'Known σ',
+      'statsSampleStandardDeviation': 'Sample standard deviation',
+      'statsSampleSize': 'Sample size n',
+      'statsSuccesses': 'Successes x',
+      'statsLowerBound': 'Lower bound',
+      'statsUpperBound': 'Upper bound',
+      'statsMarginOfError': 'Margin of error',
+      'statsWarningSampleUnavailable':
+          'Sample variance and sample standard deviation require at least two observations.',
+      'statsWarningQuartilesLimited':
+          'Quartiles from fewer than four observations have limited interpretation.',
+      'statsWarningApproximateProbability':
+          'This probability is an approximation within floating-point precision.',
+      'statsWarningNormalAssumption':
+          'The calculation assumes a normally distributed variable.',
+      'statsWarningIndependentTrials':
+          'Binomial trials must be independent with a constant success probability.',
+      'statsWarningPoissonAssumption':
+          'Poisson events must occur independently at a constant average rate.',
+      'statsWarningKnownSigma':
+          'The z interval assumes the population standard deviation is known.',
+      'statsWarningTPopulation':
+          'The t interval assumes an approximately normal population, especially for small samples.',
+      'statsWarningWilsonIndependent':
+          'The Wilson interval assumes independent binary observations.',
+      'statsErrorEmptyDataset': 'Enter at least one data value.',
+      'statsErrorInvalidNumber': 'Enter valid finite numbers.',
+      'statsErrorAmbiguousSeparator':
+          'A single comma is ambiguous. Use a decimal point, or separate decimal-comma values with semicolons/new lines.',
+      'statsErrorDatasetTooLarge':
+          'The dataset exceeds the 10,000-value limit.',
+      'statsErrorInsufficientSample':
+          'This calculation requires at least two observations.',
+      'statsErrorInvalidStd': 'Standard deviation must be greater than zero.',
+      'statsErrorInvalidProbability': 'Probability p must be between 0 and 1.',
+      'statsErrorInvalidN': 'n must be a positive integer within the limit.',
+      'statsErrorInvalidK':
+          'k must be a non-negative integer within the limit.',
+      'statsErrorKGreaterThanN':
+          'For a binomial distribution, k cannot exceed n.',
+      'statsErrorInvalidLambda':
+          'Lambda must be positive and no greater than 1,000.',
+      'statsErrorInvalidConfidence': 'Enter a valid confidence level.',
+      'statsErrorUnsupportedConfidence':
+          'Choose a supported confidence level: 90%, 95%, or 99%.',
+      'statsErrorInvalidSampleSize': 'Sample size must be a positive integer.',
+      'statsErrorInvalidSuccesses': 'Successes must be a non-negative integer.',
+      'statsErrorSuccessesGreaterThanN': 'Successes cannot exceed sample size.',
+      'statsErrorCalculationRange':
+          'The inputs are outside the reliable calculation range.',
       'linearProgramming': 'Linear Programming',
       'integerProgramming': 'Integer Programming',
       'nonlinearOptimization': 'Nonlinear Optimization',
@@ -926,7 +1051,8 @@ class AppLocalizations {
       'mipPruneReason': 'Kapatılma nedeni',
       'mipIncumbent': 'Incumbent çözüm',
       'mipNoNodes': 'Gösterilecek düğüm yok',
-      'mipNoNodesBody': 'Branch-and-Bound ağacını görmek için bir modeli çözün.',
+      'mipNoNodesBody':
+          'Branch-and-Bound ağacını görmek için bir modeli çözün.',
       'mipOpenNodes': 'Açık düğümler',
       'mipExpand': 'Genişlet',
       'mipCollapse': 'Daralt',
@@ -948,8 +1074,7 @@ class AppLocalizations {
       'mipNumericalFailure': 'Sayısal hata',
       'mipPrunedByBound': 'Bound nedeniyle budandı',
       'mipClosedIntegerFeasible': 'Kapatıldı - yeni tam sayı uygun çözüm',
-      'mipPrunedIntegral':
-          'Kapatıldı - tam sayı, incumbent’ı iyileştirmedi',
+      'mipPrunedIntegral': 'Kapatıldı - tam sayı, incumbent’ı iyileştirmedi',
       'mipDepthLimitReached':
           'Derinlik limiti nedeniyle daha fazla genişletilmedi',
       'mipWarningUnboundedNode':
@@ -1019,8 +1144,7 @@ class AppLocalizations {
           'Alt aralık sayısı 2 ile 10000 arasında olmalıdır.',
       'calcErrorOddSimpson':
           'Simpson 1/3 için alt aralık sayısı çift olmalıdır.',
-      'calcErrorUndefined':
-          'Fonksiyon değerlendirilen bölgede tanımsız.',
+      'calcErrorUndefined': 'Fonksiyon değerlendirilen bölgede tanımsız.',
       'calcErrorAnalysisRange':
           'Analiz aralığının başlangıcı bitişinden küçük olmalıdır.',
       'eqWelcome': 'Denklem Çözücü',
@@ -1104,6 +1228,132 @@ class AppLocalizations {
       'equations': 'Denklem Çözücü',
       'calculus': 'Calculus',
       'statistics': 'İstatistik',
+      'statisticsDescription':
+          'Verileri özetleyin, olasılıkları hesaplayın ve güven aralıklarını tahmin edin.',
+      'statsWelcome': 'İstatistik',
+      'statsWelcomeBody':
+          'Güvenilir betimsel ölçüleri, olasılık dağılımlarını ve güven aralıklarını inceleyin.',
+      'statsDescriptive': 'Betimsel İstatistik',
+      'statsDistributions': 'Olasılık Dağılımları',
+      'statsConfidenceIntervals': 'Güven Aralıkları',
+      'statsDataset': 'Veri kümesi',
+      'statsDatasetHelp':
+          'Değerleri virgül, boşluk, noktalı virgül veya yeni satırla ayırın. Ondalık virgüllü değerlerde noktalı virgül ya da yeni satır kullanın (ör. 1,5; 2,5).',
+      'statsCalculate': 'Hesapla',
+      'statsResult': 'İstatistik sonucu',
+      'statsMethod': 'Yöntem',
+      'statsApproximate': 'Yaklaşık',
+      'statsNotAvailable': 'Kullanılamıyor',
+      'statsNone': 'Yok',
+      'statsMethodDescriptive': 'Betimsel istatistik',
+      'statsMethodNormalErf': 'Normal CDF (erf yaklaşımı)',
+      'statsMethodBinomialLogSum': 'Binom logaritmik toplam',
+      'statsMethodPoissonLogSum': 'Poisson logaritmik toplam',
+      'statsMethodZInterval': 'İki taraflı z aralığı',
+      'statsMethodTInterval': 'İki taraflı Student t aralığı',
+      'statsMethodWilsonInterval': 'Wilson skor aralığı',
+      'statsCalculationFailed': 'Hesaplama başarısız',
+      'statsDiagnosticQuartileMethod':
+          'Çeyrekler, yarımların medyanı yöntemiyle hesaplanır.',
+      'statsDiagnosticNumericalApproximation':
+          'Olasılık sayısal olarak hesaplanır ve yaklaşık olarak raporlanır.',
+      'statsDiagnosticTwoSided': 'İki taraflı güven aralığı gösterilir.',
+      'statsDiagnosticStudentTable':
+          'Kritik t değerleri 30 serbestlik derecesine kadar doğrulanmış tabloyu, sonrasında testli asimptotik açılımı kullanır.',
+      'statsDiagnosticWilson':
+          'Daha az güvenilir Wald aralığı yerine Wilson skoru kullanılır.',
+      'statsCount': 'Adet',
+      'statsSum': 'Toplam',
+      'statsMean': 'Ortalama',
+      'statsMedian': 'Medyan',
+      'statsMode': 'Mod',
+      'statsNoMode': 'Tekrarlanan mod yok',
+      'statsMinimum': 'Minimum',
+      'statsMaximum': 'Maksimum',
+      'statsRange': 'Açıklık',
+      'statsPopulationVariance': 'Anakütle varyansı',
+      'statsSampleVariance': 'Örneklem varyansı',
+      'statsPopulationStd': 'Anakütle standart sapması',
+      'statsSampleStd': 'Örneklem standart sapması',
+      'statsOutliers': 'Aykırı değerler (1,5×IQR)',
+      'statsDistribution': 'Dağılım',
+      'statsOperation': 'İşlem',
+      'statsProbability': 'Olasılık',
+      'statsOpEqual': 'P(X = k)',
+      'statsOpLessOrEqual': 'Alt kuyruk',
+      'statsOpGreaterOrEqual': 'Üst kuyruk',
+      'statsOpBetween': 'Sınırlar arası',
+      'statsNormalDistribution': 'Normal dağılım',
+      'statsBinomialDistribution': 'Binom dağılımı',
+      'statsPoissonDistribution': 'Poisson dağılımı',
+      'statsNormalLessOrEqual': 'P(X ≤ x)',
+      'statsNormalGreaterOrEqual': 'P(X ≥ x)',
+      'statsNormalBetween': 'P(a ≤ X ≤ b)',
+      'statsDiscreteEqual': 'P(X = k)',
+      'statsDiscreteLessOrEqual': 'P(X ≤ k)',
+      'statsDiscreteGreaterOrEqual': 'P(X ≥ k)',
+      'statsMeanMu': 'Ortalama μ',
+      'statsStandardDeviationSigma': 'Standart sapma σ',
+      'statsXValue': 'x değeri',
+      'statsLowerA': 'Alt sınır a',
+      'statsUpperB': 'Üst sınır b',
+      'statsIntervalType': 'Aralık türü',
+      'statsConfidenceLevel': 'Güven düzeyi',
+      'statsKnownSigmaMean': 'Ortalama — σ biliniyor',
+      'statsUnknownSigmaMean': 'Ortalama — σ bilinmiyor',
+      'statsProportionInterval': 'Oran — Wilson',
+      'statsSampleMean': 'Örneklem ortalaması',
+      'statsKnownSigma': 'Bilinen σ',
+      'statsSampleStandardDeviation': 'Örneklem standart sapması',
+      'statsSampleSize': 'Örneklem büyüklüğü n',
+      'statsSuccesses': 'Başarı sayısı x',
+      'statsLowerBound': 'Alt sınır',
+      'statsUpperBound': 'Üst sınır',
+      'statsMarginOfError': 'Hata payı',
+      'statsWarningSampleUnavailable':
+          'Örneklem varyansı ve standart sapması için en az iki gözlem gerekir.',
+      'statsWarningQuartilesLimited':
+          'Dörtten az gözlemle hesaplanan çeyreklerin yorumu sınırlıdır.',
+      'statsWarningApproximateProbability':
+          'Bu olasılık kayan nokta hassasiyeti içinde yaklaşık bir değerdir.',
+      'statsWarningNormalAssumption':
+          'Hesaplama, değişkenin normal dağıldığını varsayar.',
+      'statsWarningIndependentTrials':
+          'Binom denemeleri bağımsız ve başarı olasılığı sabit olmalıdır.',
+      'statsWarningPoissonAssumption':
+          'Poisson olayları sabit ortalama hızla ve bağımsız gerçekleşmelidir.',
+      'statsWarningKnownSigma':
+          'z aralığı, anakütle standart sapmasının bilindiğini varsayar.',
+      'statsWarningTPopulation':
+          't aralığı, özellikle küçük örneklemlerde anakütlenin yaklaşık normal olduğunu varsayar.',
+      'statsWarningWilsonIndependent':
+          'Wilson aralığı bağımsız ikili gözlemler varsayar.',
+      'statsErrorEmptyDataset': 'En az bir veri değeri girin.',
+      'statsErrorInvalidNumber': 'Geçerli sonlu sayılar girin.',
+      'statsErrorAmbiguousSeparator':
+          'Tek virgül belirsizdir. Ondalık nokta kullanın veya ondalık virgüllü değerleri noktalı virgül/yeni satırla ayırın.',
+      'statsErrorDatasetTooLarge': 'Veri kümesi 10.000 değer sınırını aşıyor.',
+      'statsErrorInsufficientSample':
+          'Bu hesaplama için en az iki gözlem gerekir.',
+      'statsErrorInvalidStd': 'Standart sapma sıfırdan büyük olmalıdır.',
+      'statsErrorInvalidProbability': 'p olasılığı 0 ile 1 arasında olmalıdır.',
+      'statsErrorInvalidN':
+          'n, sınırlar içinde pozitif bir tam sayı olmalıdır.',
+      'statsErrorInvalidK':
+          'k, sınırlar içinde negatif olmayan bir tam sayı olmalıdır.',
+      'statsErrorKGreaterThanN': 'Binom dağılımında k, n değerini aşamaz.',
+      'statsErrorInvalidLambda': 'Lambda pozitif ve en fazla 1.000 olmalıdır.',
+      'statsErrorInvalidConfidence': 'Geçerli bir güven düzeyi girin.',
+      'statsErrorUnsupportedConfidence':
+          'Desteklenen bir güven düzeyi seçin: %90, %95 veya %99.',
+      'statsErrorInvalidSampleSize':
+          'Örneklem büyüklüğü pozitif bir tam sayı olmalıdır.',
+      'statsErrorInvalidSuccesses':
+          'Başarı sayısı negatif olmayan bir tam sayı olmalıdır.',
+      'statsErrorSuccessesGreaterThanN':
+          'Başarı sayısı örneklem büyüklüğünü aşamaz.',
+      'statsErrorCalculationRange':
+          'Girdiler güvenilir hesaplama aralığının dışında.',
       'linearProgramming': 'Lineer Programlama',
       'integerProgramming': 'Tam Sayılı Programlama',
       'nonlinearOptimization': 'Nonlineer Optimizasyon',

@@ -1,4 +1,7 @@
+import 'dart:math' as math;
+
 import 'package:calcademy/app/theme/app_spacing.dart';
+import 'package:calcademy/features/calculus/presentation/calculus_axis_scale.dart';
 import 'package:calcademy/features/graph/domain/graph_expression.dart';
 import 'package:calcademy/features/graph/domain/graph_range.dart';
 import 'package:calcademy/features/graph/domain/graph_sampler.dart';
@@ -55,6 +58,12 @@ class CalculusGraphView extends StatelessWidget {
       maxEvaluations: 1600,
     ).sample(functionId: 'calculus', evaluator: evaluator, range: range);
     final yRange = GraphSampler().autoYRange([series]);
+    final xScale = CalculusAxisScale.calculate(
+      range.min,
+      range.max,
+      maxLabels: 7,
+    );
+    final yScale = CalculusAxisScale.calculate(yRange.min, yRange.max);
 
     final curveBars = <LineChartBarData>[
       for (final segment in series.segments)
@@ -126,42 +135,99 @@ class CalculusGraphView extends StatelessWidget {
     }
 
     if (curveBars.isEmpty) return const SizedBox.shrink();
+    final labelHeight = MediaQuery.textScalerOf(context).scale(12);
+    final leftReservedSize = (46 + (labelHeight - 12).clamp(0, 20)).toDouble();
+    final bottomReservedSize = (30 + (labelHeight - 12).clamp(0, 18))
+        .toDouble();
+    final labelStyle = Theme.of(context).textTheme.labelSmall;
     return Padding(
-      padding: const EdgeInsets.only(top: AppSpacing.sm),
-      child: AspectRatio(
-        aspectRatio: 1.6,
-        child: LineChart(
-          LineChartData(
-            minX: range.min,
-            maxX: range.max,
-            minY: yRange.min,
-            maxY: yRange.max,
-            lineBarsData: [...curveBars, ...overlayBars],
-            lineTouchData: const LineTouchData(enabled: false),
-            titlesData: FlTitlesData(
-              topTitles: const AxisTitles(),
-              rightTitles: const AxisTitles(),
-              leftTitles: AxisTitles(
-                sideTitles: SideTitles(showTitles: true, reservedSize: 44),
+      key: const Key('calculus-graph-padding'),
+      padding: const EdgeInsets.only(top: AppSpacing.sm, bottom: AppSpacing.sm),
+      child: LayoutBuilder(
+        builder: (context, constraints) => SizedBox(
+          height: (constraints.maxWidth / 1.5 + labelHeight).clamp(220, 420),
+          child: LineChart(
+            LineChartData(
+              minX: xScale.min,
+              maxX: xScale.max,
+              minY: yScale.min,
+              maxY: yScale.max,
+              lineBarsData: [...curveBars, ...overlayBars],
+              lineTouchData: const LineTouchData(enabled: false),
+              titlesData: FlTitlesData(
+                topTitles: const AxisTitles(),
+                rightTitles: const AxisTitles(),
+                leftTitles: AxisTitles(
+                  sideTitles: SideTitles(
+                    showTitles: true,
+                    interval: yScale.interval,
+                    reservedSize: leftReservedSize,
+                    minIncluded: false,
+                    maxIncluded: false,
+                    getTitlesWidget: (value, meta) {
+                      if (!yScale.shows(value)) return const SizedBox.shrink();
+                      return SideTitleWidget(
+                        meta: meta,
+                        space: AppSpacing.xs,
+                        child: Text(
+                          _formatAxis(value, yScale.interval),
+                          maxLines: 1,
+                          overflow: TextOverflow.visible,
+                          style: labelStyle,
+                        ),
+                      );
+                    },
+                  ),
+                ),
+                bottomTitles: AxisTitles(
+                  sideTitles: SideTitles(
+                    showTitles: true,
+                    interval: xScale.interval,
+                    reservedSize: bottomReservedSize,
+                    minIncluded: false,
+                    maxIncluded: false,
+                    getTitlesWidget: (value, meta) {
+                      if (!xScale.shows(value)) return const SizedBox.shrink();
+                      return SideTitleWidget(
+                        meta: meta,
+                        space: AppSpacing.xs,
+                        child: Text(
+                          _formatAxis(value, xScale.interval),
+                          maxLines: 1,
+                          style: labelStyle,
+                        ),
+                      );
+                    },
+                  ),
+                ),
               ),
-              bottomTitles: AxisTitles(
-                sideTitles: SideTitles(showTitles: true, reservedSize: 28),
+              gridData: FlGridData(
+                show: true,
+                getDrawingHorizontalLine: (value) =>
+                    FlLine(color: colors.outlineVariant, strokeWidth: 0.5),
+                getDrawingVerticalLine: (value) =>
+                    FlLine(color: colors.outlineVariant, strokeWidth: 0.5),
               ),
-            ),
-            gridData: FlGridData(
-              show: true,
-              getDrawingHorizontalLine: (value) =>
-                  FlLine(color: colors.outlineVariant, strokeWidth: 0.5),
-              getDrawingVerticalLine: (value) =>
-                  FlLine(color: colors.outlineVariant, strokeWidth: 0.5),
-            ),
-            borderData: FlBorderData(
-              show: true,
-              border: Border.all(color: colors.outlineVariant),
+              borderData: FlBorderData(
+                show: true,
+                border: Border.all(color: colors.outlineVariant),
+              ),
             ),
           ),
         ),
       ),
     );
+  }
+
+  static String _formatAxis(double value, double interval) {
+    if (value.abs() < interval * 1e-8) return '0';
+    final magnitude = value.abs();
+    if (magnitude >= 100000 || magnitude < 0.0001) {
+      return value.toStringAsExponential(1);
+    }
+    final decimals = interval >= 1
+        ? 0
+        : ((-math.log(interval) / math.ln10).ceil() + 1).clamp(0, 6);
+    return value.toStringAsFixed(decimals).replaceFirst(RegExp(r'\.?0+$'), '');
   }
 }

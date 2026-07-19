@@ -167,7 +167,28 @@ void main() {
   testWidgets('renders at 320px without overflow in Turkish', (tester) async {
     _setViewport(tester, const Size(320, 690));
     await _pump(tester, locale: const Locale('tr'));
+    await tester.enterText(find.byKey(const Key('calc-diff-function')), 'x^3');
+    await tester.ensureVisible(find.byKey(const Key('calc-diff-solve')));
+    await tester.tap(find.byKey(const Key('calc-diff-solve')));
+    await tester.pumpAndSettle();
+    await _findByScrolling(tester, find.byKey(const Key('calc-diff-graph')));
     expect(tester.takeException(), isNull);
+    final chart = tester.widget<LineChart>(find.byType(LineChart));
+    final yTitles = chart.data.titlesData.leftTitles.sideTitles;
+    final xTitles = chart.data.titlesData.bottomTitles.sideTitles;
+    expect(yTitles.interval, isNotNull);
+    expect(yTitles.reservedSize, greaterThanOrEqualTo(46));
+    expect(yTitles.minIncluded, isFalse);
+    expect(yTitles.maxIncluded, isFalse);
+    expect(xTitles.reservedSize, greaterThanOrEqualTo(30));
+    expect(
+      (chart.data.maxY - chart.data.minY) / yTitles.interval!,
+      lessThan(7),
+    );
+    final scroll = tester.widget<ListView>(
+      find.byKey(const Key('calculus-scroll-view')),
+    );
+    expect((scroll.padding! as EdgeInsets).bottom, greaterThan(16));
     for (var i = 0; i < 5; i++) {
       await tester.drag(find.byType(ListView).first, const Offset(0, -400));
       await tester.pump();
@@ -178,6 +199,15 @@ void main() {
   testWidgets('renders at 200% text scale without overflow', (tester) async {
     _setViewport(tester, const Size(360, 690), scale: 2.0);
     await _pump(tester);
+    await _findByScrolling(tester, find.byKey(const Key('calc-diff-function')));
+    await tester.enterText(find.byKey(const Key('calc-diff-function')), 'x^2');
+    tester.testTextInput.hide();
+    await tester.pumpAndSettle();
+    await tester.ensureVisible(find.byKey(const Key('calc-diff-solve')));
+    await tester.pumpAndSettle();
+    await tester.tap(find.byKey(const Key('calc-diff-solve')));
+    await tester.pumpAndSettle();
+    await _findByScrolling(tester, find.byKey(const Key('calc-diff-graph')));
     expect(tester.takeException(), isNull);
     for (var i = 0; i < 6; i++) {
       await tester.drag(find.byType(ListView).first, const Offset(0, -400));
@@ -194,6 +224,16 @@ void main() {
     expect(tester.takeException(), isNull);
     await tester.tap(find.text('Function Analysis'));
     await tester.pumpAndSettle();
+    expect(tester.takeException(), isNull);
+    await tester.tap(find.text('Differentiation'));
+    await tester.pumpAndSettle();
+    await tester.enterText(
+      find.byKey(const Key('calc-diff-function')),
+      'sin(x)',
+    );
+    await tester.tap(find.byKey(const Key('calc-diff-solve')));
+    await tester.pumpAndSettle();
+    await _findByScrolling(tester, find.byKey(const Key('calc-diff-graph')));
     expect(tester.takeException(), isNull);
   });
 }

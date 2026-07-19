@@ -1,40 +1,38 @@
 import 'package:calcademy/app/theme/app_spacing.dart';
-import 'package:calcademy/features/calculus/presentation/analysis_tab.dart';
-import 'package:calcademy/features/calculus/presentation/calculus_controller.dart';
-import 'package:calcademy/features/calculus/presentation/differentiation_tab.dart';
-import 'package:calcademy/features/calculus/presentation/integration_tab.dart';
+import 'package:calcademy/features/statistics/presentation/confidence_interval_tab.dart';
+import 'package:calcademy/features/statistics/presentation/descriptive_statistics_tab.dart';
+import 'package:calcademy/features/statistics/presentation/distribution_tab.dart';
+import 'package:calcademy/features/statistics/presentation/statistics_controller.dart';
 import 'package:calcademy/l10n/app_localizations.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-enum _Mode { differentiation, integration, analysis }
+enum StatisticsMode { descriptive, distributions, confidenceIntervals }
 
-/// The `/calculus` route: three numerical-analysis workflows behind the
-/// same segmented selector and 840px-bounded centred column the other
-/// Calcademy workspaces use.
-class CalculusPage extends ConsumerStatefulWidget {
-  const CalculusPage({super.key});
+class StatisticsPage extends ConsumerStatefulWidget {
+  const StatisticsPage({super.key});
 
   @override
-  ConsumerState<CalculusPage> createState() => _CalculusPageState();
+  ConsumerState<StatisticsPage> createState() => _StatisticsPageState();
 }
 
-class _CalculusPageState extends ConsumerState<CalculusPage> {
-  var _mode = _Mode.differentiation;
+class _StatisticsPageState extends ConsumerState<StatisticsPage> {
+  var _mode = StatisticsMode.descriptive;
 
   @override
   Widget build(BuildContext context) {
     final l10n = context.l10n;
     final bottomInset = MediaQuery.viewPaddingOf(context).bottom;
     return Scaffold(
-      appBar: AppBar(title: Text(l10n.t('calculus'))),
+      appBar: AppBar(title: Text(l10n.t('statistics'))),
       body: SafeArea(
         top: false,
         child: Center(
           child: ConstrainedBox(
-            constraints: const BoxConstraints(maxWidth: 840),
+            constraints: const BoxConstraints(maxWidth: 900),
             child: ListView(
-              key: const Key('calculus-scroll-view'),
+              key: const Key('statistics-scroll-view'),
+              keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
               padding: EdgeInsets.fromLTRB(
                 AppSpacing.md,
                 AppSpacing.md,
@@ -43,34 +41,34 @@ class _CalculusPageState extends ConsumerState<CalculusPage> {
               ),
               children: [
                 Text(
-                  l10n.t('calcWelcome'),
+                  l10n.t('statsWelcome'),
                   style: Theme.of(context).textTheme.headlineSmall,
                 ),
                 const SizedBox(height: AppSpacing.xs),
-                Text(l10n.t('calcWelcomeBody')),
+                Text(l10n.t('statsWelcomeBody')),
                 const SizedBox(height: AppSpacing.md),
                 SingleChildScrollView(
                   scrollDirection: Axis.horizontal,
-                  child: SegmentedButton<_Mode>(
+                  child: SegmentedButton<StatisticsMode>(
                     showSelectedIcon: false,
                     segments: [
                       ButtonSegment(
-                        value: _Mode.differentiation,
-                        label: Text(l10n.t('calcModeDifferentiation')),
+                        value: StatisticsMode.descriptive,
+                        label: Text(l10n.t('statsDescriptive')),
                       ),
                       ButtonSegment(
-                        value: _Mode.integration,
-                        label: Text(l10n.t('calcModeIntegration')),
+                        value: StatisticsMode.distributions,
+                        label: Text(l10n.t('statsDistributions')),
                       ),
                       ButtonSegment(
-                        value: _Mode.analysis,
-                        label: Text(l10n.t('calcModeAnalysis')),
+                        value: StatisticsMode.confidenceIntervals,
+                        label: Text(l10n.t('statsConfidenceIntervals')),
                       ),
                     ],
                     selected: {_mode},
                     onSelectionChanged: (selection) => setState(() {
                       _mode = selection.first;
-                      ref.read(calculusWorkspaceProvider.notifier).clear();
+                      ref.read(statisticsWorkspaceProvider.notifier).clear();
                     }),
                   ),
                 ),
@@ -79,9 +77,11 @@ class _CalculusPageState extends ConsumerState<CalculusPage> {
                   child: Padding(
                     padding: const EdgeInsets.all(AppSpacing.md),
                     child: switch (_mode) {
-                      _Mode.differentiation => const DifferentiationTab(),
-                      _Mode.integration => const IntegrationTab(),
-                      _Mode.analysis => const AnalysisTab(),
+                      StatisticsMode.descriptive =>
+                        const DescriptiveStatisticsTab(),
+                      StatisticsMode.distributions => const DistributionTab(),
+                      StatisticsMode.confidenceIntervals =>
+                        const ConfidenceIntervalTab(),
                     },
                   ),
                 ),

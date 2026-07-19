@@ -196,6 +196,18 @@ Yedinci akademik modül: tamamen sayısal analiz odaklı türev, integral ve fon
 
 Kapsam dışı (sonraki sürümler): sembolik türev/integral, Taylor/Fourier/Laplace, ODE/PDE, adım adım sembolik çözüm.
 
+## Statistics 1.0
+
+Sekizinci akademik modül; veri özetleme, temel olasılık dağılımları ve güven aralıkları için çevrimdışı, tipli ve doğrulanmış bir çalışma alanı sunar.
+
+- Virgül, boşluk, noktalı virgül ve satır sonu ayrımlı veri girişi; belirsiz tek virgülün sessizce yanlış yorumlanmasını önleyen doğrulama
+- Ortalama, medyan, mod, min/maks, açıklık, anakütle/örneklem varyansı ve standart sapması, Q1/Q3/IQR ve 1,5×IQR aykırı değerleri
+- Normal CDF için erf yaklaşımı; Binom ve Poisson için taşmaya dayanıklı logaritmik toplam hesapları
+- Bilinen sigma için z, bilinmeyen sigma için doğrulanmış t kritik değerleri ve oran için Wilson güven aralıkları
+- Merkezi limitler, TR/EN hata ve varsayım mesajları, yaklaşık sonuç rozeti ve sonuç kopyalama
+
+Kapsam dışı: regresyon, korelasyon, ANOVA, hipotez testleri, ki-kare, parametrik olmayan testler, histogram/grafikler ve veri içe/dışa aktarma.
+
 ## Ekran görüntüleri
 
 Ekran görüntüleri Android cihaz doğrulamasından sonra bu bölüme eklenebilir.

@@ -6,6 +6,7 @@ import 'package:calcademy/core/widgets/empty_state.dart';
 import 'package:calcademy/features/home/presentation/home_page.dart';
 import 'package:calcademy/features/home/presentation/splash_page.dart';
 import 'package:calcademy/features/settings/presentation/about_page.dart';
+import 'package:calcademy/features/statistics/presentation/statistics_page.dart';
 import 'package:calcademy/l10n/app_localizations.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -56,8 +57,8 @@ void main() {
 
     expect(find.byKey(const Key('calcademyLogoMark')), findsOneWidget);
     expect(find.text('Calcademy'), findsOneWidget);
-    expect(find.text('Available'), findsNWidgets(7));
-    expect(find.byIcon(Icons.check_circle_outline), findsNWidgets(7));
+    expect(find.text('Available'), findsNWidgets(8));
+    expect(find.byIcon(Icons.check_circle_outline), findsNWidgets(8));
     // The coming-soon section sits below every available-module card, so
     // scroll in steps until it enters the lazily built list.
     final comingSoonIcon = find.byIcon(Icons.schedule_rounded);
@@ -109,6 +110,39 @@ void main() {
 
     expect(find.text('Equation Solver'), findsOneWidget);
     expect(tester.takeException(), isNull);
+  });
+
+  testWidgets('Statistics card opens the Statistics workspace', (tester) async {
+    final preferences = await SharedPreferences.getInstance();
+    final router = GoRouter(
+      initialLocation: '/home',
+      routes: [
+        GoRoute(path: '/home', builder: (_, _) => const HomePage()),
+        GoRoute(path: '/statistics', builder: (_, _) => const StatisticsPage()),
+      ],
+    );
+    addTearDown(router.dispose);
+    await tester.pumpWidget(
+      ProviderScope(
+        overrides: [sharedPreferencesProvider.overrideWithValue(preferences)],
+        child: _localizedApp(routerConfig: router),
+      ),
+    );
+    await tester.pumpAndSettle();
+    final statisticsCard = find.text('Statistics');
+    for (
+      var i = 0;
+      i < 8 && statisticsCard.hitTestable().evaluate().isEmpty;
+      i++
+    ) {
+      await tester.drag(find.byType(CustomScrollView), const Offset(0, -400));
+      await tester.pumpAndSettle();
+    }
+    await tester.tap(statisticsCard.hitTestable());
+    await tester.pumpAndSettle();
+
+    expect(find.byType(StatisticsPage), findsOneWidget);
+    expect(find.byKey(const Key('stats-data-input')), findsOneWidget);
   });
 
   testWidgets('about shows the official logo and brand information', (
