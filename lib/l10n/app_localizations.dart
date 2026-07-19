@@ -387,6 +387,53 @@ class AppLocalizations {
       'mipNotSolvedYet': 'Not solved yet',
       'equationSolverDescription':
           'Solve single equations, linear systems and root-finding methods offline.',
+      'calculusDescription':
+          'Numerical differentiation, integration and function analysis with graphs, offline.',
+      'calcWelcome': 'Calculus',
+      'calcWelcomeBody':
+          'Approximate derivatives, definite integrals and function behaviour numerically - every result is labelled approximate.',
+      'calcModeDifferentiation': 'Differentiation',
+      'calcModeIntegration': 'Integration',
+      'calcModeAnalysis': 'Function Analysis',
+      'calcMethodForward': 'Forward',
+      'calcMethodBackward': 'Backward',
+      'calcMethodCentral': 'Central',
+      'calcMethodTrapezoidal': 'Trapezoidal',
+      'calcMethodSimpson': 'Simpson 1/3',
+      'calcEvaluationPoint': 'Evaluation point',
+      'calcStepSize': 'Step size',
+      'calcSubintervals': 'Subintervals',
+      'calcErrorEstimate': 'Error estimate',
+      'calcDerivativeResult': 'Approximate derivative',
+      'calcIntegralResult': 'Approximate integral',
+      'calcAnalysisResult': 'Function analysis (within sampled interval)',
+      'calcAnalyze': 'Analyze',
+      'calcAnalysisHint':
+          'All findings are approximate and limited to the analysis interval below.',
+      'calcSamples': 'Samples',
+      'calcRoots': 'Approximate roots',
+      'calcNoRootsInRange': 'No roots found in the selected range.',
+      'calcNoExtremaInRange': 'No extrema found in the selected range.',
+      'calcMinimum': 'Local minimum (approx.)',
+      'calcMaximum': 'Local maximum (approx.)',
+      'calcInflections': 'Approximate inflection points',
+      'calcIncreasing': 'increasing',
+      'calcDecreasing': 'decreasing',
+      'calcObservedRange': 'Observed value range over samples',
+      'calcWarningUndefinedRegion':
+          'The function may be undefined in parts of the interval.',
+      'calcWarningFlatCritical':
+          'A flat critical point was skipped - curvature was too small to classify.',
+      'calcErrorStepSize': 'Step size must be between 1e-10 and 1.',
+      'calcErrorBounds':
+          'The lower bound must be a number smaller than the upper bound.',
+      'calcErrorSubintervals': 'Subinterval count must be between 2 and 10000.',
+      'calcErrorOddSimpson':
+          'Simpson 1/3 requires an even subinterval count.',
+      'calcErrorUndefined':
+          'The function is undefined in the evaluated region.',
+      'calcErrorAnalysisRange':
+          'The analysis range start must be smaller than its end.',
       'eqWelcome': 'Equation Solver',
       'eqWelcomeBody':
           'Solve single-variable equations, n×n linear systems and classic numerical root-finding methods, fully offline.',
@@ -929,6 +976,53 @@ class AppLocalizations {
       'mipNotSolvedYet': 'Henüz çözülmedi',
       'equationSolverDescription':
           'Tek değişkenli denklemleri, lineer sistemleri ve kök bulma yöntemlerini çevrimdışı çözün.',
+      'calculusDescription':
+          'Sayısal türev, integral ve fonksiyon analizi; grafiklerle, çevrimdışı.',
+      'calcWelcome': 'Calculus',
+      'calcWelcomeBody':
+          'Türevleri, belirli integralleri ve fonksiyon davranışını sayısal olarak yaklaşıkla - her sonuç yaklaşık olarak etiketlenir.',
+      'calcModeDifferentiation': 'Türev',
+      'calcModeIntegration': 'İntegral',
+      'calcModeAnalysis': 'Fonksiyon Analizi',
+      'calcMethodForward': 'İleri fark',
+      'calcMethodBackward': 'Geri fark',
+      'calcMethodCentral': 'Merkezi fark',
+      'calcMethodTrapezoidal': 'Yamuk kuralı',
+      'calcMethodSimpson': 'Simpson 1/3',
+      'calcEvaluationPoint': 'Değerlendirme noktası',
+      'calcStepSize': 'Adım boyutu',
+      'calcSubintervals': 'Alt aralık sayısı',
+      'calcErrorEstimate': 'Hata tahmini',
+      'calcDerivativeResult': 'Yaklaşık türev',
+      'calcIntegralResult': 'Yaklaşık integral',
+      'calcAnalysisResult': 'Fonksiyon analizi (taranan aralık içinde)',
+      'calcAnalyze': 'Analiz et',
+      'calcAnalysisHint':
+          'Tüm bulgular yaklaşıktır ve aşağıdaki analiz aralığıyla sınırlıdır.',
+      'calcSamples': 'Örnek sayısı',
+      'calcRoots': 'Yaklaşık kökler',
+      'calcNoRootsInRange': 'Seçilen aralıkta kök bulunamadı.',
+      'calcNoExtremaInRange': 'Seçilen aralıkta ekstremum bulunamadı.',
+      'calcMinimum': 'Yerel minimum (yaklaşık)',
+      'calcMaximum': 'Yerel maksimum (yaklaşık)',
+      'calcInflections': 'Yaklaşık büküm noktaları',
+      'calcIncreasing': 'artan',
+      'calcDecreasing': 'azalan',
+      'calcObservedRange': 'Örnekler üzerinde gözlenen değer aralığı',
+      'calcWarningUndefinedRegion':
+          'Fonksiyon aralığın bazı bölümlerinde tanımsız olabilir.',
+      'calcWarningFlatCritical':
+          'Düz bir kritik nokta atlandı - eğrilik sınıflandırma için çok küçüktü.',
+      'calcErrorStepSize': 'Adım boyutu 1e-10 ile 1 arasında olmalıdır.',
+      'calcErrorBounds': 'Alt sınır, üst sınırdan küçük bir sayı olmalıdır.',
+      'calcErrorSubintervals':
+          'Alt aralık sayısı 2 ile 10000 arasında olmalıdır.',
+      'calcErrorOddSimpson':
+          'Simpson 1/3 için alt aralık sayısı çift olmalıdır.',
+      'calcErrorUndefined':
+          'Fonksiyon değerlendirilen bölgede tanımsız.',
+      'calcErrorAnalysisRange':
+          'Analiz aralığının başlangıcı bitişinden küçük olmalıdır.',
       'eqWelcome': 'Denklem Çözücü',
       'eqWelcomeBody':
           'Tek değişkenli denklemleri, n×n lineer sistemleri ve klasik sayısal kök bulma yöntemlerini tamamen çevrimdışı çözün.',

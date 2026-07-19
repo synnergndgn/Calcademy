@@ -55,6 +55,9 @@ const academyModules = [
     id: 'calculus',
     titleKey: 'calculus',
     icon: Icons.area_chart_rounded,
+    route: '/calculus',
+    descriptionKey: 'calculusDescription',
+    available: true,
   ),
   AcademyModule(
     id: 'statistics',

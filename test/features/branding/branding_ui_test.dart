@@ -56,8 +56,8 @@ void main() {
 
     expect(find.byKey(const Key('calcademyLogoMark')), findsOneWidget);
     expect(find.text('Calcademy'), findsOneWidget);
-    expect(find.text('Available'), findsNWidgets(6));
-    expect(find.byIcon(Icons.check_circle_outline), findsNWidgets(6));
+    expect(find.text('Available'), findsNWidgets(7));
+    expect(find.byIcon(Icons.check_circle_outline), findsNWidgets(7));
     // The coming-soon section sits below every available-module card, so
     // scroll in steps until it enters the lazily built list.
     final comingSoonIcon = find.byIcon(Icons.schedule_rounded);

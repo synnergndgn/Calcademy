@@ -183,6 +183,19 @@ Altıncı akademik modül: tek değişkenli denklemler, n×n lineer sistemler ve
 
 Kapsam dışı (sonraki sürümler): sembolik CAS, adım adım cebir, karmaşık düzlem görselleştirme, denklem-grafik bindirmesi, geçmiş/favoriler, denklem-metni sistem girişi.
 
+## Calculus 1.0
+
+Yedinci akademik modül: tamamen sayısal analiz odaklı türev, integral ve fonksiyon analizi. Bu sürümde sembolik CAS, sembolik türev veya belirsiz integral yoktur; her sonuç açıkça "yaklaşık" rozetiyle sunulur.
+
+- **Sayısal türev**: İleri, geri ve merkezi fark (varsayılan merkezi). Adım boyutu kullanıcı tarafından ayarlanabilir (1e-10…1 aralığına doğrulanır). Hata tahmini, adım ile yarım adımın Richardson karşılaştırmasından yöntem mertebesine göre ölçeklenir; gösterilen değer daha doğru olan yarım-adım sonucudur.
+- **Sayısal integral**: Yamuk ve Simpson 1/3 kuralları. Simpson için tek alt aralık sayısı sessizce düzeltilmez — doğrulama hatası olarak gösterilir. Hata tahmini n ile 2n karşılaştırmasından (yamuk /3, Simpson /15).
+- **Fonksiyon analizi**: Kullanıcı aralığında (varsayılan [-10, 10], değiştirilebilir) örnekleme tabanlı yaklaşık kökler (Denklem Çözücü'nün `scanForRoots`'u yeniden kullanılır), sayısal birinci/ikinci türev üzerinden ekstremum ve büküm noktaları, artan/azalan aralıklar ve örnekler üzerinde gözlenen min/maks. Düz kritik noktalar ve kısmen tanımsız bölgeler uyarıyla raporlanır; hiçbir bulgu "kesin" olarak sunulmaz.
+- **Grafik entegrasyonu**: Yeni grafik motoru yazılmadı — Grafik Çizici'nin `GraphSampler`'ı (kutup/süreksizlik segmentasyonu dahil) eğriyi üretir, uygulamanın mevcut fl_chart bağımlılığı çizer. Türev sekmesinde hesaplanan türev değerinden üretilen kesikli teğet doğrusu + değerlendirme noktası; integral sekmesinde örneklenen eğriyi birebir izleyen tema-türevi gölgeli alan (dark mode uyumlu).
+- İfade değerlendirme Denklem Çözücü'nün `ParsedEquation` sarmalayıcısı üzerinden Grafik parser'ını kullanır (ikinci parser yok); ifade her çözümde bir kez derlenir ve tüm örneklemelerde yeniden kullanılır.
+- Limitler merkezi: `lib/features/calculus/domain/calculus_limits.dart`. Hata durumları (geçersiz adım/sınır/alt aralık, tek Simpson sayısı, tanımsız bölge…) tipli ve TR/EN yerelleştirilmiş.
+
+Kapsam dışı (sonraki sürümler): sembolik türev/integral, Taylor/Fourier/Laplace, ODE/PDE, adım adım sembolik çözüm.
+
 ## Ekran görüntüleri
 
 Ekran görüntüleri Android cihaz doğrulamasından sonra bu bölüme eklenebilir.
