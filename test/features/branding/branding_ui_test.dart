@@ -56,11 +56,16 @@ void main() {
 
     expect(find.byKey(const Key('calcademyLogoMark')), findsOneWidget);
     expect(find.text('Calcademy'), findsOneWidget);
-    expect(find.text('Available'), findsNWidgets(5));
-    expect(find.byIcon(Icons.check_circle_outline), findsNWidgets(5));
-    await tester.drag(find.byType(CustomScrollView), const Offset(0, -900));
-    await tester.pumpAndSettle();
-    expect(find.byIcon(Icons.schedule_rounded), findsWidgets);
+    expect(find.text('Available'), findsNWidgets(6));
+    expect(find.byIcon(Icons.check_circle_outline), findsNWidgets(6));
+    // The coming-soon section sits below every available-module card, so
+    // scroll in steps until it enters the lazily built list.
+    final comingSoonIcon = find.byIcon(Icons.schedule_rounded);
+    for (var i = 0; i < 8 && comingSoonIcon.evaluate().isEmpty; i++) {
+      await tester.drag(find.byType(CustomScrollView), const Offset(0, -600));
+      await tester.pumpAndSettle();
+    }
+    expect(comingSoonIcon, findsWidgets);
   });
 
   testWidgets('home remains overflow-free on a small screen with large text', (

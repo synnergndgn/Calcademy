@@ -8,6 +8,7 @@ import 'package:calcademy/features/home/presentation/splash_page.dart';
 import 'package:calcademy/features/matrix/presentation/matrix_home_page.dart';
 import 'package:calcademy/features/linear_programming/presentation/linear_program_page.dart';
 import 'package:calcademy/features/integer_programming/presentation/integer_program_home_page.dart';
+import 'package:calcademy/features/equation_solver/presentation/equation_solver_page.dart';
 import 'package:calcademy/features/saved/presentation/saved_page.dart';
 import 'package:calcademy/features/settings/presentation/about_page.dart';
 import 'package:calcademy/features/settings/presentation/settings_page.dart';
@@ -61,9 +62,12 @@ final appRouter = GoRouter(
     ),
     GoRoute(
       path: '/integer-programming',
-      builder: (context, state) => IntegerProgramHomePage(
-        savedId: state.uri.queryParameters['savedId'],
-      ),
+      builder: (context, state) =>
+          IntegerProgramHomePage(savedId: state.uri.queryParameters['savedId']),
+    ),
+    GoRoute(
+      path: '/equation-solver',
+      builder: (context, state) => const EquationSolverPage(),
     ),
     GoRoute(
       path: '/coming-soon/:moduleId',

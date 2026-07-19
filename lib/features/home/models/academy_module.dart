@@ -47,6 +47,9 @@ const academyModules = [
     id: 'equations',
     titleKey: 'equations',
     icon: Icons.functions_rounded,
+    route: '/equation-solver',
+    descriptionKey: 'equationSolverDescription',
+    available: true,
   ),
   AcademyModule(
     id: 'calculus',

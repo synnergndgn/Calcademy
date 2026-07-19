@@ -473,4 +473,83 @@ void main() {
       );
     });
   });
+
+  group('coefficient floating label clipping', () {
+    // The app theme uses OutlineInputBorder, whose floating label paints
+    // centred on the field's top border - i.e. its upper half extends
+    // above the field box. The strip clips to the scroll view's bounds,
+    // so the label must have headroom inside those bounds or it is shaved
+    // on device. These tests assert real geometry, not just "no crash".
+    Finder stripLabelText(String data, Finder strip) => find.descendant(
+      of: strip,
+      matching: find.byWidgetPredicate((w) => w is Text && w.data == data),
+    );
+
+    Finder stripOf(String module, WidgetTester tester, Finder cellFinder) =>
+        find.ancestor(of: cellFinder.first, matching: find.byType(Scrollable));
+
+    Future<void> expectLabelsUnclipped(
+      WidgetTester tester,
+      String module,
+    ) async {
+      final cells = cellOf(module);
+      final strip = stripOf(module, tester, cells).first;
+      final stripRect = tester.getRect(strip);
+      for (final label in ['x1', 'x2']) {
+        final labelFinder = stripLabelText(label, strip);
+        expect(labelFinder, findsWidgets, reason: 'label $label missing');
+        final labelRect = tester.getRect(labelFinder.first);
+        expect(
+          labelRect.top,
+          greaterThan(stripRect.top),
+          reason:
+              '$label label top ${labelRect.top} must lie strictly below '
+              'the strip clip edge ${stripRect.top}',
+        );
+        expect(
+          labelRect.bottom,
+          lessThan(stripRect.bottom),
+          reason: '$label label must not clip at the bottom either',
+        );
+      }
+    }
+
+    testWidgets('LP labels at 320px are fully inside the strip bounds', (
+      tester,
+    ) async {
+      setPhone(tester);
+      await pumpModule(tester, const LinearProgramPage());
+      await showConstraintCard(tester);
+      await expectLabelsUnclipped(tester, 'lp');
+    });
+
+    testWidgets('IP labels at 320px are fully inside the strip bounds', (
+      tester,
+    ) async {
+      setPhone(tester);
+      await pumpModule(tester, const IntegerProgramHomePage());
+      await showConstraintCard(tester);
+      await expectLabelsUnclipped(tester, 'mip');
+    });
+
+    testWidgets('labels stay unclipped at 200% text scale', (tester) async {
+      setPhone(tester, scale: 2.0, height: 1200);
+      await pumpModule(tester, const LinearProgramPage());
+      await showConstraintCard(tester);
+      await expectLabelsUnclipped(tester, 'lp');
+      expect(tester.takeException(), isNull);
+    });
+
+    testWidgets('labels stay unclipped in dark mode', (tester) async {
+      setPhone(tester);
+      await pumpModule(
+        tester,
+        const LinearProgramPage(),
+        theme: AppTheme.dark(),
+      );
+      await showConstraintCard(tester);
+      await expectLabelsUnclipped(tester, 'lp');
+      expect(tester.takeException(), isNull);
+    });
+  });
 }

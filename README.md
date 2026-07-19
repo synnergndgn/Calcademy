@@ -169,6 +169,20 @@ Branch-and-Bound çözümü `compute()` ile arka plan isolate'inde çalışır; 
 - Presolve sınırlıdır; karmaşık dönüşümler (ör. katsayı sıkılaştırma) yapılmaz, doğruluk performanstan önceliklidir.
 - Canlı düğüm ilerlemesi (işlenen düğüm sayısı, güncel incumbent/bound) arayüzde akış olarak gösterilmez; yalnızca nihai sonuç ve tam ağaç sunulur.
 
+## Denklem Çözücü 1.0
+
+Altıncı akademik modül: tek değişkenli denklemler, n×n lineer sistemler ve klasik sayısal kök bulma yöntemleri, tamamen çevrimdışı.
+
+- **Tek denklem**: `2x + 5 = 17` gibi `=` içeren girişler veya çıplak ifadeler (`x^2 - 4`). Grafik Çizici'nin ifade derleyicisi yeniden kullanılır: `+ - * / ^`, parantez, tekli eksi, ondalık, `sin cos tan`, `sqrt`, `ln log`, `exp`, `pi`, `e` ve `2x` / `3(x+1)` gibi örtük çarpım desteklenir. Trigonometri radyan modundadır.
+- **Analitik yol**: fonksiyon, doğrulamalı sayısal uyum ile derece ≤ 2 polinom olarak algılanırsa lineer/ikinci derece formülüyle **kesin** çözülür (kararlı q-formülü ile katastrofik iptal önlenir); ayrıca her analitik kök gerçek fonksiyona karşı artık-değer kontrolünden geçer — yanlış algılama durumunda sessizce sayısal taramaya düşülür. Negatif diskriminantta "gerçek kök yok (karmaşık kök olabilir)" ayrımı, `0=0` özdeşliği ve `5=7` çelişkisi ayrı sonuç türleridir.
+- **Sayısal yol**: kullanıcı tarafından değiştirilebilir tarama aralığında (varsayılan [-10, 10], 400 örnek) işaret değişimi köşeleme + bisection iyileştirme; çift katlı (teğet) kökler |f| minimumlarından Newton ile denenir ve uyarıyla işaretlenir; her aday artık-değer kontrolünden geçer (1/x'in 0'daki süreksizliği kök sanılmaz); yinelenen kökler toleransla birleştirilir. Sonuç yalnızca "taranan aralıkta bulunan kökler" iddiasındadır.
+- **Lineer sistem (matris modu)**: 2–10 boyut; katsayı ızgarası + RHS. Çözüm, Matris modülünün test edilmiş Gauss eliminasyon motoruna (`MatrixEngine.solveLinearSystem`) devredilir — tek/sonsuz/çözümsüz sınıflandırması epsilon tabanlıdır, ikinci bir eliminasyon kopyalanmamıştır. Denklem-metni modu bu sürümün kapsamı dışında bırakıldı (yarım özellik olarak eklenmedi).
+- **Sayısal yöntemler**: Bisection (alt/üst sınır), Newton-Raphson (simetrik fark sayısal türevi; türev ≈ 0 tipli hata), Secant (iki tahmin). Her sonuç yakınsama durumu, iterasyon sayısı, artık değer ve son tahmini raporlar; tolerans 1e-14 tabanına, iterasyon 500 tavanına kıskaçlanır.
+- Sonuç kartı: Kesin/Yaklaşık rozeti, kullanılan yöntem, artık değer, taranan aralık, uyarı kartları ve kopyalama. Tüm hata durumları (boş girdi, sözdizimi, bilinmeyen değişken/fonksiyon, geçersiz aralık/bracket, türev≈0, iterasyon limiti, tekil matris...) tipli ve TR/EN yerelleştirilmiş; ham exception UI'ya çıkmaz.
+- Limitler merkezi: `lib/features/equation_solver/domain/equation_solver_limits.dart`.
+
+Kapsam dışı (sonraki sürümler): sembolik CAS, adım adım cebir, karmaşık düzlem görselleştirme, denklem-grafik bindirmesi, geçmiş/favoriler, denklem-metni sistem girişi.
+
 ## Ekran görüntüleri
 
 Ekran görüntüleri Android cihaz doğrulamasından sonra bu bölüme eklenebilir.

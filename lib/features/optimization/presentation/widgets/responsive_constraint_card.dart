@@ -98,70 +98,93 @@ class _CoefficientInputStripState extends State<CoefficientInputStrip> {
   }
 
   @override
-  Widget build(BuildContext context) => Stack(
-    children: [
-      // Recomputes the hints when the scrollable *extent* changes (viewport
-      // resize, cells growing as the user types) - cases a plain position
-      // listener would miss.
-      NotificationListener<ScrollMetricsNotification>(
-        onNotification: (_) {
-          _updateEdgeHints();
-          return false;
-        },
-        child: SingleChildScrollView(
-          controller: _scrollController,
-          scrollDirection: Axis.horizontal,
-          padding: const EdgeInsets.only(bottom: AppSpacing.xs),
-          child: Row(
-            children: [
-              for (
-                var index = 0;
-                index < widget.controllers.length;
-                index++
-              ) ...[
-                ConstrainedBox(
-                  constraints: BoxConstraints(minWidth: widget.minCellWidth),
-                  child: IntrinsicWidth(
-                    child: TextField(
-                      key: widget.cellKeys?[index],
-                      controller: widget.controllers[index],
-                      onChanged: (_) => widget.onChanged(),
-                      textAlign: TextAlign.end,
-                      decoration: InputDecoration(
-                        labelText: widget.labels[index],
-                        isDense: true,
+  Widget build(BuildContext context) {
+    // With the app's OutlineInputBorder theme a floating label is drawn
+    // centred ON the field's top border, so roughly half of it paints
+    // ABOVE the field's own box. The scroll view clips to its bounds
+    // (Clip.hardEdge), so the strip must reserve that overhang as top
+    // padding inside the clip region or the label's upper half gets
+    // shaved on device. The overhang is half the floated label height
+    // (label font ≈ 12px after the 0.75 float scale), which grows with
+    // the user's text scale - hence the scale-aware headroom instead of
+    // a fixed magic number.
+    final labelHeadroom = 2 + MediaQuery.textScalerOf(context).scale(6);
+    return Stack(
+      children: [
+        // Recomputes the hints when the scrollable *extent* changes
+        // (viewport resize, cells growing as the user types) - cases a
+        // plain position listener would miss.
+        NotificationListener<ScrollMetricsNotification>(
+          onNotification: (_) {
+            _updateEdgeHints();
+            return false;
+          },
+          child: SingleChildScrollView(
+            controller: _scrollController,
+            scrollDirection: Axis.horizontal,
+            padding: EdgeInsets.only(top: labelHeadroom, bottom: AppSpacing.xs),
+            child: Row(
+              children: [
+                for (
+                  var index = 0;
+                  index < widget.controllers.length;
+                  index++
+                ) ...[
+                  ConstrainedBox(
+                    constraints: BoxConstraints(minWidth: widget.minCellWidth),
+                    child: IntrinsicWidth(
+                      child: TextField(
+                        key: widget.cellKeys?[index],
+                        controller: widget.controllers[index],
+                        onChanged: (_) => widget.onChanged(),
+                        textAlign: TextAlign.end,
+                        decoration: compactCellDecoration(
+                          labelText: widget.labels[index],
+                        ),
                       ),
                     ),
                   ),
-                ),
-                if (index < widget.controllers.length - 1)
-                  const SizedBox(width: AppSpacing.xs),
+                  if (index < widget.controllers.length - 1)
+                    const SizedBox(width: AppSpacing.xs),
+                ],
               ],
-            ],
+            ),
           ),
         ),
-      ),
-      if (_canScrollLeft)
-        Positioned(
-          left: 0,
-          top: 0,
-          bottom: AppSpacing.xs,
-          child: IgnorePointer(
-            child: _ScrollEdgeHint(direction: TextDirection.ltr),
+        if (_canScrollLeft)
+          Positioned(
+            left: 0,
+            top: 0,
+            bottom: AppSpacing.xs,
+            child: IgnorePointer(
+              child: _ScrollEdgeHint(direction: TextDirection.ltr),
+            ),
           ),
-        ),
-      if (_canScrollRight)
-        Positioned(
-          right: 0,
-          top: 0,
-          bottom: AppSpacing.xs,
-          child: IgnorePointer(
-            child: _ScrollEdgeHint(direction: TextDirection.rtl),
+        if (_canScrollRight)
+          Positioned(
+            right: 0,
+            top: 0,
+            bottom: AppSpacing.xs,
+            child: IgnorePointer(
+              child: _ScrollEdgeHint(direction: TextDirection.rtl),
+            ),
           ),
-        ),
-    ],
-  );
+      ],
+    );
+  }
 }
+
+/// The compact input decoration shared by every coefficient-style cell in
+/// the optimization editors: dense, with an explicit symmetric content
+/// padding so the field stays short without relying on isDense's default
+/// (near-zero) vertical metrics, which is what pushed the floating label
+/// flush against the clip edge in the first place.
+InputDecoration compactCellDecoration({required String labelText}) =>
+    InputDecoration(
+      labelText: labelText,
+      isDense: true,
+      contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+    );
 
 /// A soft gradient fading toward the card background with a small chevron:
 /// the non-blocking "more content this way" cue at a strip edge.
