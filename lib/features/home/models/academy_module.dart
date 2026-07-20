@@ -68,6 +68,14 @@ const academyModules = [
     available: true,
   ),
   AcademyModule(
+    id: 'financial-calculator',
+    titleKey: 'financialCalculator',
+    icon: Icons.account_balance_wallet_rounded,
+    route: '/financial-calculator',
+    descriptionKey: 'financialCalculatorDescription',
+    available: true,
+  ),
+  AcademyModule(
     id: 'linear-programming',
     titleKey: 'linearProgramming',
     icon: Icons.polyline_rounded,

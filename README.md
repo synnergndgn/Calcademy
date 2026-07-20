@@ -208,6 +208,18 @@ Sekizinci akademik modül; veri özetleme, temel olasılık dağılımları ve g
 
 Kapsam dışı: regresyon, korelasyon, ANOVA, hipotez testleri, ki-kare, parametrik olmayan testler, histogram/grafikler ve veri içe/dışa aktarma.
 
+## Financial Calculator 1.0
+
+Dokuzuncu akademik modül; paranın zaman değeri, nakit akışı analizi, sabit ödemeli kredi amortismanı ve temel başabaş/CVP kararlarını tamamen çevrimdışı hesaplar.
+
+- Bugünkü/gelecek değer, dönem başı/sonu anüiteler ve efektif yıllık faiz
+- Başlangıç yatırımını yalnızca t=0'da sayan NPV, bracket+bisection IRR ve basit/iskontolu geri ödeme
+- Sıfır faiz desteği, 600 dönem sınırı ve son bakiyeyi sıfıra kapatan amortisman planı
+- Başabaş miktarı/geliri, hedef kâr miktarı ve güvenlik marjı
+- Açık yüzde oranı etiketleri, TR/EN tipli hatalar, yaklaşık IRR uyarıları ve kopyalanabilir sonuçlar
+
+Canlı piyasa verisi, yatırım tavsiyesi, vergi/enflasyon, döviz dönüşümü, portföy optimizasyonu ve gelişmiş menkul kıymet analizi kapsam dışıdır.
+
 ## Ekran görüntüleri
 
 Ekran görüntüleri Android cihaz doğrulamasından sonra bu bölüme eklenebilir.

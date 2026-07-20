@@ -5,6 +5,7 @@ import 'package:calcademy/core/widgets/calcademy_logo.dart';
 import 'package:calcademy/core/widgets/empty_state.dart';
 import 'package:calcademy/features/home/presentation/home_page.dart';
 import 'package:calcademy/features/home/presentation/splash_page.dart';
+import 'package:calcademy/features/financial_calculator/presentation/financial_calculator_page.dart';
 import 'package:calcademy/features/settings/presentation/about_page.dart';
 import 'package:calcademy/features/statistics/presentation/statistics_page.dart';
 import 'package:calcademy/l10n/app_localizations.dart';
@@ -57,8 +58,8 @@ void main() {
 
     expect(find.byKey(const Key('calcademyLogoMark')), findsOneWidget);
     expect(find.text('Calcademy'), findsOneWidget);
-    expect(find.text('Available'), findsNWidgets(8));
-    expect(find.byIcon(Icons.check_circle_outline), findsNWidgets(8));
+    expect(find.text('Available'), findsNWidgets(9));
+    expect(find.byIcon(Icons.check_circle_outline), findsNWidgets(9));
     // The coming-soon section sits below every available-module card, so
     // scroll in steps until it enters the lazily built list.
     final comingSoonIcon = find.byIcon(Icons.schedule_rounded);
@@ -143,6 +144,42 @@ void main() {
 
     expect(find.byType(StatisticsPage), findsOneWidget);
     expect(find.byKey(const Key('stats-data-input')), findsOneWidget);
+  });
+
+  testWidgets('Financial Calculator card opens its workspace', (tester) async {
+    final preferences = await SharedPreferences.getInstance();
+    final router = GoRouter(
+      initialLocation: '/home',
+      routes: [
+        GoRoute(path: '/home', builder: (_, _) => const HomePage()),
+        GoRoute(
+          path: '/financial-calculator',
+          builder: (_, _) => const FinancialCalculatorPage(),
+        ),
+      ],
+    );
+    addTearDown(router.dispose);
+    await tester.pumpWidget(
+      ProviderScope(
+        overrides: [sharedPreferencesProvider.overrideWithValue(preferences)],
+        child: _localizedApp(routerConfig: router),
+      ),
+    );
+    await tester.pumpAndSettle();
+    final financialCard = find.text('Financial Calculator');
+    for (
+      var i = 0;
+      i < 10 && financialCard.hitTestable().evaluate().isEmpty;
+      i++
+    ) {
+      await tester.drag(find.byType(CustomScrollView), const Offset(0, -400));
+      await tester.pumpAndSettle();
+    }
+    await tester.tap(financialCard.hitTestable());
+    await tester.pumpAndSettle();
+
+    expect(find.byType(FinancialCalculatorPage), findsOneWidget);
+    expect(find.byKey(const Key('fin-tvm-operation')), findsOneWidget);
   });
 
   testWidgets('about shows the official logo and brand information', (
