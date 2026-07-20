@@ -130,7 +130,10 @@ class _AnalysisTabState extends ConsumerState<AnalysisTab> {
         if (state.loading)
           const Center(child: CircularProgressIndicator())
         else
-          CalculusResultCard(result: state.result),
+          CalculusResultCard(
+            result: state.result,
+            functionExpression: _function.text,
+          ),
       ],
     );
   }

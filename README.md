@@ -218,6 +218,16 @@ Dokuzuncu akademik modül; paranın zaman değeri, nakit akışı analizi, sabit
 - Başabaş miktarı/geliri, hedef kâr miktarı ve güvenlik marjı
 - Açık yüzde oranı etiketleri, TR/EN tipli hatalar, yaklaşık IRR uyarıları ve kopyalanabilir sonuçlar
 
+## Saved Calculations / History 1.0
+
+- Financial Calculator, Statistics ve Calculus sonuç kartlarından ortak kaydetme eylemi
+- Versioned ve boyut limitli JSON payload'larıyla SharedPreferences üzerinde çevrimdışı kalıcılık
+- Başlık, modül, hesaplama türü, giriş/sonuç özeti, zaman damgası ve favori bilgisi
+- Başlık, modül, hesaplama türü, giriş ve sonuç özetlerinde büyük/küçük harf duyarsız arama
+- Tümü/favoriler ve modül filtreleri; en yeni, en eski veya favori öncelikli sıralama
+- Kopyalama, favorileme, modülü açma, onaylı tekil silme ve onaylı tümünü temizleme
+- Bozuk kayıtları güvenli atlama ve desteklenmeyen schema/storage hatalarını tipli biçimde gösterme
+
 Canlı piyasa verisi, yatırım tavsiyesi, vergi/enflasyon, döviz dönüşümü, portföy optimizasyonu ve gelişmiş menkul kıymet analizi kapsam dışıdır.
 
 ## Ekran görüntüleri

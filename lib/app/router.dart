@@ -13,6 +13,7 @@ import 'package:calcademy/features/calculus/presentation/calculus_page.dart';
 import 'package:calcademy/features/statistics/presentation/statistics_page.dart';
 import 'package:calcademy/features/financial_calculator/presentation/financial_calculator_page.dart';
 import 'package:calcademy/features/saved/presentation/saved_page.dart';
+import 'package:calcademy/features/saved_calculations/presentation/saved_calculations_page.dart';
 import 'package:calcademy/features/settings/presentation/about_page.dart';
 import 'package:calcademy/features/settings/presentation/settings_page.dart';
 import 'package:flutter/material.dart';
@@ -83,6 +84,10 @@ final appRouter = GoRouter(
     GoRoute(
       path: '/financial-calculator',
       builder: (context, state) => const FinancialCalculatorPage(),
+    ),
+    GoRoute(
+      path: '/saved-calculations',
+      builder: (context, state) => const SavedCalculationsPage(),
     ),
     GoRoute(
       path: '/coming-soon/:moduleId',

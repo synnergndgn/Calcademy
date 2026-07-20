@@ -645,6 +645,50 @@ class AppLocalizations {
       'financialCalculator': 'Financial Calculator',
       'financialCalculatorDescription':
           'Evaluate money over time, cash flows, loans, and break-even decisions.',
+      'savedCalculationsTitle': 'Saved Calculations',
+      'savedCalculationsDescription':
+          'Search, favorite, copy, and manage calculation results stored on this device.',
+      'savedUnknownModule': 'Unknown module',
+      'savedCalculationSaved': 'Calculation saved on this device.',
+      'savedSearch': 'Search saved calculations',
+      'savedAll': 'All',
+      'savedFavorites': 'Favorites',
+      'savedModule': 'Module',
+      'savedAllModules': 'All modules',
+      'savedSort': 'Sort',
+      'savedNewestFirst': 'Newest first',
+      'savedOldestFirst': 'Oldest first',
+      'savedFavoritesFirst': 'Favorites first',
+      'savedFavorite': 'Add to favorites',
+      'savedUnfavorite': 'Remove from favorites',
+      'savedOpenModule': 'Open module',
+      'savedClearAll': 'Clear all',
+      'savedEmptyTitle': 'No saved calculations',
+      'savedEmptyBody':
+          'Use the save action on a supported result card to keep it here.',
+      'savedNoResults': 'No matching calculations',
+      'savedNoResultsBody': 'Try changing the search text or filters.',
+      'savedLoadFailed': 'Saved calculations could not be loaded',
+      'savedDeleteTitle': 'Delete saved calculation?',
+      'savedDeleteBody': 'This calculation will be removed from this device.',
+      'savedClearTitle': 'Clear all saved calculations?',
+      'savedClearBody':
+          'Every saved calculation will be removed. Favorites are included.',
+      'savedCorruptItemsSkipped':
+          'One or more damaged saved items were skipped safely.',
+      'savedErrorStorageRead': 'Local saved data could not be read.',
+      'savedErrorStorageWrite': 'The calculation could not be saved locally.',
+      'savedErrorInvalidSchema':
+          'The saved data uses an unsupported format version.',
+      'savedErrorInvalidPayload': 'The local saved data is damaged.',
+      'savedErrorItemLimit':
+          'The saved-calculation limit has been reached. Delete an item first.',
+      'savedErrorTitleLength': 'The saved title is too long.',
+      'savedErrorSummaryLength': 'The saved summary is too long.',
+      'savedErrorPayloadSize': 'This result is too large to save safely.',
+      'savedErrorSearchLength': 'The search text is too long.',
+      'savedErrorUnknownModule': 'This calculation module is not supported.',
+      'retry': 'Retry',
       'finWelcome': 'Financial Calculator',
       'finWelcomeBody':
           'Reliable engineering-economy tools for time value, investments, loans, and CVP decisions.',
@@ -1494,6 +1538,52 @@ class AppLocalizations {
       'financialCalculator': 'Finansal Hesap Makinesi',
       'financialCalculatorDescription':
           'Paranın zaman değerini, nakit akışlarını, kredileri ve başabaş kararlarını hesaplayın.',
+      'savedCalculationsTitle': 'Kaydedilen Hesaplamalar',
+      'savedCalculationsDescription':
+          'Bu cihazda saklanan hesaplama sonuçlarını arayın, favorileyin, kopyalayın ve yönetin.',
+      'savedUnknownModule': 'Bilinmeyen modül',
+      'savedCalculationSaved': 'Hesaplama bu cihaza kaydedildi.',
+      'savedSearch': 'Kaydedilen hesaplamalarda ara',
+      'savedAll': 'Tümü',
+      'savedFavorites': 'Favoriler',
+      'savedModule': 'Modül',
+      'savedAllModules': 'Tüm modüller',
+      'savedSort': 'Sıralama',
+      'savedNewestFirst': 'En yeni önce',
+      'savedOldestFirst': 'En eski önce',
+      'savedFavoritesFirst': 'Favoriler önce',
+      'savedFavorite': 'Favorilere ekle',
+      'savedUnfavorite': 'Favorilerden çıkar',
+      'savedOpenModule': 'Modülü aç',
+      'savedClearAll': 'Tümünü temizle',
+      'savedEmptyTitle': 'Kaydedilmiş hesaplama yok',
+      'savedEmptyBody':
+          'Desteklenen bir sonuç kartındaki kaydet eylemini kullanarak sonucu burada saklayın.',
+      'savedNoResults': 'Eşleşen hesaplama yok',
+      'savedNoResultsBody':
+          'Arama metnini veya filtreleri değiştirmeyi deneyin.',
+      'savedLoadFailed': 'Kaydedilen hesaplamalar yüklenemedi',
+      'savedDeleteTitle': 'Kaydedilen hesaplama silinsin mi?',
+      'savedDeleteBody': 'Bu hesaplama cihazdan kaldırılacak.',
+      'savedClearTitle': 'Tüm kaydedilen hesaplamalar temizlensin mi?',
+      'savedClearBody':
+          'Favoriler dahil bütün kaydedilen hesaplamalar kaldırılacak.',
+      'savedCorruptItemsSkipped':
+          'Bir veya daha fazla bozuk kayıt güvenli şekilde atlandı.',
+      'savedErrorStorageRead': 'Yerel kayıt verileri okunamadı.',
+      'savedErrorStorageWrite': 'Hesaplama yerel olarak kaydedilemedi.',
+      'savedErrorInvalidSchema':
+          'Kayıt verileri desteklenmeyen bir format sürümünü kullanıyor.',
+      'savedErrorInvalidPayload': 'Yerel kayıt verileri bozuk.',
+      'savedErrorItemLimit':
+          'Kaydedilen hesaplama sınırına ulaşıldı. Önce bir kayıt silin.',
+      'savedErrorTitleLength': 'Kayıt başlığı çok uzun.',
+      'savedErrorSummaryLength': 'Kayıt özeti çok uzun.',
+      'savedErrorPayloadSize':
+          'Bu sonuç güvenli şekilde kaydedilemeyecek kadar büyük.',
+      'savedErrorSearchLength': 'Arama metni çok uzun.',
+      'savedErrorUnknownModule': 'Bu hesaplama modülü desteklenmiyor.',
+      'retry': 'Yeniden dene',
       'finWelcome': 'Finansal Hesap Makinesi',
       'finWelcomeBody':
           'Paranın zaman değeri, yatırımlar, krediler ve CVP kararları için güvenilir mühendislik ekonomisi araçları.',

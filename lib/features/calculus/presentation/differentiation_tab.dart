@@ -197,7 +197,10 @@ class _DifferentiationTabState extends ConsumerState<DifferentiationTab> {
         if (state.loading)
           const Center(child: CircularProgressIndicator())
         else ...[
-          CalculusResultCard(result: state.result),
+          CalculusResultCard(
+            result: state.result,
+            functionExpression: _function.text,
+          ),
           if (state.result is DifferentiationSuccess &&
               _graphEvaluator != null &&
               _graphRange != null)

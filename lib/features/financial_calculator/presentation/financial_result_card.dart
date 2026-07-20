@@ -1,6 +1,9 @@
 import 'package:calcademy/app/theme/app_spacing.dart';
 import 'package:calcademy/features/financial_calculator/domain/financial_limits.dart';
 import 'package:calcademy/features/financial_calculator/domain/financial_result.dart';
+import 'package:calcademy/features/saved_calculations/domain/saved_calculation.dart';
+import 'package:calcademy/features/saved_calculations/domain/saved_calculation_module.dart';
+import 'package:calcademy/features/saved_calculations/presentation/save_result_action.dart';
 import 'package:calcademy/l10n/app_localizations.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -93,20 +96,28 @@ class FinancialResultCard extends StatelessWidget {
               ),
             ],
             const SizedBox(height: AppSpacing.sm),
-            Align(
-              alignment: AlignmentDirectional.centerEnd,
-              child: TextButton.icon(
-                key: const Key('fin-copy-result'),
-                onPressed: () async {
-                  await Clipboard.setData(ClipboardData(text: copyText));
-                  if (!context.mounted) return;
-                  ScaffoldMessenger.of(
-                    context,
-                  ).showSnackBar(SnackBar(content: Text(l10n.t('copied'))));
-                },
-                icon: const Icon(Icons.copy_rounded, size: 18),
-                label: Text(l10n.t('copyResult')),
-              ),
+            Wrap(
+              alignment: WrapAlignment.end,
+              spacing: AppSpacing.xs,
+              runSpacing: AppSpacing.xxs,
+              children: [
+                TextButton.icon(
+                  key: const Key('fin-copy-result'),
+                  onPressed: () async {
+                    await Clipboard.setData(ClipboardData(text: copyText));
+                    if (!context.mounted) return;
+                    ScaffoldMessenger.of(
+                      context,
+                    ).showSnackBar(SnackBar(content: Text(l10n.t('copied'))));
+                  },
+                  icon: const Icon(Icons.copy_rounded, size: 18),
+                  label: Text(l10n.t('copyResult')),
+                ),
+                SaveResultAction(
+                  buttonKey: const Key('fin-save-result'),
+                  draft: _savedDraft(result, copyText, l10n),
+                ),
+              ],
             ),
           ],
         ),
@@ -175,6 +186,44 @@ class FinancialResultCard extends StatelessWidget {
       ];
     }
     return const [];
+  }
+
+  static SavedCalculationDraft _savedDraft(
+    FinancialResult result,
+    String resultSummary,
+    AppLocalizations l10n,
+  ) {
+    final calculationType = switch (result) {
+      TvmResult() => 'tvm',
+      CashFlowResult(:final operation) => operation.name,
+      LoanResult() => 'loan',
+      BreakEvenResult(:final operation) => operation.name,
+      _ => 'financial',
+    };
+    final inputSummary = result.inputs.entries
+        .map((entry) => '${entry.key}: ${_format(entry.value)}')
+        .join(', ');
+    final tableRowCount = switch (result) {
+      CashFlowResult(:final rows) => rows.length,
+      LoanResult(:final schedule) => schedule.length,
+      _ => 0,
+    };
+    return SavedCalculationDraft(
+      title: l10n.t(result.methodKey),
+      module: SavedCalculationModule.financialCalculator,
+      calculationType: calculationType,
+      inputSummary: inputSummary,
+      resultSummary: resultSummary,
+      fullInputJson: result.inputs.map(
+        (key, value) => MapEntry<String, Object?>(key, value),
+      ),
+      resultJson: {
+        'methodKey': result.methodKey,
+        'approximate': result.approximate,
+        'summary': resultSummary,
+        if (tableRowCount > 0) 'tableRowCount': tableRowCount,
+      },
+    );
   }
 
   static String _format(double value) {

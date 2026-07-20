@@ -199,7 +199,10 @@ class _IntegrationTabState extends ConsumerState<IntegrationTab> {
         if (state.loading)
           const Center(child: CircularProgressIndicator())
         else ...[
-          CalculusResultCard(result: state.result),
+          CalculusResultCard(
+            result: state.result,
+            functionExpression: _function.text,
+          ),
           if (state.result is IntegrationSuccess &&
               _graphEvaluator != null &&
               _graphRange != null)

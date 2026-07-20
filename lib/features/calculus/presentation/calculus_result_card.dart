@@ -1,6 +1,9 @@
 import 'package:calcademy/app/theme/app_spacing.dart';
 import 'package:calcademy/features/calculus/domain/calculus_result.dart';
 import 'package:calcademy/features/matrix/domain/matrix_number_formatter.dart';
+import 'package:calcademy/features/saved_calculations/domain/saved_calculation.dart';
+import 'package:calcademy/features/saved_calculations/domain/saved_calculation_module.dart';
+import 'package:calcademy/features/saved_calculations/presentation/save_result_action.dart';
 import 'package:calcademy/l10n/app_localizations.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -37,9 +40,14 @@ String integrationMethodKey(IntegrationMethod method) => switch (method) {
 /// Every numeric result is explicitly badged as approximate - this module
 /// never claims exactness.
 class CalculusResultCard extends StatelessWidget {
-  const CalculusResultCard({super.key, this.result});
+  const CalculusResultCard({
+    super.key,
+    this.result,
+    this.functionExpression = '',
+  });
 
   final CalculusResult? result;
+  final String functionExpression;
 
   @override
   Widget build(BuildContext context) {
@@ -243,25 +251,140 @@ class CalculusResultCard extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             ...lines,
-            if (copyText != null && copyText.isNotEmpty)
-              Align(
-                alignment: AlignmentDirectional.centerEnd,
-                child: TextButton.icon(
-                  onPressed: () async {
-                    await Clipboard.setData(ClipboardData(text: copyText!));
-                    if (context.mounted) {
-                      ScaffoldMessenger.of(
-                        context,
-                      ).showSnackBar(SnackBar(content: Text(l10n.t('copied'))));
-                    }
-                  },
-                  icon: const Icon(Icons.copy, size: 18),
-                  label: Text(l10n.t('copyResult')),
-                ),
+            if (current is! CalculusFailureResult)
+              Wrap(
+                alignment: WrapAlignment.end,
+                spacing: AppSpacing.xs,
+                runSpacing: AppSpacing.xxs,
+                children: [
+                  if (copyText != null && copyText.isNotEmpty)
+                    TextButton.icon(
+                      key: const Key('calc-copy-result'),
+                      onPressed: () async {
+                        await Clipboard.setData(ClipboardData(text: copyText!));
+                        if (context.mounted) {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(content: Text(l10n.t('copied'))),
+                          );
+                        }
+                      },
+                      icon: const Icon(Icons.copy, size: 18),
+                      label: Text(l10n.t('copyResult')),
+                    ),
+                  SaveResultAction(
+                    buttonKey: const Key('calc-save-result'),
+                    draft: _savedDraft(current, functionExpression, l10n),
+                  ),
+                ],
               ),
           ],
         ),
       ),
+    );
+  }
+
+  static SavedCalculationDraft _savedDraft(
+    CalculusResult result,
+    String functionExpression,
+    AppLocalizations l10n,
+  ) {
+    final type = switch (result) {
+      DifferentiationSuccess() => 'differentiation',
+      IntegrationSuccess() => 'integration',
+      FunctionAnalysisSuccess() => 'analysis',
+      _ => 'calculus',
+    };
+    final title = switch (result) {
+      DifferentiationSuccess() => l10n.t('calcDerivativeResult'),
+      IntegrationSuccess() => l10n.t('calcIntegralResult'),
+      FunctionAnalysisSuccess() => l10n.t('calcAnalysisResult'),
+      _ => l10n.t('calculus'),
+    };
+    final inputJson = <String, Object?>{'function': functionExpression};
+    final resultJson = <String, Object?>{'type': type};
+    final inputDetails = <String>[];
+    final resultSummary = switch (result) {
+      DifferentiationSuccess(
+        :final point,
+        :final value,
+        :final method,
+        :final stepSize,
+      ) =>
+        () {
+          inputJson.addAll({
+            'point': point,
+            'method': method.name,
+            'stepSize': stepSize,
+          });
+          resultJson['value'] = value;
+          inputDetails.add('x=${formatMatrixNumber(point)}');
+          return "f'(${formatMatrixNumber(point)}) ≈ "
+              '${formatMatrixNumber(value)}';
+        }(),
+      IntegrationSuccess(
+        :final lowerBound,
+        :final upperBound,
+        :final value,
+        :final method,
+        :final subintervals,
+      ) =>
+        () {
+          inputJson.addAll({
+            'lowerBound': lowerBound,
+            'upperBound': upperBound,
+            'method': method.name,
+            'subintervals': subintervals,
+          });
+          resultJson['value'] = value;
+          inputDetails.add(
+            '[${formatMatrixNumber(lowerBound)}, '
+            '${formatMatrixNumber(upperBound)}]',
+          );
+          return '∫ ≈ ${formatMatrixNumber(value)}';
+        }(),
+      FunctionAnalysisSuccess(
+        :final rangeMin,
+        :final rangeMax,
+        :final roots,
+        :final extrema,
+        :final inflectionPoints,
+        :final sampleCount,
+      ) =>
+        () {
+          inputJson.addAll({
+            'rangeMin': rangeMin,
+            'rangeMax': rangeMax,
+            'sampleCount': sampleCount,
+          });
+          resultJson.addAll({
+            'roots': roots.map((root) => root.value).toList(),
+            'extremaCount': extrema.length,
+            'inflectionCount': inflectionPoints.length,
+          });
+          inputDetails.add(
+            '[${formatMatrixNumber(rangeMin)}, '
+            '${formatMatrixNumber(rangeMax)}]',
+          );
+          final rootText = roots.isEmpty
+              ? l10n.t('calcNoRootsInRange')
+              : roots.map((root) => formatMatrixNumber(root.value)).join(', ');
+          return '${l10n.t('calcRoots')}: $rootText';
+        }(),
+      _ => '',
+    };
+    final inputSummary = [
+      if (functionExpression.trim().isNotEmpty)
+        'f(x)=${functionExpression.trim()}',
+      ...inputDetails,
+    ].join(' · ');
+    return SavedCalculationDraft(
+      title: title,
+      module: SavedCalculationModule.calculus,
+      calculationType: type,
+      inputSummary: inputSummary,
+      resultSummary: resultSummary,
+      fullInputJson: inputJson,
+      resultJson: resultJson,
     );
   }
 }
