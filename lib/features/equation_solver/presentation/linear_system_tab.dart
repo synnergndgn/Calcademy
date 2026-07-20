@@ -146,7 +146,7 @@ class _LinearSystemTabState extends ConsumerState<LinearSystemTab> {
                             controller: _cells[row][column],
                             textAlign: TextAlign.end,
                             decoration: InputDecoration(
-                              labelText: 'a${row + 1}${column + 1}',
+                              labelText: 'x${column + 1}',
                               isDense: true,
                             ),
                           ),
@@ -163,7 +163,7 @@ class _LinearSystemTabState extends ConsumerState<LinearSystemTab> {
                           controller: _rhs[row],
                           textAlign: TextAlign.end,
                           decoration: InputDecoration(
-                            labelText: 'b${row + 1}',
+                            labelText: 'RHS',
                             isDense: true,
                           ),
                         ),

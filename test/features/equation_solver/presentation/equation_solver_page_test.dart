@@ -95,6 +95,29 @@ void main() {
     await _pump(tester);
     await tester.tap(find.text('Linear System'));
     await tester.pumpAndSettle();
+    expect(
+      tester
+          .widget<TextField>(find.byKey(const Key('eq-cell-0-0')))
+          .decoration
+          ?.labelText,
+      'x1',
+    );
+    expect(
+      tester
+          .widget<TextField>(find.byKey(const Key('eq-cell-0-1')))
+          .decoration
+          ?.labelText,
+      'x2',
+    );
+    expect(
+      tester
+          .widget<TextField>(find.byKey(const Key('eq-rhs-0')))
+          .decoration
+          ?.labelText,
+      'RHS',
+    );
+    expect(find.text('a11'), findsNothing);
+    expect(find.text('a12'), findsNothing);
     await tester.enterText(find.byKey(const Key('eq-cell-0-0')), '2');
     await tester.enterText(find.byKey(const Key('eq-cell-0-1')), '3');
     await tester.enterText(find.byKey(const Key('eq-rhs-0')), '7');
@@ -112,6 +135,7 @@ void main() {
     expect(find.text('Unique solution'), findsOneWidget);
     expect(find.text('x1 = 2'), findsOneWidget);
     expect(find.text('x2 = 1'), findsOneWidget);
+    expect(find.byKey(const Key('eq-save-result')), findsOneWidget);
   });
 
   testWidgets('numerical methods show method-specific fields only', (
@@ -160,6 +184,12 @@ void main() {
   testWidgets('renders at 320px without overflow in Turkish', (tester) async {
     _setViewport(tester, const Size(320, 690));
     await _pump(tester, locale: const Locale('tr'));
+    final systemMode = find.text('Lineer Sistem');
+    await tester.ensureVisible(systemMode);
+    await tester.pumpAndSettle();
+    await tester.tap(systemMode);
+    await tester.pumpAndSettle();
+    expect(find.byKey(const Key('eq-cell-0-0')), findsOneWidget);
     expect(tester.takeException(), isNull);
     for (var i = 0; i < 5; i++) {
       await tester.drag(find.byType(ListView).first, const Offset(0, -400));
@@ -212,6 +242,22 @@ void main() {
     await tester.tap(find.byKey(const Key('eq-system-grow')));
     await tester.pumpAndSettle();
     expect(find.byKey(const Key('eq-cell-2-2')), findsOneWidget);
+    for (var column = 0; column < 3; column++) {
+      expect(
+        tester
+            .widget<TextField>(find.byKey(Key('eq-cell-0-$column')))
+            .decoration
+            ?.labelText,
+        'x${column + 1}',
+      );
+    }
+    expect(
+      tester
+          .widget<TextField>(find.byKey(const Key('eq-rhs-2')))
+          .decoration
+          ?.labelText,
+      'RHS',
+    );
     final firstCell = tester.widget<TextField>(
       find.byKey(const Key('eq-cell-0-0')),
     );
