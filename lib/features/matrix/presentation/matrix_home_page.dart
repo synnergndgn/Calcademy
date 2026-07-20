@@ -12,6 +12,8 @@ import 'package:calcademy/features/matrix/domain/saved_matrix_operation.dart';
 import 'package:calcademy/features/matrix/presentation/matrix_controller.dart';
 import 'package:calcademy/features/matrix/presentation/matrix_steps_page.dart';
 import 'package:calcademy/features/matrix/presentation/matrix_widgets.dart';
+import 'package:calcademy/features/saved_calculations/application/adapters/matrix_saved_adapter.dart';
+import 'package:calcademy/features/saved_calculations/presentation/save_result_action.dart';
 import 'package:calcademy/l10n/app_localizations.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -470,6 +472,13 @@ class _MatrixResultPanelState extends ConsumerState<_MatrixResultPanel> {
                   onPressed: () => _save(execution),
                   icon: const Icon(Icons.bookmark_add_outlined),
                   label: Text(context.l10n.t('matrixSaveResult')),
+                ),
+                SaveResultAction(
+                  buttonKey: const Key('matrix-save-calculation'),
+                  draft: MatrixSavedAdapter.fromExecution(
+                    execution,
+                    title: context.l10n.t(execution.operation.localizationKey),
+                  ),
                 ),
                 if (execution.steps != null)
                   OutlinedButton.icon(

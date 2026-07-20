@@ -8,6 +8,8 @@ import 'package:calcademy/features/integer_programming/domain/saved_integer_prog
 import 'package:calcademy/features/integer_programming/presentation/branch_tree_page.dart';
 import 'package:calcademy/features/integer_programming/presentation/integer_program_controller.dart';
 import 'package:calcademy/features/linear_programming/domain/linear_program.dart';
+import 'package:calcademy/features/saved_calculations/application/adapters/optimization_saved_adapter.dart';
+import 'package:calcademy/features/saved_calculations/presentation/save_result_action.dart';
 import 'package:calcademy/l10n/app_localizations.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -186,6 +188,11 @@ class IntegerSolutionPanel extends ConsumerWidget {
                   icon: const Icon(Icons.copy_all),
                   label: Text(l10n.t('lpSaveCopy')),
                 ),
+                if (result is IncumbentMipResult)
+                  SaveResultAction(
+                    buttonKey: const Key('ip-save-calculation'),
+                    draft: OptimizationSavedAdapter.integer(program, result),
+                  ),
                 OutlinedButton.icon(
                   onPressed: () async {
                     await Clipboard.setData(

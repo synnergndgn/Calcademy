@@ -6,6 +6,8 @@ import 'package:calcademy/features/graph/presentation/graph_canvas.dart';
 import 'package:calcademy/features/graph/presentation/graph_controller.dart';
 import 'package:calcademy/features/graph/presentation/graph_function_card.dart';
 import 'package:calcademy/features/graph/presentation/graph_settings_sheet.dart';
+import 'package:calcademy/features/saved_calculations/application/adapters/graph_saved_adapter.dart';
+import 'package:calcademy/features/saved_calculations/presentation/save_result_action.dart';
 import 'package:calcademy/l10n/app_localizations.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -173,6 +175,11 @@ class _GraphPageState extends ConsumerState<GraphPage> {
                 GraphCanvas(repaintBoundaryKey: _exportBoundaryKey),
                 const GraphInspectionPanel(),
                 const SizedBox(height: AppSpacing.md),
+                const Align(
+                  alignment: AlignmentDirectional.centerEnd,
+                  child: _GraphSavedCalculationAction(),
+                ),
+                const SizedBox(height: AppSpacing.xs),
                 const GraphSettingsPanel(),
               ],
             ),
@@ -324,6 +331,41 @@ class _GraphPageState extends ConsumerState<GraphPage> {
       showDragHandle: true,
       isScrollControlled: true,
       builder: (context) => const _SavedGraphsSheet(),
+    );
+  }
+}
+
+class _GraphSavedCalculationAction extends ConsumerWidget {
+  const _GraphSavedCalculationAction();
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final state = ref.watch(
+      graphProvider.select(
+        (state) => (
+          functions: state.functions,
+          range: state.range,
+          autoY: state.autoY,
+          manualYMin: state.manualYMin,
+          manualYMax: state.manualYMax,
+          angleMode: state.angleMode,
+          title: state.activeTitle,
+        ),
+      ),
+    );
+    final draft = GraphSavedAdapter.tryBuild(
+      functions: state.functions,
+      xRange: state.range,
+      autoY: state.autoY,
+      manualYMin: state.manualYMin,
+      manualYMax: state.manualYMax,
+      angleMode: state.angleMode,
+      title: state.title,
+    );
+    if (draft == null) return const SizedBox.shrink();
+    return SaveResultAction(
+      buttonKey: const Key('graph-save-calculation'),
+      draft: draft,
     );
   }
 }

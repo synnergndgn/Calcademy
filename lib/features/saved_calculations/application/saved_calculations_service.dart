@@ -17,6 +17,18 @@ class SavedCalculationsService {
     DateTime? now,
     String? id,
   }) {
+    if (draft.module == SavedCalculationModule.unknown) {
+      throw const SavedCalculationsException(
+        SavedCalculationsIssue.unknownModule,
+      );
+    }
+    if (draft.calculationType.trim().isEmpty ||
+        draft.inputSummary.trim().isEmpty ||
+        draft.resultSummary.trim().isEmpty) {
+      throw const SavedCalculationsException(
+        SavedCalculationsIssue.invalidPayload,
+      );
+    }
     final timestamp = (now ?? DateTime.now()).toUtc();
     final title = draft.title.trim().isEmpty
         ? _fallbackTitle(draft)
@@ -28,14 +40,22 @@ class SavedCalculationsService {
     );
     final inputSummary = truncateSummary(draft.inputSummary);
     final resultSummary = truncateSummary(draft.resultSummary);
-    final payloadBytes = utf8
-        .encode(
-          jsonEncode({
-            'input': draft.fullInputJson,
-            'result': draft.resultJson,
-          }),
-        )
-        .length;
+    final int payloadBytes;
+    try {
+      payloadBytes = utf8
+          .encode(
+            jsonEncode({
+              'input': draft.fullInputJson,
+              'result': draft.resultJson,
+            }),
+          )
+          .length;
+    } on Object catch (error) {
+      throw SavedCalculationsException(
+        SavedCalculationsIssue.invalidPayload,
+        error,
+      );
+    }
     if (payloadBytes > SavedCalculationsLimits.maxStoredPayloadBytes) {
       throw const SavedCalculationsException(
         SavedCalculationsIssue.payloadTooLarge,
@@ -135,6 +155,8 @@ class SavedCalculationsService {
       switch (module) {
         SavedCalculationModule.scientificCalculator =>
           'Scientific Calculator Bilimsel Hesap Makinesi',
+        SavedCalculationModule.graphPlotter =>
+          'Graph Plotter Graphing Grafik Cizici Grafik Çizici',
         SavedCalculationModule.financialCalculator =>
           'Financial Calculator Finansal Hesap Makinesi',
         SavedCalculationModule.statistics => 'Statistics İstatistik',

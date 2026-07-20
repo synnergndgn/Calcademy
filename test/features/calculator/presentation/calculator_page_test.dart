@@ -33,6 +33,10 @@ void main() {
       find.byKey(const Key('resultText')),
     );
     expect(result.data, '3');
+    expect(
+      find.byKey(const Key('calculator-save-calculation')),
+      findsOneWidget,
+    );
 
     await _tapKey(tester, 'AC');
     await tester.pump();

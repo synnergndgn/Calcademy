@@ -118,6 +118,25 @@ void main() {
     expect(find.byIcon(Icons.star_rounded), findsOneWidget);
   });
 
+  testWidgets('lists and filters a Graph Plotter record', (tester) async {
+    final graph = _item(
+      'graph',
+      'Parabola graph',
+      SavedCalculationModule.graphPlotter,
+      DateTime.utc(2026, 4, 1),
+      result: 'x^2 · x:[-10, 10]',
+    );
+    await _pump(tester, _MemoryRepository(items: [graph]));
+
+    expect(find.text('Parabola graph'), findsOneWidget);
+    expect(find.text('Graphing'), findsWidgets);
+    await tester.tap(find.byKey(const Key('saved-module-filter')));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Graphing').last);
+    await tester.pumpAndSettle();
+    expect(find.text('Parabola graph'), findsOneWidget);
+  });
+
   testWidgets('delete and clear-all require confirmation', (tester) async {
     final repository = _MemoryRepository(items: _items);
     await _pump(tester, repository);

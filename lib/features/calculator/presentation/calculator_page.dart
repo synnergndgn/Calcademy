@@ -4,6 +4,8 @@ import 'package:calcademy/features/calculator/domain/calculator_error.dart';
 import 'package:calcademy/features/calculator/presentation/calculator_controller.dart';
 import 'package:calcademy/features/calculator/presentation/calculator_keypad.dart';
 import 'package:calcademy/features/saved/presentation/saved_controller.dart';
+import 'package:calcademy/features/saved_calculations/application/adapters/calculator_saved_adapter.dart';
+import 'package:calcademy/features/saved_calculations/presentation/save_result_action.dart';
 import 'package:calcademy/features/settings/domain/app_settings.dart';
 import 'package:calcademy/features/settings/presentation/settings_controller.dart';
 import 'package:calcademy/l10n/app_localizations.dart';
@@ -405,6 +407,12 @@ class _CalculatorResultPanel extends ConsumerWidget {
                   onPressed: panelState.lastRecord == null ? null : onSave,
                   icon: const Icon(Icons.bookmark_add_outlined),
                 ),
+                if (panelState.lastRecord case final record?)
+                  SaveResultAction(
+                    buttonKey: const Key('calculator-save-calculation'),
+                    draft: CalculatorSavedAdapter.fromRecord(record),
+                    compact: true,
+                  ),
                 IconButton(
                   tooltip: context.l10n.t('useResult'),
                   onPressed: () => onUse(panelState.result),

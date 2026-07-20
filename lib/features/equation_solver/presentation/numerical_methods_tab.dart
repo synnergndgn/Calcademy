@@ -2,6 +2,7 @@ import 'package:calcademy/app/theme/app_spacing.dart';
 import 'package:calcademy/features/equation_solver/domain/equation_solver_limits.dart';
 import 'package:calcademy/features/equation_solver/presentation/equation_result_card.dart';
 import 'package:calcademy/features/equation_solver/presentation/equation_solver_controller.dart';
+import 'package:calcademy/features/saved_calculations/application/adapters/equation_solver_saved_adapter.dart';
 import 'package:calcademy/features/linear_programming/domain/linear_program.dart'
     show parseLpNumber;
 import 'package:calcademy/l10n/app_localizations.dart';
@@ -31,6 +32,8 @@ class _NumericalMethodsTabState extends ConsumerState<NumericalMethodsTab> {
     text: '${EquationSolverLimits.defaultMaxIterations}',
   );
   String? _inputError;
+  String _solvedFunction = '';
+  List<double> _solvedInitialValues = const [];
 
   @override
   void dispose() {
@@ -57,8 +60,14 @@ class _NumericalMethodsTabState extends ConsumerState<NumericalMethodsTab> {
       setState(() => _inputError = l10n.t('eqErrorInvalidNumber'));
       return;
     }
-    setState(() => _inputError = null);
     final function = _function.text;
+    setState(() {
+      _inputError = null;
+      _solvedFunction = function;
+      _solvedInitialValues = _method == _Method.newton
+          ? [first]
+          : [first, second];
+    });
     ref
         .read(equationWorkspaceProvider.notifier)
         .runMethod(
@@ -194,7 +203,14 @@ class _NumericalMethodsTabState extends ConsumerState<NumericalMethodsTab> {
         if (state.loading)
           const Center(child: CircularProgressIndicator())
         else
-          EquationResultCard(numeric: state.methodResult),
+          EquationResultCard(
+            numeric: state.methodResult,
+            savedDraft: EquationSolverSavedAdapter.tryNumerical(
+              function: _solvedFunction,
+              result: state.methodResult,
+              initialValues: _solvedInitialValues,
+            ),
+          ),
       ],
     );
   }

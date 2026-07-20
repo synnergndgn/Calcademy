@@ -2,6 +2,7 @@ import 'package:calcademy/app/theme/app_spacing.dart';
 import 'package:calcademy/features/equation_solver/domain/equation_solver_limits.dart';
 import 'package:calcademy/features/equation_solver/presentation/equation_result_card.dart';
 import 'package:calcademy/features/equation_solver/presentation/equation_solver_controller.dart';
+import 'package:calcademy/features/saved_calculations/application/adapters/equation_solver_saved_adapter.dart';
 import 'package:calcademy/features/linear_programming/domain/linear_program.dart'
     show parseLpNumber;
 import 'package:calcademy/l10n/app_localizations.dart';
@@ -27,6 +28,7 @@ class _SingleEquationTabState extends ConsumerState<SingleEquationTab> {
     text: '${EquationSolverLimits.defaultScanMax.toInt()}',
   );
   String? _inputError;
+  String _solvedEquation = '';
 
   @override
   void dispose() {
@@ -47,7 +49,10 @@ class _SingleEquationTabState extends ConsumerState<SingleEquationTab> {
       setState(() => _inputError = l10n.t('eqErrorInvalidInterval'));
       return;
     }
-    setState(() => _inputError = null);
+    setState(() {
+      _inputError = null;
+      _solvedEquation = _equation.text;
+    });
     ref
         .read(equationWorkspaceProvider.notifier)
         .solveSingle(_equation.text, scanMin: min, scanMax: max);
@@ -140,7 +145,13 @@ class _SingleEquationTabState extends ConsumerState<SingleEquationTab> {
         if (state.loading)
           const Center(child: CircularProgressIndicator())
         else
-          EquationResultCard(single: state.singleResult),
+          EquationResultCard(
+            single: state.singleResult,
+            savedDraft: EquationSolverSavedAdapter.trySingle(
+              equation: _solvedEquation,
+              result: state.singleResult,
+            ),
+          ),
       ],
     );
   }

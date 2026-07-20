@@ -72,6 +72,7 @@ void main() {
     await tester.pumpAndSettle();
     expect(resultFinder, findsOneWidget);
     expect(find.text('Z = 22'), findsOneWidget);
+    expect(find.byKey(const Key('ip-save-calculation')), findsOneWidget);
   });
 
   testWidgets(

@@ -51,6 +51,59 @@ void main() {
     );
   });
 
+  test('searches and filters graph plotter records', () {
+    final graph = _item(
+      'graph',
+      'x squared',
+      'x^2 · x:[-10, 10]',
+      DateTime.utc(2026, 4, 1),
+      SavedCalculationModule.graphPlotter,
+    );
+    items.add(graph);
+
+    expect(_apply(service, items, query: 'grafik çizici').single.id, 'graph');
+    expect(
+      _apply(
+        service,
+        items,
+        module: SavedCalculationModule.graphPlotter,
+      ).single.id,
+      'graph',
+    );
+  });
+
+  test('keeps LP and IP module filters distinct', () {
+    final lp = _item(
+      'lp',
+      'LP optimum',
+      'z = 10',
+      DateTime.utc(2026, 4, 2),
+      SavedCalculationModule.linearProgramming,
+    );
+    final ip = _item(
+      'ip',
+      'IP optimum',
+      'z = 9',
+      DateTime.utc(2026, 4, 3),
+      SavedCalculationModule.integerProgramming,
+    );
+
+    expect(
+      _apply(service, [
+        lp,
+        ip,
+      ], module: SavedCalculationModule.linearProgramming).single.id,
+      'lp',
+    );
+    expect(
+      _apply(service, [
+        lp,
+        ip,
+      ], module: SavedCalculationModule.integerProgramming).single.id,
+      'ip',
+    );
+  });
+
   test('sorts newest, oldest, and favorites first', () {
     expect(_apply(service, items).map((item) => item.id), [
       'newest',

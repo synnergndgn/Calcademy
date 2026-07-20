@@ -84,6 +84,7 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(find.byKey(const ValueKey('matrix-result-panel')), findsOneWidget);
+    expect(find.byKey(const Key('matrix-save-calculation')), findsOneWidget);
     expect(
       find.text('Tap a result cell to inspect its row-by-column calculation.'),
       findsOneWidget,

@@ -2,6 +2,7 @@ import 'package:calcademy/app/theme/app_spacing.dart';
 import 'package:calcademy/features/equation_solver/domain/equation_solver_limits.dart';
 import 'package:calcademy/features/equation_solver/presentation/equation_result_card.dart';
 import 'package:calcademy/features/equation_solver/presentation/equation_solver_controller.dart';
+import 'package:calcademy/features/saved_calculations/application/adapters/equation_solver_saved_adapter.dart';
 import 'package:calcademy/features/linear_programming/domain/linear_program.dart'
     show parseLpNumber;
 import 'package:calcademy/l10n/app_localizations.dart';
@@ -24,6 +25,7 @@ class _LinearSystemTabState extends ConsumerState<LinearSystemTab> {
   final _cells = <List<TextEditingController>>[];
   final _rhs = <TextEditingController>[];
   String? _inputError;
+  int _solvedDimension = 0;
 
   @override
   void initState() {
@@ -85,7 +87,10 @@ class _LinearSystemTabState extends ConsumerState<LinearSystemTab> {
       setState(() => _inputError = l10n.t('eqErrorInvalidNumber'));
       return;
     }
-    setState(() => _inputError = null);
+    setState(() {
+      _inputError = null;
+      _solvedDimension = _size;
+    });
     ref.read(equationWorkspaceProvider.notifier).solveSystem(coefficients, rhs);
   }
 
@@ -202,7 +207,13 @@ class _LinearSystemTabState extends ConsumerState<LinearSystemTab> {
         if (state.loading)
           const Center(child: CircularProgressIndicator())
         else
-          EquationResultCard(system: state.systemResult),
+          EquationResultCard(
+            system: state.systemResult,
+            savedDraft: EquationSolverSavedAdapter.tryLinearSystem(
+              dimension: _solvedDimension,
+              result: state.systemResult,
+            ),
+          ),
       ],
     );
   }

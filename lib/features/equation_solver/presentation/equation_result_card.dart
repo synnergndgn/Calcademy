@@ -3,6 +3,8 @@ import 'package:calcademy/features/equation_solver/application/linear_system_ser
 import 'package:calcademy/features/equation_solver/domain/equation_solver_result.dart';
 import 'package:calcademy/features/matrix/domain/linear_system_result.dart';
 import 'package:calcademy/features/matrix/domain/matrix_number_formatter.dart';
+import 'package:calcademy/features/saved_calculations/domain/saved_calculation.dart';
+import 'package:calcademy/features/saved_calculations/presentation/save_result_action.dart';
 import 'package:calcademy/l10n/app_localizations.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -38,11 +40,18 @@ String equationMethodKey(EquationSolveMethod method) => switch (method) {
 /// persistent card - never a transient snackbar - with a localized,
 /// human-readable message.
 class EquationResultCard extends StatelessWidget {
-  const EquationResultCard({super.key, this.single, this.system, this.numeric});
+  const EquationResultCard({
+    super.key,
+    this.single,
+    this.system,
+    this.numeric,
+    this.savedDraft,
+  });
 
   final SingleEquationResult? single;
   final LinearSystemServiceResult? system;
   final NumericalMethodResult? numeric;
+  final SavedCalculationDraft? savedDraft;
 
   @override
   Widget build(BuildContext context) {
@@ -303,20 +312,35 @@ class EquationResultCard extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             ...lines,
-            if (copyText != null)
+            if (copyText != null || savedDraft != null)
               Align(
                 alignment: AlignmentDirectional.centerEnd,
-                child: TextButton.icon(
-                  onPressed: () async {
-                    await Clipboard.setData(ClipboardData(text: copyText!));
-                    if (context.mounted) {
-                      ScaffoldMessenger.of(
-                        context,
-                      ).showSnackBar(SnackBar(content: Text(l10n.t('copied'))));
-                    }
-                  },
-                  icon: const Icon(Icons.copy, size: 18),
-                  label: Text(l10n.t('copyResult')),
+                child: Wrap(
+                  spacing: AppSpacing.xs,
+                  runSpacing: AppSpacing.xs,
+                  alignment: WrapAlignment.end,
+                  children: [
+                    if (copyText != null)
+                      TextButton.icon(
+                        onPressed: () async {
+                          await Clipboard.setData(
+                            ClipboardData(text: copyText!),
+                          );
+                          if (context.mounted) {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              SnackBar(content: Text(l10n.t('copied'))),
+                            );
+                          }
+                        },
+                        icon: const Icon(Icons.copy, size: 18),
+                        label: Text(l10n.t('copyResult')),
+                      ),
+                    if (savedDraft case final draft?)
+                      SaveResultAction(
+                        buttonKey: const Key('eq-save-result'),
+                        draft: draft,
+                      ),
+                  ],
                 ),
               ),
           ],

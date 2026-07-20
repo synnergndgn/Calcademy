@@ -70,6 +70,7 @@ void main() {
     await tester.tap(find.byKey(const Key('eq-single-solve')));
     await tester.pumpAndSettle();
     final resultCard = find.byKey(const Key('eq-result-card'));
+    expect(find.byKey(const Key('eq-save-result')), findsOneWidget);
     await tester.ensureVisible(resultCard);
     await tester.pumpAndSettle();
     expect(find.text('x = 6'), findsOneWidget);

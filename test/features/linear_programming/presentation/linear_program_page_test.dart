@@ -55,6 +55,7 @@ void main() {
     expect(resultFinder, findsOneWidget);
     expect(find.text('z = 10'), findsOneWidget);
     expect(find.text('x1 = 2'), findsOneWidget);
+    expect(find.byKey(const Key('lp-save-calculation')), findsOneWidget);
   });
 
   testWidgets('large text remains scrollable without an exception', (

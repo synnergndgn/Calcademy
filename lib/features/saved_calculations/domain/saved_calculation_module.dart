@@ -4,6 +4,7 @@ enum SavedCalculationModule {
     titleKey: 'calculator',
     route: '/calculator',
   ),
+  graphPlotter(id: 'graph-plotter', titleKey: 'graphing', route: '/graph'),
   financialCalculator(
     id: 'financial-calculator',
     titleKey: 'financialCalculator',

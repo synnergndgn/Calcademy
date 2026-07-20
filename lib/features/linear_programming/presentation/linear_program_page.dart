@@ -15,6 +15,8 @@ import 'package:calcademy/features/linear_programming/presentation/lp_graph_view
 import 'package:calcademy/features/linear_programming/presentation/simplex_steps_page.dart';
 import 'package:calcademy/features/optimization/presentation/widgets/constraint_relation_options.dart';
 import 'package:calcademy/features/optimization/presentation/widgets/responsive_constraint_card.dart';
+import 'package:calcademy/features/saved_calculations/application/adapters/optimization_saved_adapter.dart';
+import 'package:calcademy/features/saved_calculations/presentation/save_result_action.dart';
 import 'package:calcademy/l10n/app_localizations.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -602,6 +604,11 @@ class _ResultPanel extends ConsumerWidget {
                   icon: const Icon(Icons.copy_all),
                   label: Text(context.l10n.t('lpSaveCopy')),
                 ),
+                if (feasible != null)
+                  SaveResultAction(
+                    buttonKey: const Key('lp-save-calculation'),
+                    draft: OptimizationSavedAdapter.linear(program, feasible),
+                  ),
                 OutlinedButton.icon(
                   onPressed: () async {
                     await Clipboard.setData(

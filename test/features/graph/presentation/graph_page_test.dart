@@ -43,6 +43,7 @@ void main() {
     );
     expect(container.read(graphProvider).series, isNotEmpty);
     expect(find.byType(LineChart), findsOneWidget);
+    expect(find.byKey(const Key('graph-save-calculation')), findsOneWidget);
 
     await tester.enterText(expressionField, 'mystery(x)');
     await tester.pump(GraphController.debounceDuration);
