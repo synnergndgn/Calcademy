@@ -14,6 +14,12 @@
 
 This draft describes Calcademy's current release candidate. It must be reviewed and published at a stable public URL before a store submission.
 
+## In-app access
+
+Calcademy includes a localized **About & Legal** screen with an on-device summary of current data handling, local storage, educational use, and the financial disclaimer. It is reachable from Home and Settings and does not expose a broken placeholder link.
+
+This local summary improves user access but does not replace the complete policy that must be finalized and hosted at a stable public HTTPS URL for the Play Store release.
+
 ## What Calcademy does
 
 Calcademy is an academic calculation application for mathematics, statistics, finance, optimization, and operations research. Calculations are performed on the device.
@@ -62,7 +68,8 @@ Material changes will be reflected by updating this policy's effective date and 
 - [ ] Replace developer/publisher, effective date, contact, and public URL placeholders.
 - [ ] Confirm the publisher name matches the Play Store listing.
 - [ ] Host the complete policy at a stable HTTPS URL accessible without login.
-- [ ] Add an accessible in-app privacy-policy link or policy text if required by the current Google Play User Data policy.
+- [x] Provide accessible, localized in-app privacy/data-handling text without a broken external link.
+- [ ] Connect the app to the final public policy URL if required after that URL is published and verified.
 - [ ] Compare this policy with the exact final AAB, merged manifest, dependencies, Data Safety form, and Ads declaration.
 - [ ] Verify local deletion wording against the release UI.
 - [ ] Obtain legal review appropriate to the publisher and target jurisdictions where needed.

@@ -29,6 +29,7 @@ Home ekranı modülleri bu bilgi mimarisine göre gruplar. Lokalize arama; modü
 - Simpleks tabanlı LP, Branch-and-Bound tabanlı IP
 - Transportation, Assignment, Weighted Goal Programming ve CPM/PERT
 - Modüller arası ortak, sürümlenmiş ve boyut limitli Saved Calculations kayıtları
+- Home ve Ayarlar üzerinden erişilebilen, lokalize Hakkında ve Yasal Bilgiler alanı
 - Türkçe/İngilizce, Material 3 light/dark tema ve çevrimdışı çalışma
 
 ## Mimari
@@ -106,7 +107,7 @@ git diff --check
 
 ## Gizlilik ve release yaklaşımı
 
-Bu sürüm hesap, backend, reklam veya analytics kullanmaz. Hesaplamalar ve ayarlar cihazda saklanır. Debug APK CI/yerel kalite kapısından üretilebilir; Play Store imzalama, mağaza metadata’sı, launcher icon sonlandırması ve üretim gizlilik metni ayrı release adımlarıdır.
+Bu sürüm hesap, backend, reklam veya analytics kullanmaz. Hesaplamalar ve ayarlar cihazda saklanır; lokalize Hakkında ve Yasal Bilgiler ekranı bu yaklaşımı uygulama içinde açıklar. Android adaptive/monochrome launcher kaynakları mevcut Calcademy işaretinden türetilmiştir; final 512×512 store icon ve feature graphic ayrıca görsel onay gerektirir. Debug APK CI/yerel kalite kapısından üretilebilir; Play Store imzalama, mağaza metadata’sı ve üretim gizlilik URL’si ayrı release adımlarıdır.
 
 Release hazırlık belgeleri:
 
@@ -118,6 +119,7 @@ Release hazırlık belgeleri:
 - [Monetization stratejisi](docs/monetization_strategy.md)
 - [1.0.0 release notes taslağı](docs/release_notes_v1_0_0.md)
 - [Play Store final karar checklist](docs/play_store_final_checklist.md)
+- [Package name karar belgesi](docs/package_name_decision.md)
 - [Play App Signing karar rehberi](docs/play_app_signing_decision.md)
 - [Final release build checklist](docs/final_release_build_checklist.md)
 - [Play Console App Content checklist](docs/play_console_app_content_checklist.md)

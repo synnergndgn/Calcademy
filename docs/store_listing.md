@@ -41,6 +41,8 @@ Supported workspaces include:
 
 Calculations and supported saved data stay on the device. Calcademy currently has no account, cloud sync, ads, or analytics. Light and dark themes, English and Turkish interfaces, responsive layouts, and accessibility-focused text scaling are included.
 
+The in-app About & Legal area explains local storage, current data handling, educational use, and the financial disclaimer in English and Turkish.
+
 Calcademy is intended for education and general academic calculation. Financial outputs are not investment, tax, or legal advice. Results depend on user inputs, floating-point arithmetic, and the numerical method used.
 
 ## Türkçe kısa açıklamalar
@@ -70,6 +72,8 @@ Matematik, optimizasyon, yöneylem araştırması, istatistik ve finans araçlar
 
 Desteklenen hesaplamalar ve kayıtlar cihazda kalır. Mevcut sürümde hesap, bulut senkronizasyonu, reklam veya analytics yoktur. Açık/koyu tema, Türkçe/İngilizce arayüz ve responsive erişilebilir tasarım desteklenir.
 
+Uygulama içindeki Hakkında ve Yasal Bilgiler alanı; yerel depolama, mevcut veri işleme yaklaşımı, eğitim amaçlı kullanım ve finansal uyarıyı Türkçe ve İngilizce açıklar.
+
 Calcademy eğitim ve genel akademik hesaplama amaçlıdır. Finansal çıktılar yatırım, vergi veya hukuk tavsiyesi değildir. Sonuçlar kullanıcı girdilerine, kayan nokta aritmetiğine ve kullanılan sayısal yönteme bağlıdır.
 
 ## Positioning terms
@@ -86,6 +90,7 @@ Avoid unsupported claims such as “AI-powered,” “exact for every problem,�
 - Educational financial scenarios and cash-flow tools
 - Linear/Integer Programming and Operations Research
 - Searchable Saved Calculations with favorites and copy actions
+- Localized About & Legal access with clear on-device data-handling information
 - English/Turkish UI, light/dark themes, and responsive layouts
 
 ## Suggested tags and keywords

@@ -48,6 +48,7 @@ class _HomePageState extends ConsumerState<HomePage> {
       appBar: AppBar(
         title: const _HomeBrand(),
         actions: const [
+          _AboutButton(),
           _ThemeButton(),
           SizedBox(width: AppSpacing.xs),
         ],
@@ -176,6 +177,18 @@ class _ThemeButton extends ConsumerWidget {
       icon: Icon(isDark ? Icons.light_mode_rounded : Icons.dark_mode_rounded),
     );
   }
+}
+
+class _AboutButton extends StatelessWidget {
+  const _AboutButton();
+
+  @override
+  Widget build(BuildContext context) => IconButton(
+    key: const Key('home-about-action'),
+    tooltip: context.l10n.t('aboutLegal'),
+    onPressed: () => context.push('/about'),
+    icon: const Icon(Icons.info_outline_rounded),
+  );
 }
 
 class _HeroCard extends StatelessWidget {

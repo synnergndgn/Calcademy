@@ -18,6 +18,8 @@ Official reference: [Google Play target API requirements](https://support.google
 
 ## Package-name decision — blocking
 
+Detailed comparison and owner sign-off: [Package Name Decision](package_name_decision.md).
+
 - [ ] The package name matches the long-term publisher/brand identity.
 - [ ] The repeated form `com.calcademy.calcademy` is intentionally accepted.
 - [ ] These alternatives were considered before creating the Play Console app:
@@ -51,7 +53,7 @@ This sprint does not change `version: 1.0.0+1`.
 - [ ] Phone screenshots accurately show the release candidate.
 - [ ] Store artwork uses only owned/licensed assets and preserves the Calcademy brand.
 
-The repository currently contains legacy density-based launcher PNGs only; adaptive-icon XML is still missing.
+The repository now contains legacy fallback plus adaptive foreground/background and monochrome launcher resources derived from the owned Calcademy mark. This closes the Android resource-infrastructure gap, not the visual-approval gate: a real-device launcher review and a separately exported, production-approved 512×512 store icon are still required.
 
 ## Publisher and policy — blocking
 

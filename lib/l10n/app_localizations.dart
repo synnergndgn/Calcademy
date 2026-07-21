@@ -1047,16 +1047,40 @@ class AppLocalizations {
       'scientificNotation': 'Automatic scientific notation',
       'data': 'Data',
       'about': 'About',
+      'aboutLegal': 'About & Legal',
       'privacy': 'Privacy',
       'privacyBody':
-          'All calculations and preferences stay on this device. Calcademy does not use an account, backend, ads, or analytics in this version.',
+          'Review how Calcademy handles local data and responsible-use information.',
       'aboutBody':
-          'Calcademy is a modular academic calculation workspace for university students.',
+          'Calcademy is a local-first academic computing workspace for mathematics, data, finance, optimization, and engineering study.',
+      'versionLabel': 'Version',
+      'dataHandling': 'Privacy & data handling',
+      'privacyPolicy': 'Privacy policy',
+      'privacyPolicyBody':
+          'Calcademy processes calculation inputs on this device. It does not send your calculations or saved work to a Calcademy server.',
+      'localStorage': 'Local storage',
+      'localStorageBody':
+          'Saved Calculations and supported workspace data remain on this device until you delete them, clear app storage, or uninstall the app.',
+      'noAds': 'No ads',
+      'noAnalytics': 'No analytics',
+      'noCloudSync': 'No cloud sync',
+      'noAccount': 'No account',
+      'educationalUse': 'Educational use',
+      'educationalUseBody':
+          'Calcademy supports academic exploration and general calculation. Results depend on your inputs, numerical methods, and floating-point precision.',
+      'financialDisclaimer': 'Financial disclaimer',
+      'financialDisclaimerBody':
+          'Financial tools are for education and general calculation only. They are not investment, lending, tax, legal, or financial advice.',
+      'contact': 'Contact',
+      'contactBody':
+          'For support or privacy questions, use the contact details published with Calcademy in its official distribution listing.',
       'supportedModule': 'Supported first module',
       'futureModules': 'Future modules',
       'futureModulesBody':
           'Graphing, matrices, equations, calculus, statistics, optimization and numerical methods are planned.',
       'openSourceLicenses': 'Open-source packages',
+      'openSourceLicensesBody':
+          'Review licenses for the open-source packages used by Calcademy.',
       'viewLicenses': 'View licenses',
       'version': 'Version 1.0.0',
       'today': 'Today',
@@ -2105,16 +2129,40 @@ class AppLocalizations {
       'scientificNotation': 'Otomatik bilimsel gösterim',
       'data': 'Veriler',
       'about': 'Hakkında',
+      'aboutLegal': 'Hakkında ve Yasal Bilgiler',
       'privacy': 'Gizlilik',
       'privacyBody':
-          'Tüm hesaplamalar ve tercihler bu cihazda kalır. Calcademy bu sürümde hesap, sunucu, reklam veya analiz kullanmaz.',
+          'Calcademy’nin yerel verileri nasıl işlediğini ve sorumlu kullanım bilgilerini inceleyin.',
       'aboutBody':
-          'Calcademy, üniversite öğrencileri için modüler bir akademik hesaplama alanıdır.',
+          'Calcademy; matematik, veri, finans, optimizasyon ve mühendislik çalışmaları için yerel öncelikli bir akademik hesaplama alanıdır.',
+      'versionLabel': 'Sürüm',
+      'dataHandling': 'Gizlilik ve veri işleme',
+      'privacyPolicy': 'Gizlilik politikası',
+      'privacyPolicyBody':
+          'Calcademy, hesaplama girdilerini bu cihazda işler. Hesaplamalarınızı veya kaydedilen çalışmalarınızı bir Calcademy sunucusuna göndermez.',
+      'localStorage': 'Yerel depolama',
+      'localStorageBody':
+          'Kaydedilen Hesaplamalar ve desteklenen çalışma alanı verileri; siz silene, uygulama verilerini temizleyene veya uygulamayı kaldırana kadar bu cihazda kalır.',
+      'noAds': 'Reklam yok',
+      'noAnalytics': 'Analiz yok',
+      'noCloudSync': 'Bulut eşitleme yok',
+      'noAccount': 'Hesap yok',
+      'educationalUse': 'Eğitim amaçlı kullanım',
+      'educationalUseBody':
+          'Calcademy akademik inceleme ve genel hesaplamayı destekler. Sonuçlar girdilerinize, sayısal yöntemlere ve kayan nokta hassasiyetine bağlıdır.',
+      'financialDisclaimer': 'Finansal sorumluluk reddi',
+      'financialDisclaimerBody':
+          'Finans araçları yalnızca eğitim ve genel hesaplama içindir. Yatırım, kredi, vergi, hukuk veya finans tavsiyesi değildir.',
+      'contact': 'İletişim',
+      'contactBody':
+          'Destek veya gizlilik soruları için Calcademy’nin resmî dağıtım sayfasında yayımlanan iletişim bilgilerini kullanın.',
       'supportedModule': 'Desteklenen ilk modül',
       'futureModules': 'Gelecek modüller',
       'futureModulesBody':
           'Grafik, matris, denklem, kalkülüs, istatistik, optimizasyon ve sayısal yöntem modülleri planlanmaktadır.',
       'openSourceLicenses': 'Açık kaynak paketleri',
+      'openSourceLicensesBody':
+          'Calcademy’de kullanılan açık kaynak paketlerinin lisanslarını inceleyin.',
       'viewLicenses': 'Lisansları görüntüle',
       'version': 'Sürüm 1.0.0',
       'today': 'Bugün',

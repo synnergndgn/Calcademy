@@ -149,6 +149,8 @@ class SettingsPage extends ConsumerWidget {
                   leading: const Icon(Icons.privacy_tip_outlined),
                   title: Text(context.l10n.t('privacy')),
                   subtitle: Text(context.l10n.t('privacyBody')),
+                  trailing: const Icon(Icons.chevron_right_rounded),
+                  onTap: () => context.push('/about'),
                 ),
               ],
             ),

@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="108dp"
+    android:height="108dp"
+    android:viewportWidth="200"
+    android:viewportHeight="200">
+    <!-- Legacy fallback derived from the official Calcademy SVG mark. -->
+    <path
+        android:fillColor="#63897A"
+        android:pathData="M50,4 H150 C175.4,4 196,24.6 196,50 V150 C196,175.4 175.4,196 150,196 H50 C24.6,196 4,175.4 4,150 V50 C4,24.6 24.6,4 50,4 Z" />
+    <path
+        android:fillColor="@android:color/transparent"
+        android:pathData="M138,66 C96,50 56,72 56,100 C56,128 96,150 138,134"
+        android:strokeColor="#FBFAF5"
+        android:strokeLineCap="round"
+        android:strokeLineJoin="round"
+        android:strokeWidth="11" />
+    <path
+        android:fillColor="#E7B77D"
+        android:pathData="M145,134 A7,7 0,1 1,131,134 A7,7 0,1 1,145,134" />
+    <path
+        android:fillAlpha="0.6"
+        android:fillColor="#FBFAF5"
+        android:pathData="M142,66 A4,4 0,1 1,134,66 A4,4 0,1 1,142,66" />
+</vector>

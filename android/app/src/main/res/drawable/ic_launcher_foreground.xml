@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="108dp"
+    android:height="108dp"
+    android:viewportWidth="108"
+    android:viewportHeight="108">
+    <!-- The Calcademy curve mark, scaled into the adaptive-icon safe zone. -->
+    <path
+        android:fillColor="@android:color/transparent"
+        android:pathData="M76.8,33.6 C51.6,24 27.6,37.2 27.6,54 C27.6,70.8 51.6,84 76.8,74.4"
+        android:strokeColor="#FBFAF5"
+        android:strokeLineCap="round"
+        android:strokeLineJoin="round"
+        android:strokeWidth="6.6" />
+    <path
+        android:fillColor="#E7B77D"
+        android:pathData="M81,74.4 A4.2,4.2 0,1 1,72.6,74.4 A4.2,4.2 0,1 1,81,74.4" />
+    <path
+        android:fillAlpha="0.6"
+        android:fillColor="#FBFAF5"
+        android:pathData="M79.2,33.6 A2.4,2.4 0,1 1,74.4,33.6 A2.4,2.4 0,1 1,79.2,33.6" />
+</vector>
