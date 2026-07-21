@@ -25,6 +25,17 @@ void main() {
     await tester.pumpAndSettle();
     expect(find.byKey(const Key('or-assignment-grid-scroll')), findsOneWidget);
     expect(find.byKey(const Key('or-assignment-value-0-0')), findsOneWidget);
+    await _tapVisible(
+      tester,
+      find.byKey(const Key('or-mode-goal-programming')),
+    );
+    await tester.pumpAndSettle();
+    expect(find.byKey(const Key('or-goal-grid-scroll')), findsOneWidget);
+    expect(find.byKey(const Key('or-goal-coefficient-0-0')), findsOneWidget);
+    await _tapVisible(tester, find.byKey(const Key('or-mode-cpm-pert')));
+    await tester.pumpAndSettle();
+    expect(find.byKey(const Key('or-network-grid-scroll')), findsOneWidget);
+    expect(find.byKey(const Key('or-network-duration-0')), findsOneWidget);
   });
 
   testWidgets('solves transportation and saves a compact OR record', (
@@ -80,6 +91,87 @@ void main() {
     expect(find.byKey(const Key('or-save-result')), findsOneWidget);
   });
 
+  testWidgets('solves Goal Programming and saves the optimal result', (
+    tester,
+  ) async {
+    final repository = _RecordingRepository();
+    await _pump(tester, repository: repository);
+    await _tapVisible(
+      tester,
+      find.byKey(const Key('or-mode-goal-programming')),
+    );
+    await tester.pumpAndSettle();
+
+    expect(find.byKey(const Key('or-goal-hard-grid-scroll')), findsOneWidget);
+    expect(find.byKey(const Key('or-goal-grid-scroll')), findsOneWidget);
+    expect(find.byKey(const Key('or-goal-hard-0-0')), findsOneWidget);
+    expect(find.byKey(const Key('or-goal-coefficient-0-1')), findsOneWidget);
+    await _tapVisible(tester, find.byKey(const Key('or-goal-solve')));
+    await tester.pumpAndSettle();
+
+    expect(find.byKey(const Key('or-result-card')), findsOneWidget);
+    expect(find.text('Total weighted deviation: 0'), findsOneWidget);
+    expect(find.byKey(const Key('or-goal-result-scroll')), findsOneWidget);
+    expect(find.byKey(const Key('or-copy-result')), findsOneWidget);
+    expect(find.byKey(const Key('or-save-result')), findsOneWidget);
+    await _tapVisible(tester, find.byKey(const Key('or-save-result')));
+    await tester.pumpAndSettle();
+    expect(repository.items.single.calculationType, 'goal-programming');
+  });
+
+  testWidgets('solves CPM and exposes a scrollable schedule result', (
+    tester,
+  ) async {
+    await _pump(tester);
+    await _tapVisible(tester, find.byKey(const Key('or-mode-cpm-pert')));
+    await tester.pumpAndSettle();
+
+    expect(find.byKey(const Key('or-network-grid-scroll')), findsOneWidget);
+    expect(find.byKey(const Key('or-network-duration-0')), findsOneWidget);
+    await _tapVisible(tester, find.byKey(const Key('or-network-solve')));
+    await tester.pumpAndSettle();
+
+    expect(find.byKey(const Key('or-result-card')), findsOneWidget);
+    expect(find.text('Project duration: 6'), findsOneWidget);
+    expect(find.textContaining('A → B → C'), findsOneWidget);
+    expect(find.byKey(const Key('or-network-result-scroll')), findsOneWidget);
+    expect(find.byKey(const Key('or-copy-result')), findsOneWidget);
+    expect(find.byKey(const Key('or-save-result')), findsOneWidget);
+  });
+
+  testWidgets('switches to PERT fields and shows expected-time results', (
+    tester,
+  ) async {
+    await _pump(tester);
+    await _tapVisible(tester, find.byKey(const Key('or-mode-cpm-pert')));
+    await tester.pumpAndSettle();
+    await _tapVisible(tester, find.byKey(const Key('or-network-mode-pert')));
+    await tester.pumpAndSettle();
+
+    expect(find.byKey(const Key('or-network-optimistic-0')), findsOneWidget);
+    expect(find.byKey(const Key('or-network-most-likely-0')), findsOneWidget);
+    expect(find.byKey(const Key('or-network-pessimistic-0')), findsOneWidget);
+    expect(find.byKey(const Key('or-network-duration-0')), findsNothing);
+    await _tapVisible(tester, find.byKey(const Key('or-network-solve')));
+    await tester.pumpAndSettle();
+
+    expect(find.text('Project duration: 6'), findsOneWidget);
+    expect(find.text('Project variance: 0'), findsOneWidget);
+    expect(find.text('Project standard deviation: 0'), findsOneWidget);
+  });
+
+  testWidgets('shows a typed network validation message', (tester) async {
+    await _pump(tester);
+    await _tapVisible(tester, find.byKey(const Key('or-mode-cpm-pert')));
+    await tester.pumpAndSettle();
+    await _enter(tester, 'or-network-id-1', 'A');
+    await _tapVisible(tester, find.byKey(const Key('or-network-solve')));
+    await tester.pumpAndSettle();
+
+    expect(find.byKey(const Key('or-result-error')), findsOneWidget);
+    expect(find.text('Activity IDs must be unique.'), findsOneWidget);
+  });
+
   testWidgets('shows a friendly validation result for an empty cell', (
     tester,
   ) async {
@@ -112,6 +204,37 @@ void main() {
     expect(tester.getSize(grid).width, lessThanOrEqualTo(288));
     expect(find.byKey(const Key('or-transport-cost-0-2')), findsOneWidget);
     expect(tester.takeException(), isNull);
+
+    await tester.fling(
+      find.byKey(const Key('or-page-scroll')),
+      const Offset(0, 1800),
+      2000,
+    );
+    await tester.pumpAndSettle();
+    await _tapVisible(
+      tester,
+      find.byKey(const Key('or-mode-goal-programming')),
+    );
+    await tester.pumpAndSettle();
+    final goalGrid = find.byKey(const Key('or-goal-grid-scroll'));
+    expect(goalGrid, findsOneWidget);
+    expect(tester.getSize(goalGrid).width, lessThanOrEqualTo(288));
+    expect(tester.takeException(), isNull);
+
+    await tester.fling(
+      find.byKey(const Key('or-page-scroll')),
+      const Offset(0, 1800),
+      2000,
+    );
+    await tester.pumpAndSettle();
+    await _tapVisible(tester, find.byKey(const Key('or-mode-cpm-pert')));
+    await tester.pumpAndSettle();
+    await _tapVisible(tester, find.byKey(const Key('or-network-solve')));
+    await tester.pumpAndSettle();
+    final resultTable = find.byKey(const Key('or-network-result-scroll'));
+    expect(resultTable, findsOneWidget);
+    expect(tester.getSize(resultTable).width, lessThanOrEqualTo(288));
+    expect(tester.takeException(), isNull);
   });
 
   testWidgets('builds at 200 percent text scale and in dark mode', (
@@ -123,6 +246,14 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(find.byKey(const Key('or-assignment-grid-scroll')), findsOneWidget);
+    await _tapVisible(tester, find.byKey(const Key('or-mode-cpm-pert')));
+    await tester.pumpAndSettle();
+    await _tapVisible(tester, find.byKey(const Key('or-network-mode-pert')));
+    await tester.pumpAndSettle();
+    expect(find.byKey(const Key('or-network-grid-scroll')), findsOneWidget);
+    await _tapVisible(tester, find.byKey(const Key('or-network-solve')));
+    await tester.pumpAndSettle();
+    expect(find.byKey(const Key('or-network-result-scroll')), findsOneWidget);
     expect(
       Theme.of(tester.element(find.byType(OperationsResearchPage))).brightness,
       Brightness.dark,
@@ -170,6 +301,8 @@ Future<void> _enter(WidgetTester tester, String key, String value) async {
 Future<void> _tapVisible(WidgetTester tester, Finder finder) async {
   FocusManager.instance.primaryFocus?.unfocus();
   await tester.pump();
+  await tester.ensureVisible(finder);
+  await tester.pumpAndSettle();
   await tester.scrollUntilVisible(
     finder,
     200,

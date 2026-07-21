@@ -3,6 +3,8 @@ import 'package:calcademy/features/linear_programming/domain/linear_program.dart
     show formatLpNumber;
 import 'package:calcademy/features/operations_research/domain/operations_research_problem.dart';
 import 'package:calcademy/features/operations_research/domain/operations_research_result.dart';
+import 'package:calcademy/features/operations_research/presentation/cpm_pert_result_card.dart';
+import 'package:calcademy/features/operations_research/presentation/goal_programming_result_card.dart';
 import 'package:calcademy/features/saved_calculations/application/adapters/operations_research_saved_adapter.dart';
 import 'package:calcademy/features/saved_calculations/domain/saved_calculation.dart';
 import 'package:calcademy/features/saved_calculations/presentation/save_result_action.dart';
@@ -17,6 +19,21 @@ String operationsResearchIssueKey(
   OperationsResearchIssue.invalidDestinationCount => 'orErrorDestinationCount',
   OperationsResearchIssue.invalidAssignmentRowCount => 'orErrorRowCount',
   OperationsResearchIssue.invalidAssignmentColumnCount => 'orErrorColumnCount',
+  OperationsResearchIssue.invalidGoalVariableCount => 'orErrorGoalVariables',
+  OperationsResearchIssue.invalidHardConstraintCount =>
+    'orErrorHardConstraintCount',
+  OperationsResearchIssue.invalidGoalCount => 'orErrorGoalCount',
+  OperationsResearchIssue.invalidWeight => 'orErrorGoalWeight',
+  OperationsResearchIssue.allGoalWeightsZero => 'orErrorAllWeightsZero',
+  OperationsResearchIssue.goalUnbounded => 'orErrorGoalUnbounded',
+  OperationsResearchIssue.invalidActivityCount => 'orErrorActivityCount',
+  OperationsResearchIssue.emptyActivityId => 'orErrorEmptyActivityId',
+  OperationsResearchIssue.duplicateActivityId => 'orErrorDuplicateActivityId',
+  OperationsResearchIssue.missingPredecessor => 'orErrorMissingPredecessor',
+  OperationsResearchIssue.cyclicNetwork => 'orErrorCyclicNetwork',
+  OperationsResearchIssue.invalidDuration => 'orErrorDuration',
+  OperationsResearchIssue.invalidPertTimes => 'orErrorPertTimes',
+  OperationsResearchIssue.tooManyPredecessors => 'orErrorTooManyPredecessors',
   OperationsResearchIssue.invalidDimensions => 'orErrorDimensions',
   OperationsResearchIssue.invalidNumber => 'orErrorInvalidNumber',
   OperationsResearchIssue.negativeSupply => 'orErrorNegativeSupply',
@@ -62,6 +79,8 @@ class OperationsResearchResultCard extends StatelessWidget {
         result: transportation,
       ),
       AssignmentResult assignment => _AssignmentResultBody(result: assignment),
+      GoalProgrammingResult goal => GoalProgrammingResultBody(result: goal),
+      CpmPertResult network => CpmPertResultBody(result: network),
       OperationsResearchFailureResult() => const SizedBox.shrink(),
     };
     return Card(

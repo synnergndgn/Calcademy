@@ -98,4 +98,107 @@ abstract final class OperationsResearchSavedAdapter {
       },
     );
   }
+
+  static SavedCalculationDraft goalProgramming(GoalProgrammingResult result) {
+    requireFinite([
+      result.totalWeightedDeviation,
+      ...result.decisionVariables.values,
+      ...result.deviations.expand(
+        (item) => [item.under, item.over, item.weightedContribution],
+      ),
+    ]);
+    final decisions = result.decisionVariables.entries
+        .take(SavedCalculationsLimits.maxVariableSummaryCount)
+        .map((entry) => {'name': entry.key, 'value': entry.value})
+        .toList();
+    final deviations = result.deviations
+        .take(SavedCalculationsLimits.maxVariableSummaryCount)
+        .map(
+          (item) => {
+            'goal': item.goalIndex,
+            'under': item.under,
+            'over': item.over,
+            'satisfied': item.satisfied,
+          },
+        )
+        .toList();
+    return SavedCalculationDraft(
+      title: 'Weighted Goal Programming · ${result.goalCount} goals',
+      module: SavedCalculationModule.operationsResearch,
+      calculationType: 'goal-programming',
+      inputSummary:
+          '${result.decisionVariables.length} variables · ${result.hardConstraintCount} hard constraints · ${result.goalCount} goals',
+      resultSummary:
+          '${result.methodName} · weighted deviation ${formatLpNumber(result.totalWeightedDeviation)} · optimal',
+      fullInputJson: {
+        'variableCount': result.decisionVariables.length,
+        'hardConstraintCount': result.hardConstraintCount,
+        'goalCount': result.goalCount,
+      },
+      resultJson: {
+        'status': result.status.name,
+        'totalWeightedDeviation': result.totalWeightedDeviation,
+        'decisionPreview': decisions,
+        'deviationPreview': deviations,
+        'previewTruncated':
+            result.decisionVariables.length > decisions.length ||
+            result.deviations.length > deviations.length,
+      },
+    );
+  }
+
+  static SavedCalculationDraft cpmPert(CpmPertResult result) {
+    requireFinite([
+      result.projectDuration,
+      if (result.projectVariance != null) result.projectVariance!,
+      if (result.projectStandardDeviation != null)
+        result.projectStandardDeviation!,
+      ...result.activities.expand(
+        (item) => [
+          item.duration,
+          item.earliestStart,
+          item.earliestFinish,
+          item.latestStart,
+          item.latestFinish,
+          item.totalFloat,
+        ],
+      ),
+    ]);
+    final activityPreview = result.activities
+        .take(SavedCalculationsLimits.maxVariableSummaryCount)
+        .map(
+          (item) => {
+            'id': item.id,
+            'duration': item.duration,
+            'slack': item.totalFloat,
+            'critical': item.critical,
+          },
+        )
+        .toList();
+    final path = result.criticalPaths.isEmpty
+        ? result.criticalActivities.join(' → ')
+        : result.criticalPaths.first.join(' → ');
+    return SavedCalculationDraft(
+      title: '${result.methodName} · ${result.activities.length} activities',
+      module: SavedCalculationModule.operationsResearch,
+      calculationType: 'cpm-pert',
+      inputSummary:
+          '${result.methodName} · ${result.activities.length} activities',
+      resultSummary:
+          'duration ${formatLpNumber(result.projectDuration)} · critical path $path${result.projectStandardDeviation == null ? '' : ' · σ ${formatLpNumber(result.projectStandardDeviation!)}'}',
+      fullInputJson: {
+        'mode': result.mode.name,
+        'activityCount': result.activities.length,
+      },
+      resultJson: {
+        'projectDuration': result.projectDuration,
+        'criticalActivities': result.criticalActivities,
+        'criticalPathPreview': result.criticalPaths.take(1).toList(),
+        'projectVariance': result.projectVariance,
+        'projectStandardDeviation': result.projectStandardDeviation,
+        'activityPreview': activityPreview,
+        'previewTruncated': result.activities.length > activityPreview.length,
+      },
+    );
+  }
 }

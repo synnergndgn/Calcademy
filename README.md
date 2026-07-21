@@ -239,7 +239,18 @@ Canlı piyasa verisi, yatırım tavsiyesi, vergi/enflasyon, döviz dönüşümü
 - Negatif sonlu atama değerleri, tipli validation, merkezi boyut/iterasyon/tolerans limitleri
 - Responsive giriş ve sonuç tabloları, TR/EN, dark mode, kopyalama ve ortak Saved Calculations kaydı
 
-Goal Programming, CPM/PERT, EOQ, Decision Analysis, kuyruk modelleri ve simülasyon sonraki sürümlerin kapsamındadır.
+EOQ, Decision Analysis, kuyruk modelleri ve simülasyon sonraki sürümlerin kapsamındadır.
+
+## Operations Research 1.1
+
+- Weighted Goal Programming: doğrusal hedefler, kesin kısıtlar, eksik/fazla gerçekleşme sapmaları ve Simplex tabanlı optimal çözüm
+- Karar değişkenleri için varsayılan non-negativity ve eşit/en az/en çok hedef ilişkileri
+- CPM: activity-on-node ağları, forward/backward pass, toplam/serbest bolluk ve kritik yol
+- PERT: iyimser, en olası ve kötümser sürelerden beklenen süre/varyans hesabı
+- Çoklu başlangıç/bitiş ve bağlantısız bileşenlerde sanal ağ mantığı; cycle ve eksik öncül doğrulaması
+- Goal Programming ve CPM/PERT sonuçları için kopyalama ve ortak Saved Calculations kaydı
+
+Preemptive ve integer goal programming, deadline olasılığı, resource leveling, Gantt, EOQ ve Decision Analysis kapsam dışıdır.
 
 ## Ekran görüntüleri
 

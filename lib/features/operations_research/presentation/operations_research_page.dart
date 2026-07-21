@@ -1,12 +1,19 @@
 import 'package:calcademy/app/theme/app_spacing.dart';
 import 'package:calcademy/features/operations_research/presentation/assignment_tab.dart';
+import 'package:calcademy/features/operations_research/presentation/cpm_pert_tab.dart';
+import 'package:calcademy/features/operations_research/presentation/goal_programming_tab.dart';
 import 'package:calcademy/features/operations_research/presentation/operations_research_controller.dart';
 import 'package:calcademy/features/operations_research/presentation/transportation_tab.dart';
 import 'package:calcademy/l10n/app_localizations.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-enum _OperationsResearchMode { transportation, assignment }
+enum _OperationsResearchMode {
+  transportation,
+  assignment,
+  goalProgramming,
+  cpmPert,
+}
 
 class OperationsResearchPage extends ConsumerStatefulWidget {
   const OperationsResearchPage({super.key});
@@ -68,6 +75,20 @@ class _OperationsResearchPageState
                           key: const Key('or-mode-assignment'),
                         ),
                       ),
+                      ButtonSegment(
+                        value: _OperationsResearchMode.goalProgramming,
+                        label: Text(
+                          l10n.t('orGoalProgramming'),
+                          key: const Key('or-mode-goal-programming'),
+                        ),
+                      ),
+                      ButtonSegment(
+                        value: _OperationsResearchMode.cpmPert,
+                        label: Text(
+                          l10n.t('orCpmPert'),
+                          key: const Key('or-mode-cpm-pert'),
+                        ),
+                      ),
                     ],
                     selected: {_mode},
                     onSelectionChanged: (selection) {
@@ -85,6 +106,9 @@ class _OperationsResearchPageState
                         const TransportationTab(),
                       _OperationsResearchMode.assignment =>
                         const AssignmentTab(),
+                      _OperationsResearchMode.goalProgramming =>
+                        const GoalProgrammingTab(),
+                      _OperationsResearchMode.cpmPert => const CpmPertTab(),
                     },
                   ),
                 ),
