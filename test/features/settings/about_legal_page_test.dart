@@ -9,6 +9,7 @@ import 'package:calcademy/l10n/app_localizations.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:go_router/go_router.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -29,7 +30,39 @@ void main() {
     expect(find.text('No analytics'), findsOneWidget);
     expect(find.text('No cloud sync'), findsOneWidget);
     expect(find.text('No account'), findsOneWidget);
+    expect(find.text('Local-first'), findsOneWidget);
     expect(find.text('Financial disclaimer'), findsOneWidget);
+    expect(find.byKey(const Key('copy-app-info-action')), findsOneWidget);
+    expect(find.byKey(const Key('open-privacy-policy-action')), findsNothing);
+  });
+
+  testWidgets('copy app info uses localized release metadata', (tester) async {
+    String? copiedText;
+    tester.binding.defaultBinaryMessenger.setMockMethodCallHandler(
+      SystemChannels.platform,
+      (call) async {
+        if (call.method == 'Clipboard.setData') {
+          copiedText =
+              (call.arguments as Map<Object?, Object?>)['text'] as String?;
+        }
+        return null;
+      },
+    );
+    addTearDown(
+      () => tester.binding.defaultBinaryMessenger.setMockMethodCallHandler(
+        SystemChannels.platform,
+        null,
+      ),
+    );
+    await _pumpAbout(tester);
+
+    await tester.tap(find.byKey(const Key('copy-app-info-action')));
+    await tester.pump();
+
+    expect(copiedText, contains(AppMetadata.appName));
+    expect(copiedText, contains('Version 1.0.0 (1)'));
+    expect(copiedText, contains('No ads'));
+    expect(find.text('App info copied.'), findsOneWidget);
   });
 
   testWidgets('Home About action opens the existing About route', (
@@ -109,6 +142,9 @@ void main() {
     const keys = [
       'aboutLegal',
       'versionLabel',
+      'copyAppInfo',
+      'appInfoCopied',
+      'localFirst',
       'dataHandling',
       'privacyPolicy',
       'privacyPolicyBody',
@@ -141,6 +177,15 @@ void main() {
         'version: ${AppMetadata.versionName}+${AppMetadata.versionCode}',
       ),
     );
+    expect(pubspec, contains('description: "${AppMetadata.tagline}"'));
+    expect(AppMetadata.appName, 'Calcademy');
+    expect(AppMetadata.privacyStatus, 'local-first');
+    expect(AppMetadata.adsStatus, 'not-included');
+    expect(AppMetadata.analyticsStatus, 'not-included');
+    expect(AppMetadata.cloudSyncStatus, 'not-included');
+    expect(AppMetadata.privacyPolicyUri, isNull);
+    expect(AppMetadata.contactEmail, isNull);
+    expect(AppMetadata.repositoryUrl, isNull);
   });
 
   test('adaptive launcher resources use the Calcademy brand mark', () async {

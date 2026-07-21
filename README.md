@@ -125,6 +125,8 @@ Release hazırlık belgeleri:
 - [Play Console App Content checklist](docs/play_console_app_content_checklist.md)
 - [Data Safety taslağı](docs/data_safety_draft.md)
 - [Store asset checklist](docs/store_asset_checklist.md)
+- [Screenshot capture plan](docs/release_screenshot_checklist.md)
+- [Screenshot sample data](docs/screenshots_sample_data.md)
 - [Content rating checklist](docs/content_rating_checklist.md)
 - [Target audience checklist](docs/target_audience_checklist.md)
 - [CI ve quality gate rehberi](docs/ci_quality_gate.md)

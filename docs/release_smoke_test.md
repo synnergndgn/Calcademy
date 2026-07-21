@@ -4,6 +4,20 @@ Run this checklist on the exact signed release APK/AAB candidate, not a debug bu
 
 Complete [Final Release Build Checklist](final_release_build_checklist.md) and [Play Store Final Decision Checklist](play_store_final_checklist.md) before promoting the tested artifact.
 
+## Device matrix and evidence
+
+Run every critical path on at least one real Android phone. Fill additional rows when available; do not label widget tests as device evidence.
+
+| Target | Suggested profile | Required variations | Device / Android / result |
+| --- | --- | --- | --- |
+| Small phone | ~320–360 dp width | EN, light, keyboard open/closed | TBD |
+| Medium phone | ~390–430 dp width | TR and EN, light/dark | TBD |
+| Large phone | ≥480 dp width or large handset | Dark, rotation if supported | TBD |
+| Tablet | 7–10 inch, if available | Responsive grids/tables | TBD |
+| Accessibility pass | Any representative phone | 200% font scale, large display size where relevant | TBD |
+
+For each run record build/version, artifact SHA-256, install source, date, tester, screenshots/video for defects, and pass/fail notes.
+
 ## Installation and platform
 
 - [ ] Clean install succeeds and the launcher label is **Calcademy**.
@@ -20,6 +34,7 @@ Complete [Final Release Build Checklist](final_release_build_checklist.md) and [
 - [ ] Search `statistics` returns Statistics and hides unrelated categories.
 - [ ] A no-match query shows the empty state; Clear restores all modules.
 - [ ] Every active module card opens and system Back returns to Home.
+- [ ] About & Legal opens from Home and Settings; privacy/data handling, local-first status, version, copy-app-info, and licenses are usable.
 
 ## Representative module checks
 
@@ -47,6 +62,19 @@ Complete [Final Release Build Checklist](final_release_build_checklist.md) and [
 - [ ] Search, module filter, sort, favorite, copy, open-module, delete, and clear work.
 - [ ] Saved records remain after force-stop and app restart.
 - [ ] Clearing history/saved data requires confirmation and affects only the intended data.
+
+## Focused visual and interaction QA
+
+- [ ] Every representative module opens, accepts input, calculates, and keeps its primary keyboard action reachable.
+- [ ] Copy works; Save works where supported; feedback does not obscure critical results.
+- [ ] Home search works in Turkish and English and recovers correctly after clearing.
+- [ ] Equation Solver linear-system inputs use `x1`, `x2`, … labels consistently with results.
+- [ ] Calculus graph axes/labels remain readable after zoom and at small width.
+- [ ] Operations Research allocation/assignment tables scroll without clipping.
+- [ ] Financial amortization table remains navigable and does not imply advice.
+- [ ] Saved Calculations persists across force-stop/restart and preserves filters/actions.
+- [ ] About/Data handling remains readable in dark mode and at 200% text scale.
+- [ ] Orientation is checked only on layouts the app supports; no unsupported behavior is claimed.
 
 ## Release-only checks
 

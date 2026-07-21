@@ -20,6 +20,18 @@ Calcademy includes a localized **About & Legal** screen with an on-device summar
 
 This local summary improves user access but does not replace the complete policy that must be finalized and hosted at a stable public HTTPS URL for the Play Store release.
 
+## Public URL publication plan
+
+Before the first Play submission, complete the publisher name, monitored contact email, effective date, and final public HTTPS URL at the top of this document. Suitable hosting options include:
+
+- **GitHub Pages:** practical when a public, maintained repository/site and stable Pages URL are acceptable;
+- **Cloudflare Pages:** useful for a small static policy site with controlled deployment and optional custom domain;
+- **Personal/product domain:** strongest long-term brand continuity when domain ownership and renewal are established.
+
+The selected page must be accessible without login, usable on mobile, and remain available independently of the app. Record the exact final address in the Play Console privacy-policy field.
+
+`AppMetadata.privacyPolicyUrl` intentionally remains `null` until that page is published and verified. While it is empty, About & Legal shows the localized on-device summary and no external action. After publication, add the verified HTTPS URL, add/review an external-link implementation (for example `url_launcher`) in a dedicated small change, and test success/failure behavior before exposing “Open Privacy Policy.” Do not add a placeholder or `example.com` link.
+
 ## What Calcademy does
 
 Calcademy is an academic calculation application for mathematics, statistics, finance, optimization, and operations research. Calculations are performed on the device.
@@ -68,6 +80,7 @@ Material changes will be reflected by updating this policy's effective date and 
 - [ ] Replace developer/publisher, effective date, contact, and public URL placeholders.
 - [ ] Confirm the publisher name matches the Play Store listing.
 - [ ] Host the complete policy at a stable HTTPS URL accessible without login.
+- [ ] Record the same verified URL in Play Console and release records.
 - [x] Provide accessible, localized in-app privacy/data-handling text without a broken external link.
 - [ ] Connect the app to the final public policy URL if required after that URL is published and verified.
 - [ ] Compare this policy with the exact final AAB, merged manifest, dependencies, Data Safety form, and Ads declaration.

@@ -21,6 +21,10 @@ Existing density PNGs are retained as fallbacks. The adaptive/vector resources a
 - [ ] Check the current Play Console alpha/transparency rule and ensure there is no accidental transparency or cropping.
 - [ ] Compare the store icon with installed adaptive and legacy launcher variants.
 - [ ] Verify contrast on light and dark Play surfaces.
+- [ ] Export as `calcademy_store_icon_512.png` and confirm the file is exactly 512×512 pixels.
+- [ ] Compare 48 px, 32 px, and 24 px previews before approval.
+
+**Production direction:** use the existing Calcademy curve-and-data-point mark without text. Prefer the established green background (`#63897A`) with warm white (`#FBFAF5`) and amber (`#E7B77D`) foreground details. A light-background alternative may be explored, but the installed adaptive icon and store icon must remain recognizably the same product.
 
 ## Feature graphic — 1024×500
 
@@ -31,6 +35,20 @@ Existing density PNGs are retained as fallbacks. The adaptive/vector resources a
 - [ ] Do not use an oversized app icon as the entire graphic.
 - [ ] Decide whether one language-neutral graphic is sufficient or localized EN/TR variants are justified.
 - [ ] Add concise alt text where Play Console supports it.
+- [ ] Export the approved English-first asset as `calcademy_feature_graphic_en_1024x500.png`.
+- [ ] If a Turkish variant is justified, export it separately as `calcademy_feature_graphic_tr_1024x500.png`.
+- [ ] Confirm each file is exactly 1024×500 pixels and matches the current alpha/file-format requirements.
+
+**Production direction:** make “Calculate. Visualize. Optimize. Learn.” the single primary message. Use a restrained academic/engineering composition with the Calcademy mark, curve/grid motifs, and at most one legible product glimpse. Avoid dense miniature UI, unsupported claims, and any visual implication of financial advice. One English or language-neutral graphic is preferred; Turkish is an optional localized variant.
+
+## Final export QA
+
+- [ ] Pixel dimensions and PNG/JPEG encoding are verified with an image-inspection tool.
+- [ ] Alpha behavior matches current Play requirements.
+- [ ] File names contain product, asset type, locale where applicable, and exact dimensions.
+- [ ] Light/dark store previews and small-size previews remain recognizable.
+- [ ] Play Console preview shows no crop, mask, text, or contrast defect.
+- [ ] Source file, release-candidate export, reviewer, and approval date are recorded.
 
 ## Screenshot sets
 

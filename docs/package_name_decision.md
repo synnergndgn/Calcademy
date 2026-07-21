@@ -4,11 +4,13 @@ This decision must be completed before the Calcademy app is created in Play Cons
 
 ## Options
 
-| Option | Strengths | Trade-offs and checks |
-| --- | --- | --- |
-| `com.calcademy.calcademy` | Already configured, technically valid, and aligned with the Calcademy brand | Repeats the brand name and does not identify a personal publisher |
-| `com.aligundogan.calcademy` | Natural fit for a personal developer account, portfolio, and publisher identity | Couples the app identity to the named publisher; spelling must match the long-term account identity |
-| `com.calcademy.app` | Short, clean, and brand/domain-oriented | Best justified when the publisher controls the Calcademy brand/domain strategy; ownership and naming availability must be verified |
+| Option | Strengths | Trade-offs | Best fit |
+| --- | --- | --- | --- |
+| **A — `com.calcademy.calcademy`** | Already configured, technically valid, lowest migration risk, aligned with the product name | Repeats the brand and does not identify a personal publisher | A long-term Calcademy brand identity where repetition is explicitly accepted |
+| **B — `com.aligundogan.calcademy`** | Natural for a personal developer account, portfolio, and verified publisher identity | Couples the app ID to one publisher; spelling and identity must remain stable | An individual publisher releasing under Ali Gündoğan’s name |
+| **C — `com.calcademy.app`** | Concise and brand/domain-oriented | Should be used only after Calcademy domain/brand control and naming availability are verified | A durable product organization with a matching brand/domain strategy |
+
+All three options become costly to replace after the first Play upload because a different application ID creates a separate Android/Play identity rather than a normal update.
 
 ## Blocking decision checklist
 
@@ -21,3 +23,13 @@ This decision must be completed before the Calcademy app is created in Play Cons
 
 Changing the application ID after publication creates a different Android and Play Store identity; it is not a normal app update. If a different option is approved, perform the Gradle, Android package, tests, documentation, and artifact verification in a separate, small migration sprint. Do not combine that migration with production signing or upload.
 
+## Final decision record
+
+| Field | Value |
+| --- | --- |
+| Final selected package name | **TBD** |
+| Decision owner | **Ali Gündoğan** |
+| Decision date | **TBD** |
+| Applied in code | **No** |
+
+Do not edit `applicationId`, namespace, Kotlin package paths, or Play Console setup until this record is completed and approved.

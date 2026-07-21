@@ -1054,6 +1054,9 @@ class AppLocalizations {
       'aboutBody':
           'Calcademy is a local-first academic computing workspace for mathematics, data, finance, optimization, and engineering study.',
       'versionLabel': 'Version',
+      'copyAppInfo': 'Copy app info',
+      'appInfoCopied': 'App info copied.',
+      'localFirst': 'Local-first',
       'dataHandling': 'Privacy & data handling',
       'privacyPolicy': 'Privacy policy',
       'privacyPolicyBody':
@@ -2136,6 +2139,9 @@ class AppLocalizations {
       'aboutBody':
           'Calcademy; matematik, veri, finans, optimizasyon ve mühendislik çalışmaları için yerel öncelikli bir akademik hesaplama alanıdır.',
       'versionLabel': 'Sürüm',
+      'copyAppInfo': 'Uygulama bilgisini kopyala',
+      'appInfoCopied': 'Uygulama bilgisi kopyalandı.',
+      'localFirst': 'Yerel öncelikli',
       'dataHandling': 'Gizlilik ve veri işleme',
       'privacyPolicy': 'Gizlilik politikası',
       'privacyPolicyBody':

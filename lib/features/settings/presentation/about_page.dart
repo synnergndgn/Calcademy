@@ -4,6 +4,7 @@ import 'package:calcademy/core/widgets/calcademy_logo.dart';
 import 'package:calcademy/core/widgets/section_header.dart';
 import 'package:calcademy/l10n/app_localizations.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 
 class AboutPage extends StatelessWidget {
   const AboutPage({super.key});
@@ -57,6 +58,13 @@ class AboutPage extends StatelessWidget {
                             ),
                           ),
                         ),
+                        const SizedBox(height: AppSpacing.sm),
+                        OutlinedButton.icon(
+                          key: const Key('copy-app-info-action'),
+                          onPressed: () => _copyAppInfo(context),
+                          icon: const Icon(Icons.copy_rounded),
+                          label: Text(context.l10n.t('copyAppInfo')),
+                        ),
                       ],
                     ),
                   ),
@@ -82,6 +90,10 @@ class AboutPage extends StatelessWidget {
                       spacing: AppSpacing.xs,
                       runSpacing: AppSpacing.xs,
                       children: [
+                        _PrivacyFlag(
+                          icon: Icons.offline_bolt_outlined,
+                          label: context.l10n.t('localFirst'),
+                        ),
                         _PrivacyFlag(
                           icon: Icons.block_rounded,
                           label: context.l10n.t('noAds'),
@@ -140,7 +152,7 @@ class AboutPage extends StatelessWidget {
                       trailing: const Icon(Icons.chevron_right_rounded),
                       onTap: () => showLicensePage(
                         context: context,
-                        applicationName: AppMetadata.name,
+                        applicationName: AppMetadata.appName,
                         applicationVersion: AppMetadata.versionName,
                       ),
                     ),
@@ -153,6 +165,25 @@ class AboutPage extends StatelessWidget {
       ],
     ),
   );
+
+  Future<void> _copyAppInfo(BuildContext context) async {
+    final l10n = context.l10n;
+    final summary = [
+      AppMetadata.appName,
+      '${l10n.t('versionLabel')} ${AppMetadata.versionName} '
+          '(${AppMetadata.buildNumber})',
+      l10n.t('tagline'),
+      l10n.t('localFirst'),
+      l10n.t('noAds'),
+      l10n.t('noAnalytics'),
+      l10n.t('noCloudSync'),
+    ].join('\n');
+    await Clipboard.setData(ClipboardData(text: summary));
+    if (!context.mounted) return;
+    ScaffoldMessenger.of(context)
+      ..hideCurrentSnackBar()
+      ..showSnackBar(SnackBar(content: Text(l10n.t('appInfoCopied'))));
+  }
 }
 
 class _AboutSection extends StatelessWidget {

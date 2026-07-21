@@ -2,6 +2,12 @@
 
 This document is planning material. The current codebase contains no AdMob, advertising identifier, billing, analytics, consent, or monetization SDK.
 
+## First-release decision
+
+**Accepted release-candidate strategy: no ads.** The initial internal, beta, and first public candidate should contain no AdMob SDK, analytics SDK, advertising identifier, or production network permission. This keeps the first release focused, improves trust, and makes the manifest, privacy review, and Data Safety declaration simpler. Monetization will be evaluated only after core release and device QA evidence is complete.
+
+This decision must be revalidated against the exact final AAB. It is a product/release choice, not a claim that future versions will always remain ad-free.
+
 ## Options
 
 1. **Free and ad-free:** strongest academic experience and simplest privacy posture; requires another funding source.
