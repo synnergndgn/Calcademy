@@ -12,7 +12,6 @@
 
 **Jurisdiction/legal address:** `Nilüfer/Bursa Türkiye`
 
-This draft describes Calcademy's current release candidate. It must be reviewed and published at a stable public URL before a store submission.
 
 ## In-app access
 
