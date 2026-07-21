@@ -6,6 +6,8 @@
 
 Calcademy; matematik, istatistik, finans ve yöneylem araştırması problemlerini tek bir çevrimdışı çalışma alanında birleştiren, Flutter ile geliştirilmiş akademik hesaplama platformudur. Uygulama; güvenilir sayısal sonuç, açık yöntem bilgisi, responsive kullanım ve cihaz içi veri gizliliğine odaklanır.
 
+Android release identity: `com.aligundogan.calcademy` · Publisher: Ali Gündoğan
+
 ## Aktif çalışma alanları
 
 | Kategori | Modüller |
@@ -107,7 +109,7 @@ git diff --check
 
 ## Gizlilik ve release yaklaşımı
 
-Bu sürüm hesap, backend, reklam veya analytics kullanmaz. Hesaplamalar ve ayarlar cihazda saklanır; lokalize Hakkında ve Yasal Bilgiler ekranı bu yaklaşımı uygulama içinde açıklar. Android adaptive/monochrome launcher kaynakları mevcut Calcademy işaretinden türetilmiştir; final 512×512 store icon ve feature graphic ayrıca görsel onay gerektirir. Debug APK CI/yerel kalite kapısından üretilebilir; Play Store imzalama, mağaza metadata’sı ve üretim gizlilik URL’si ayrı release adımlarıdır.
+Bu sürüm hesap, backend, reklam veya analytics kullanmaz. Hesaplamalar ve ayarlar cihazda saklanır; lokalize Hakkında ve Yasal Bilgiler ekranı bu yaklaşımı uygulama içinde açıklar ve [yayınlanmış gizlilik politikasını](https://synnergndgn.github.io/Calcademy/privacy_policy) harici tarayıcıda açabilir. Android adaptive/monochrome launcher kaynakları mevcut Calcademy işaretinden türetilmiştir; final 512×512 store icon ve feature graphic ayrıca görsel onay gerektirir. Debug APK CI/yerel kalite kapısından üretilebilir; Play Store imzalama ve mağaza metadata’sı ayrı release adımlarıdır.
 
 Release hazırlık belgeleri:
 

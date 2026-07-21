@@ -1,6 +1,6 @@
 # Calcademy Privacy Policy — Draft
 
-**Status:** Draft — not ready for publication until every placeholder below is replaced
+**Status:** Public URL live on GitHub Pages; publisher metadata completed; final legal and store review pending
 
 **Developer/publisher name:** `Ali Gündoğan`
 
@@ -12,24 +12,22 @@
 
 **Jurisdiction/legal address:** `Nilüfer/Bursa Türkiye`
 
+This document describes Calcademy's current release candidate. The policy is published through GitHub Pages at the URL above. The publisher, contact, effective-date, and jurisdiction details must be reverified during final legal and store review before submission.
 
 ## In-app access
 
-Calcademy includes a localized **About & Legal** screen with an on-device summary of current data handling, local storage, educational use, and the financial disclaimer. It is reachable from Home and Settings and does not expose a broken placeholder link.
+Calcademy includes a localized **About & Legal** screen with an on-device summary of current data handling, local storage, educational use, and the financial disclaimer. It is reachable from Home and Settings and provides an external-browser action for the verified public policy URL.
 
-This local summary improves user access but does not replace the complete policy that must be finalized and hosted at a stable public HTTPS URL for the Play Store release.
+The local summary remains available alongside the public policy link. Opening the hosted page is a user-initiated external-browser action and does not require an Android INTERNET permission in Calcademy's main manifest.
 
-## Public URL publication plan
+## Public URL status
 
-Before the first Play submission, complete the publisher name, monitored contact email, effective date, and final public HTTPS URL at the top of this document. Suitable hosting options include:
+- Hosting: **GitHub Pages**
+- Public HTTPS URL: `https://synnergndgn.github.io/Calcademy/privacy_policy`
+- App integration: `AppMetadata.privacyPolicyUrl` and About & Legal external-browser action
+- Play Console field: use the same URL after release-owner verification
 
-- **GitHub Pages:** practical when a public, maintained repository/site and stable Pages URL are acceptable;
-- **Cloudflare Pages:** useful for a small static policy site with controlled deployment and optional custom domain;
-- **Personal/product domain:** strongest long-term brand continuity when domain ownership and renewal are established.
-
-The selected page must be accessible without login, usable on mobile, and remain available independently of the app. Record the exact final address in the Play Console privacy-policy field.
-
-`AppMetadata.privacyPolicyUrl` intentionally remains `null` until that page is published and verified. While it is empty, About & Legal shows the localized on-device summary and no external action. After publication, add the verified HTTPS URL, add/review an external-link implementation (for example `url_launcher`) in a dedicated small change, and test success/failure behavior before exposing “Open Privacy Policy.” Do not add a placeholder or `example.com` link.
+The app validates the metadata as a non-empty public HTTPS URL and rejects common placeholder/example hosts. If the URL is removed or becomes invalid, the external action is hidden while the local privacy summary remains available. If advertising, analytics, cloud sync, accounts, or other data-affecting SDKs are introduced, update the hosted policy, this source document, Data Safety answers, and in-app wording before release.
 
 ## What Calcademy does
 
@@ -76,12 +74,12 @@ Material changes will be reflected by updating this policy's effective date and 
 
 ## Publication checklist
 
-- [ ] Replace developer/publisher, effective date, contact, and public URL placeholders.
-- [ ] Confirm the publisher name matches the Play Store listing.
-- [ ] Host the complete policy at a stable HTTPS URL accessible without login.
+- [x] Provide a monitored support/privacy contact address.
+- [x] Confirm the publisher name and effective date for this release candidate.
+- [x] Host the policy at a stable public HTTPS URL through GitHub Pages.
 - [ ] Record the same verified URL in Play Console and release records.
 - [x] Provide accessible, localized in-app privacy/data-handling text without a broken external link.
-- [ ] Connect the app to the final public policy URL if required after that URL is published and verified.
+- [x] Connect About & Legal to the public policy URL with safe failure feedback.
 - [ ] Compare this policy with the exact final AAB, merged manifest, dependencies, Data Safety form, and Ads declaration.
 - [ ] Verify local deletion wording against the release UI.
 - [ ] Obtain legal review appropriate to the publisher and target jurisdictions where needed.

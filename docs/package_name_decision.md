@@ -1,6 +1,6 @@
 # Package Name Decision
 
-This decision must be completed before the Calcademy app is created in Play Console or the first AAB is uploaded. The current Android application ID remains `com.calcademy.calcademy`; this sprint does not change it.
+The release owner selected `com.aligundogan.calcademy` before the first Play Console upload. The Android application ID, namespace, and Kotlin MainActivity package were migrated on 2026-07-21.
 
 ## Options
 
@@ -12,24 +12,24 @@ This decision must be completed before the Calcademy app is created in Play Cons
 
 All three options become costly to replace after the first Play upload because a different application ID creates a separate Android/Play identity rather than a normal update.
 
-## Blocking decision checklist
+## Decision checklist
 
-- [ ] The Play Console app has not been created yet.
-- [ ] The long-term publisher identity is known.
-- [ ] Brand/domain ownership and naming risks were reviewed.
-- [ ] The repeated current name is explicitly accepted or a replacement is explicitly selected.
-- [ ] The final choice is recorded and approved before the first upload.
+- [x] The migration decision was made before the first Play upload.
+- [x] The long-term publisher identity is Ali Gündoğan.
+- [x] Alternatives and naming trade-offs were reviewed.
+- [x] `com.aligundogan.calcademy` was explicitly selected.
+- [x] The final choice is recorded and applied in source code.
 - [ ] Store listing, signing records, support identity, and source configuration use the same identity.
 
-Changing the application ID after publication creates a different Android and Play Store identity; it is not a normal app update. If a different option is approved, perform the Gradle, Android package, tests, documentation, and artifact verification in a separate, small migration sprint. Do not combine that migration with production signing or upload.
+Changing the application ID after publication creates a different Android and Play Store identity; it is not a normal app update. Treat `com.aligundogan.calcademy` as frozen after the first upload unless a completely separate app identity is intentionally created.
 
 ## Final decision record
 
 | Field | Value |
 | --- | --- |
-| Final selected package name | **TBD** |
+| Final selected package name | **`com.aligundogan.calcademy`** |
 | Decision owner | **Ali Gündoğan** |
-| Decision date | **TBD** |
-| Applied in code | **No** |
+| Decision date | **2026-07-21** |
+| Applied in code | **Yes** |
 
-Do not edit `applicationId`, namespace, Kotlin package paths, or Play Console setup until this record is completed and approved.
+The previous `com.calcademy.calcademy` build and the new application ID are separate Android apps. Local preferences, history, and Saved Calculations stored under the previous ID are not automatically migrated; a fresh first-store install is unaffected.

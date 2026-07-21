@@ -1,4 +1,4 @@
-package com.calcademy.calcademy
+package com.aligundogan.calcademy
 
 import io.flutter.embedding.android.FlutterActivity
 

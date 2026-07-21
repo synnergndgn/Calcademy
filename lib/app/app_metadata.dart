@@ -1,6 +1,8 @@
 abstract final class AppMetadata {
   static const appName = 'Calcademy';
   static const name = appName;
+  static const applicationId = 'com.aligundogan.calcademy';
+  static const publisherName = 'Ali Gündoğan';
   static const versionName = '1.0.0';
   static const buildNumber = 1;
   static const versionCode = buildNumber;
@@ -18,13 +20,36 @@ abstract final class AppMetadata {
   // Null values intentionally keep external actions hidden from the UI.
   static const String? contactEmail = null;
   static const String? repositoryUrl = null;
-  static const String? privacyPolicyUrl = null;
+  static const String privacyPolicyUrl =
+      'https://synnergndgn.github.io/Calcademy/privacy_policy';
+  static const privacyPolicyEffectiveDate = '2026-07-21';
 
-  static Uri? get privacyPolicyUri => _verifiedHttpsUri(privacyPolicyUrl);
+  static Uri? get privacyPolicyUri => parsePublicHttpsUrl(privacyPolicyUrl);
 
-  static Uri? _verifiedHttpsUri(String? value) {
+  static Uri? parsePublicHttpsUrl(String? value) {
     final uri = value == null ? null : Uri.tryParse(value.trim());
-    if (uri == null || uri.scheme != 'https' || uri.host.isEmpty) return null;
+    if (uri == null ||
+        uri.scheme != 'https' ||
+        uri.host.isEmpty ||
+        uri.userInfo.isNotEmpty) {
+      return null;
+    }
+    final host = uri.host.toLowerCase();
+    const blockedHosts = {
+      'example.com',
+      'example.org',
+      'example.net',
+      'localhost',
+    };
+    final isPlaceholder = blockedHosts.any(
+      (blocked) => host == blocked || host.endsWith('.$blocked'),
+    );
+    if (isPlaceholder ||
+        host.endsWith('.invalid') ||
+        host.endsWith('.test') ||
+        host.endsWith('.local')) {
+      return null;
+    }
     return uri;
   }
 }

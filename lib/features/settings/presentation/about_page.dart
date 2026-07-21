@@ -5,9 +5,19 @@ import 'package:calcademy/core/widgets/section_header.dart';
 import 'package:calcademy/l10n/app_localizations.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:url_launcher/url_launcher.dart';
+
+typedef ExternalUrlLauncher = Future<bool> Function(Uri uri);
 
 class AboutPage extends StatelessWidget {
-  const AboutPage({super.key});
+  const AboutPage({
+    super.key,
+    this.privacyPolicyUrl = AppMetadata.privacyPolicyUrl,
+    this.externalUrlLauncher,
+  });
+
+  final String? privacyPolicyUrl;
+  final ExternalUrlLauncher? externalUrlLauncher;
 
   @override
   Widget build(BuildContext context) => Scaffold(
@@ -85,6 +95,23 @@ class AboutPage extends StatelessWidget {
                       title: context.l10n.t('localStorage'),
                       body: context.l10n.t('localStorageBody'),
                     ),
+                    if (AppMetadata.parsePublicHttpsUrl(privacyPolicyUrl)
+                        case final Uri privacyPolicyUri) ...[
+                      const SizedBox(height: AppSpacing.md),
+                      SizedBox(
+                        width: double.infinity,
+                        child: OutlinedButton.icon(
+                          key: const Key('open-privacy-policy-action'),
+                          onPressed: () =>
+                              _openPrivacyPolicy(context, privacyPolicyUri),
+                          icon: const Icon(Icons.open_in_new_rounded),
+                          label: Text(
+                            context.l10n.t('openPrivacyPolicy'),
+                            textAlign: TextAlign.center,
+                          ),
+                        ),
+                      ),
+                    ],
                     const SizedBox(height: AppSpacing.md),
                     Wrap(
                       spacing: AppSpacing.xs,
@@ -135,15 +162,9 @@ class AboutPage extends StatelessWidget {
                 ),
                 const SizedBox(height: AppSpacing.xl),
                 _AboutSection(
-                  title: context.l10n.t('contact'),
-                  icon: Icons.contact_support_outlined,
+                  title: context.l10n.t('openSourceLicenses'),
+                  icon: Icons.code_rounded,
                   children: [
-                    _InformationRow(
-                      icon: Icons.mail_outline_rounded,
-                      title: context.l10n.t('contact'),
-                      body: context.l10n.t('contactBody'),
-                    ),
-                    const Divider(height: AppSpacing.xxl),
                     ListTile(
                       contentPadding: EdgeInsets.zero,
                       leading: const Icon(Icons.code_rounded),
@@ -172,6 +193,8 @@ class AboutPage extends StatelessWidget {
       AppMetadata.appName,
       '${l10n.t('versionLabel')} ${AppMetadata.versionName} '
           '(${AppMetadata.buildNumber})',
+      '${l10n.t('publisherLabel')}: ${AppMetadata.publisherName}',
+      '${l10n.t('applicationIdLabel')}: ${AppMetadata.applicationId}',
       l10n.t('tagline'),
       l10n.t('localFirst'),
       l10n.t('noAds'),
@@ -184,7 +207,26 @@ class AboutPage extends StatelessWidget {
       ..hideCurrentSnackBar()
       ..showSnackBar(SnackBar(content: Text(l10n.t('appInfoCopied'))));
   }
+
+  Future<void> _openPrivacyPolicy(BuildContext context, Uri uri) async {
+    var opened = false;
+    try {
+      opened = await (externalUrlLauncher ?? _launchExternalUrl)(uri);
+    } on Exception {
+      opened = false;
+    }
+    if (opened || !context.mounted) return;
+    final messenger = ScaffoldMessenger.of(context);
+    messenger
+      ..hideCurrentSnackBar()
+      ..showSnackBar(
+        SnackBar(content: Text(context.l10n.t('privacyPolicyOpenError'))),
+      );
+  }
 }
+
+Future<bool> _launchExternalUrl(Uri uri) =>
+    launchUrl(uri, mode: LaunchMode.externalApplication);
 
 class _AboutSection extends StatelessWidget {
   const _AboutSection({

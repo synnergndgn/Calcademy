@@ -19,7 +19,7 @@ fun releaseSigningProperty(name: String): String =
         ?: throw GradleException("Missing '$name' in android/key.properties")
 
 android {
-    namespace = "com.calcademy.calcademy"
+    namespace = "com.aligundogan.calcademy"
     compileSdk = flutter.compileSdkVersion
     ndkVersion = flutter.ndkVersion
 
@@ -29,7 +29,7 @@ android {
     }
 
     defaultConfig {
-        applicationId = "com.calcademy.calcademy"
+        applicationId = "com.aligundogan.calcademy"
         minSdk = flutter.minSdkVersion
         targetSdk = flutter.targetSdkVersion
         versionCode = flutter.versionCode

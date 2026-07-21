@@ -6,7 +6,7 @@ This is the release-owner decision sheet for Calcademy's first Google Play uploa
 
 | Field | Current value | Decision |
 | --- | --- | --- |
-| Application ID | `com.calcademy.calcademy` | Keep unchanged until owner approval |
+| Application ID | `com.aligundogan.calcademy` | Final owner-approved identity; applied before first upload |
 | App label | `Calcademy` | Candidate final value |
 | Version name | `1.0.0` | Candidate first public release |
 | Version code | `1` | First upload only |
@@ -20,17 +20,17 @@ Official reference: [Google Play target API requirements](https://support.google
 
 Detailed comparison and owner sign-off: [Package Name Decision](package_name_decision.md).
 
-- [ ] The package name matches the long-term publisher/brand identity.
-- [ ] The repeated form `com.calcademy.calcademy` is intentionally accepted.
-- [ ] These alternatives were considered before creating the Play Console app:
+- [x] The package name matches the long-term personal publisher identity.
+- [x] `com.aligundogan.calcademy` was selected before the first Play upload.
+- [x] These alternatives were considered before creating the Play Console app:
+  - `com.calcademy.calcademy`
   - `com.aligundogan.calcademy`
   - `com.calcademy.app`
   - `dev.aligundogan.calcademy`
-- [ ] Trademark/domain ownership implications were reviewed.
-- [ ] The final package name was approved before the first AAB upload.
+- [x] The final package name was approved and applied before the first AAB upload.
 - [ ] The Play Console app was created only after this decision was recorded.
 
-Changing the package name later creates a different Android application and store identity; it is not a normal update path. This sprint does not change `applicationId`.
+The source now aligns Android `applicationId`, namespace, and MainActivity with `com.aligundogan.calcademy`. Changing it after upload would create a different application/store identity.
 
 ## Version decision — blocking
 
@@ -59,7 +59,7 @@ The repository now contains legacy fallback plus adaptive foreground/background 
 
 - [ ] Developer account type and verified publisher name are final.
 - [ ] Public support email and website are available.
-- [ ] Privacy policy is published at a stable public HTTPS URL.
+- [x] Privacy policy is published through GitHub Pages at `https://synnergndgn.github.io/Calcademy/privacy_policy` and linked from About & Legal.
 - [ ] Data Safety, App Content, financial-features, content-rating, and target-audience answers were reviewed against the exact final AAB and every included SDK.
 - [ ] Ads declaration is **No** for the current ad-free build.
 - [ ] No account-access or reviewer credentials are required.

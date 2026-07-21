@@ -1054,11 +1054,16 @@ class AppLocalizations {
       'aboutBody':
           'Calcademy is a local-first academic computing workspace for mathematics, data, finance, optimization, and engineering study.',
       'versionLabel': 'Version',
+      'publisherLabel': 'Publisher',
+      'applicationIdLabel': 'Application ID',
       'copyAppInfo': 'Copy app info',
       'appInfoCopied': 'App info copied.',
       'localFirst': 'Local-first',
       'dataHandling': 'Privacy & data handling',
       'privacyPolicy': 'Privacy policy',
+      'openPrivacyPolicy': 'Open Privacy Policy',
+      'privacyPolicyOpenError':
+          'The privacy policy could not be opened. Please try again.',
       'privacyPolicyBody':
           'Calcademy processes calculation inputs on this device. It does not send your calculations or saved work to a Calcademy server.',
       'localStorage': 'Local storage',
@@ -2139,11 +2144,16 @@ class AppLocalizations {
       'aboutBody':
           'Calcademy; matematik, veri, finans, optimizasyon ve mühendislik çalışmaları için yerel öncelikli bir akademik hesaplama alanıdır.',
       'versionLabel': 'Sürüm',
+      'publisherLabel': 'Yayıncı',
+      'applicationIdLabel': 'Uygulama kimliği',
       'copyAppInfo': 'Uygulama bilgisini kopyala',
       'appInfoCopied': 'Uygulama bilgisi kopyalandı.',
       'localFirst': 'Yerel öncelikli',
       'dataHandling': 'Gizlilik ve veri işleme',
       'privacyPolicy': 'Gizlilik politikası',
+      'openPrivacyPolicy': 'Gizlilik Politikasını Aç',
+      'privacyPolicyOpenError':
+          'Gizlilik politikası açılamadı. Lütfen tekrar deneyin.',
       'privacyPolicyBody':
           'Calcademy, hesaplama girdilerini bu cihazda işler. Hesaplamalarınızı veya kaydedilen çalışmalarınızı bir Calcademy sunucusuna göndermez.',
       'localStorage': 'Yerel depolama',
