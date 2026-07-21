@@ -28,6 +28,11 @@ enum SavedCalculationModule {
     titleKey: 'integerProgramming',
     route: '/integer-programming',
   ),
+  operationsResearch(
+    id: 'operations-research',
+    titleKey: 'operationsResearch',
+    route: '/operations-research',
+  ),
   unknown(id: 'unknown', titleKey: 'savedUnknownModule', route: null);
 
   const SavedCalculationModule({

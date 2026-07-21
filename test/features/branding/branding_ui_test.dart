@@ -4,6 +4,7 @@ import 'package:calcademy/core/services/preferences.dart';
 import 'package:calcademy/core/widgets/calcademy_logo.dart';
 import 'package:calcademy/core/widgets/empty_state.dart';
 import 'package:calcademy/features/home/presentation/home_page.dart';
+import 'package:calcademy/features/operations_research/presentation/operations_research_page.dart';
 import 'package:calcademy/features/home/presentation/splash_page.dart';
 import 'package:calcademy/features/financial_calculator/presentation/financial_calculator_page.dart';
 import 'package:calcademy/features/saved_calculations/presentation/saved_calculations_page.dart';
@@ -59,8 +60,8 @@ void main() {
 
     expect(find.byKey(const Key('calcademyLogoMark')), findsOneWidget);
     expect(find.text('Calcademy'), findsOneWidget);
-    expect(find.text('Available'), findsNWidgets(10));
-    expect(find.byIcon(Icons.check_circle_outline), findsNWidgets(10));
+    expect(find.text('Available'), findsNWidgets(11));
+    expect(find.byIcon(Icons.check_circle_outline), findsNWidgets(11));
     // The coming-soon section sits below every available-module card, so
     // scroll in steps until it enters the lazily built list.
     final comingSoonIcon = find.byIcon(Icons.schedule_rounded);
@@ -213,6 +214,38 @@ void main() {
 
     expect(find.byType(SavedCalculationsPage), findsOneWidget);
     expect(find.byKey(const Key('saved-search')), findsOneWidget);
+  });
+
+  testWidgets('Operations Research card opens its workspace', (tester) async {
+    final preferences = await SharedPreferences.getInstance();
+    final router = GoRouter(
+      initialLocation: '/home',
+      routes: [
+        GoRoute(path: '/home', builder: (_, _) => const HomePage()),
+        GoRoute(
+          path: '/operations-research',
+          builder: (_, _) => const OperationsResearchPage(),
+        ),
+      ],
+    );
+    addTearDown(router.dispose);
+    await tester.pumpWidget(
+      ProviderScope(
+        overrides: [sharedPreferencesProvider.overrideWithValue(preferences)],
+        child: _localizedApp(routerConfig: router),
+      ),
+    );
+    await tester.pumpAndSettle();
+    final card = find.text('Operations Research');
+    for (var i = 0; i < 14 && card.hitTestable().evaluate().isEmpty; i++) {
+      await tester.drag(find.byType(CustomScrollView), const Offset(0, -400));
+      await tester.pumpAndSettle();
+    }
+    await tester.tap(card.hitTestable().first);
+    await tester.pumpAndSettle();
+
+    expect(find.byType(OperationsResearchPage), findsOneWidget);
+    expect(find.byKey(const Key('or-transport-grid-scroll')), findsOneWidget);
   });
 
   testWidgets('about shows the official logo and brand information', (

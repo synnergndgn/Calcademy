@@ -100,6 +100,14 @@ const academyModules = [
     available: true,
   ),
   AcademyModule(
+    id: 'operations-research',
+    titleKey: 'operationsResearch',
+    icon: Icons.route_rounded,
+    route: '/operations-research',
+    descriptionKey: 'operationsResearchDescription',
+    available: true,
+  ),
+  AcademyModule(
     id: 'nonlinear-optimization',
     titleKey: 'nonlinearOptimization',
     icon: Icons.hub_rounded,

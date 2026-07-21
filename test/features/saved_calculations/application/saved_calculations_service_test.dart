@@ -104,6 +104,30 @@ void main() {
     );
   });
 
+  test('searches and filters Operations Research records', () {
+    final transportation = _item(
+      'or-transportation',
+      'Transportation Solution',
+      'Total cost: 150',
+      DateTime.utc(2026, 4, 4),
+      SavedCalculationModule.operationsResearch,
+    );
+    items.add(transportation);
+
+    expect(
+      _apply(service, items, query: 'Yöneylem Araştırması').single.id,
+      'or-transportation',
+    );
+    expect(
+      _apply(
+        service,
+        items,
+        module: SavedCalculationModule.operationsResearch,
+      ).single.id,
+      'or-transportation',
+    );
+  });
+
   test('sorts newest, oldest, and favorites first', () {
     expect(_apply(service, items).map((item) => item.id), [
       'newest',

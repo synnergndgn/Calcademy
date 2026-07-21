@@ -6,6 +6,7 @@ import 'package:calcademy/features/home/presentation/coming_soon_page.dart';
 import 'package:calcademy/features/home/presentation/home_page.dart';
 import 'package:calcademy/features/home/presentation/splash_page.dart';
 import 'package:calcademy/features/matrix/presentation/matrix_home_page.dart';
+import 'package:calcademy/features/operations_research/presentation/operations_research_page.dart';
 import 'package:calcademy/features/linear_programming/presentation/linear_program_page.dart';
 import 'package:calcademy/features/integer_programming/presentation/integer_program_home_page.dart';
 import 'package:calcademy/features/equation_solver/presentation/equation_solver_page.dart';
@@ -88,6 +89,10 @@ final appRouter = GoRouter(
     GoRoute(
       path: '/saved-calculations',
       builder: (context, state) => const SavedCalculationsPage(),
+    ),
+    GoRoute(
+      path: '/operations-research',
+      builder: (context, state) => const OperationsResearchPage(),
     ),
     GoRoute(
       path: '/coming-soon/:moduleId',

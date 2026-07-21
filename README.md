@@ -230,6 +230,17 @@ Dokuzuncu akademik modül; paranın zaman değeri, nakit akışı analizi, sabit
 
 Canlı piyasa verisi, yatırım tavsiyesi, vergi/enflasyon, döviz dönüşümü, portföy optimizasyonu ve gelişmiş menkul kıymet analizi kapsam dışıdır.
 
+## Operations Research 1.0
+
+- Transportation: dengeli/dengesiz arz-talep modelleri, yapay kaynak/hedef ile açık dengeleme
+- North-West Corner ve Least Cost başlangıç çözümleri; MODI / U-V ile optimallik kontrolü ve iyileştirme
+- Minimize maliyet ve güvenli maliyet dönüşümüyle maximize kâr
+- Assignment: kare/dikdörtgen matrisler, yapay satır/sütun ve Hungarian algoritması
+- Negatif sonlu atama değerleri, tipli validation, merkezi boyut/iterasyon/tolerans limitleri
+- Responsive giriş ve sonuç tabloları, TR/EN, dark mode, kopyalama ve ortak Saved Calculations kaydı
+
+Goal Programming, CPM/PERT, EOQ, Decision Analysis, kuyruk modelleri ve simülasyon sonraki sürümlerin kapsamındadır.
+
 ## Ekran görüntüleri
 
 Ekran görüntüleri Android cihaz doğrulamasından sonra bu bölüme eklenebilir.

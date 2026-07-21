@@ -151,26 +151,28 @@ class SavedCalculationsService {
       .toLowerCase()
       .replaceAll('\u0307', '');
 
-  static String _moduleSearchTerms(SavedCalculationModule module) =>
-      switch (module) {
-        SavedCalculationModule.scientificCalculator =>
-          'Scientific Calculator Bilimsel Hesap Makinesi',
-        SavedCalculationModule.graphPlotter =>
-          'Graph Plotter Graphing Grafik Cizici Grafik Çizici',
-        SavedCalculationModule.financialCalculator =>
-          'Financial Calculator Finansal Hesap Makinesi',
-        SavedCalculationModule.statistics => 'Statistics İstatistik',
-        SavedCalculationModule.calculus => 'Calculus Kalkülüs',
-        SavedCalculationModule.equationSolver =>
-          'Equation Solver Denklem Çözücü',
-        SavedCalculationModule.matrix =>
-          'Matrices Linear Algebra Matrisler Lineer Cebir',
-        SavedCalculationModule.linearProgramming =>
-          'Linear Programming Lineer Programlama',
-        SavedCalculationModule.integerProgramming =>
-          'Integer Programming Tam Sayılı Programlama',
-        SavedCalculationModule.unknown => 'Unknown Bilinmeyen',
-      };
+  static String _moduleSearchTerms(
+    SavedCalculationModule module,
+  ) => switch (module) {
+    SavedCalculationModule.scientificCalculator =>
+      'Scientific Calculator Bilimsel Hesap Makinesi',
+    SavedCalculationModule.graphPlotter =>
+      'Graph Plotter Graphing Grafik Cizici Grafik Çizici',
+    SavedCalculationModule.financialCalculator =>
+      'Financial Calculator Finansal Hesap Makinesi',
+    SavedCalculationModule.statistics => 'Statistics İstatistik',
+    SavedCalculationModule.calculus => 'Calculus Kalkülüs',
+    SavedCalculationModule.equationSolver => 'Equation Solver Denklem Çözücü',
+    SavedCalculationModule.matrix =>
+      'Matrices Linear Algebra Matrisler Lineer Cebir',
+    SavedCalculationModule.linearProgramming =>
+      'Linear Programming Lineer Programlama',
+    SavedCalculationModule.integerProgramming =>
+      'Integer Programming Tam Sayılı Programlama',
+    SavedCalculationModule.operationsResearch =>
+      'Operations Research Yöneylem Araştırması Transportation Assignment Ulaştırma Atama',
+    SavedCalculationModule.unknown => 'Unknown Bilinmeyen',
+  };
 
   static int _favoriteOrder(SavedCalculation a, SavedCalculation b) {
     final favorite = (b.isFavorite ? 1 : 0).compareTo(a.isFavorite ? 1 : 0);

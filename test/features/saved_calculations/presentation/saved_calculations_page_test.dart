@@ -137,6 +137,30 @@ void main() {
     expect(find.text('Parabola graph'), findsOneWidget);
   });
 
+  testWidgets('lists and filters an Operations Research record', (
+    tester,
+  ) async {
+    final transportation = _item(
+      'or-transportation',
+      'Transportation Solution',
+      SavedCalculationModule.operationsResearch,
+      DateTime.utc(2026, 4, 2),
+      result: 'Total cost: 150',
+    );
+    await _pump(tester, _MemoryRepository(items: [transportation]));
+
+    expect(find.text('Transportation Solution'), findsOneWidget);
+    expect(find.text('Operations Research'), findsWidgets);
+    await tester.tap(find.byKey(const Key('saved-module-filter')));
+    await tester.pumpAndSettle();
+    final option = find.text('Operations Research').last;
+    await tester.ensureVisible(option);
+    await tester.pumpAndSettle();
+    await tester.tap(option.hitTestable());
+    await tester.pumpAndSettle();
+    expect(find.text('Transportation Solution'), findsOneWidget);
+  });
+
   testWidgets('delete and clear-all require confirmation', (tester) async {
     final repository = _MemoryRepository(items: _items);
     await _pump(tester, repository);
