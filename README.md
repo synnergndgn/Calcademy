@@ -2,256 +2,125 @@
 
 **Calculate. Visualize. Optimize. Learn.**
 
-![Calcademy resmi logosu](assets/branding/calcademy_logo.svg)
+![Calcademy logosu](assets/branding/calcademy_logo.svg)
 
-Calcademy, üniversite öğrencilerinin bilimsel hesaplama ve problem çözme ihtiyaçlarını tek bir modüler mobil çalışma alanında birleştirmeyi amaçlayan Flutter uygulamasıdır. Mevcut sürüm çevrimdışı çalışan Bilimsel Hesap Makinesi, Grafik Çizici, Matrisler ve Lineer Cebir, Lineer Programlama ve Tam Sayılı Programlama modüllerini içerir.
+Calcademy; matematik, istatistik, finans ve yöneylem araştırması problemlerini tek bir çevrimdışı çalışma alanında birleştiren, Flutter ile geliştirilmiş akademik hesaplama platformudur. Uygulama; güvenilir sayısal sonuç, açık yöntem bilgisi, responsive kullanım ve cihaz içi veri gizliliğine odaklanır.
 
-## Marka kimliği
+## Aktif çalışma alanları
 
-Resmî Calcademy logosu `assets/branding/calcademy_logo.svg` yolunda tutulur ve uygulamada ortak `CalcademyLogo` bileşeni üzerinden kullanılır. SVG'nin özgün renkleri, oranları ve çizimi korunur; tema tarafından yeniden renklendirilmez.
-
-| Rol | Renk |
+| Kategori | Modüller |
 | --- | --- |
-| Açık adaçayı yeşili | `#8FAE9E` |
-| Ana koyu yeşil | `#63897A` |
-| Sıcak kırık beyaz | `#FBFAF5` |
-| Veri noktası aksanı | `#E7B77D` |
+| Matematik | Bilimsel Hesap Makinesi, Grafik Çizici, Matrisler ve Lineer Cebir, Denklem Çözücü, Calculus |
+| Optimizasyon ve Yöneylem Araştırması | Lineer Programlama, Tam Sayılı Programlama, Operations Research |
+| Veri ve İstatistik | Statistics |
+| Finans | Financial Calculator |
+| Çalışma Alanı | Saved Calculations |
 
-Marka sloganı İngilizce “Calculate. Visualize. Optimize. Learn.”, Türkçe “Hesapla. Görselleştir. Optimize et. Öğren.” şeklindedir. Turuncu, logodaki veri noktası gibi küçük ve anlamlı vurgularla sınırlıdır.
+Home ekranı modülleri bu bilgi mimarisine göre gruplar. Lokalize arama; modül adı, açıklaması ve kategori üzerinden çalışır. Telefonlarda tek sütun, tablet ve masaüstünde responsive grid kullanılır.
 
-Launcher icon henüz bu SVG'den üretilmemiştir. Android adaptive icon güvenli bölge ve küçük boyut okunabilirliği ayrı bir ikon çalışmasında doğrulanacak; o zamana kadar mevcut launcher icon korunacaktır.
+## Öne çıkan yetenekler
 
-## Bu sürümde
+- Bilimsel ifade değerlendirme, DEG/RAD, `Ans`, geçmiş ve haptic/key sound ayarları
+- Adaptif örnekleme, pan/zoom ve cihaz içi grafik çalışma alanları
+- Matris işlemleri, Gauss/Gauss-Jordan adımları ve lineer sistem sınıflandırması
+- Analitik ve sayısal denklem çözümü; türev, integral ve fonksiyon analizi
+- Betimsel istatistik, olasılık dağılımları ve güven aralıkları
+- TVM, nakit akışı, kredi amortismanı ve başabaş analizi
+- Simpleks tabanlı LP, Branch-and-Bound tabanlı IP
+- Transportation, Assignment, Weighted Goal Programming ve CPM/PERT
+- Modüller arası ortak, sürümlenmiş ve boyut limitli Saved Calculations kayıtları
+- Türkçe/İngilizce, Material 3 light/dark tema ve çevrimdışı çalışma
 
-- Temel işlemler, parantez, üs, karekök, faktöriyel, yüzde, mod ve örtük çarpma
-- `sin`, `cos`, `tan`, ters trigonometrik fonksiyonlar, `log`, `ln`, `exp`, `floor`, `ceil`, `round`, `abs`
-- `π`, `e` ve `Ans` desteği
-- DEG/RAD açı modu ve ayarlanabilir sonuç hassasiyeti
-- Türkçe ve İngilizce arayüz
-- Sistem, açık ve koyu tema
-- Aranabilir, tarihe göre gruplu hesaplama geçmişi
-- Başlık ve not içeren kaydedilmiş hesaplamalar ile sekmeli grafik kayıtları
-- SharedPreferences ile çevrimdışı kalıcılık
-- Responsive telefon/tablet arayüzü ve fiziksel klavye girişi
-- Gelecek modüller için açıklayıcı “Yakında” ekranları
-- Beş fonksiyona kadar güvenli, çevrimdışı Kartezyen grafik çizimi
-- Grafiklerde otomatik/manüel ölçek, RAD/DEG, pinch zoom, pan ve nokta inceleme
-- Kontrollü adaptif örnekleme, güçlendirilmiş süreksizlik algılama ve LRU örnek cache'i
-- Grafik çalışma alanlarını ayrı bir yerel kayıt modeliyle saklama, güncelleme ve kopyalama
-- Legend ve Calcademy imzası içeren PNG grafik paylaşımı
-- 1×1 ile 10×10 arasında matris düzenleme; genişletilmiş matrislerde 10×11 sınırı
-- Toplama, çıkarma, skaler ve matris çarpımı, transpoz, iz, determinant, ters ve rank
-- Satır işlemleri, REF, RREF, Gauss ve Gauss-Jordan için ileri/geri adım görünümü
-- Kare, fazla ve eksik denklemli lineer sistemlerde tek, sonsuz veya çözümsüz sınıflandırması
-- Ondalık ve kesir hücre girişi, `1e-10` merkezi sayısal toleransı
-- Hesaplama ve grafiklerden bağımsız yerel matris işlem kayıtları
+## Mimari
+
+Proje feature-first düzeni kullanır. Matematiksel modeller ve çözücüler UI katmanından ayrıdır; Riverpod controller/state akışını, repository katmanı ise yerel kalıcılığı yönetir.
+
+```text
+lib/
+├── app/                    # Uygulama, router, navigation ve design token'ları
+├── core/                   # Ortak servisler ve yeniden kullanılabilir UI
+├── features/
+│   ├── calculator/
+│   ├── graph/
+│   ├── matrix/
+│   ├── equation_solver/
+│   ├── calculus/
+│   ├── statistics/
+│   ├── financial_calculator/
+│   ├── linear_programming/
+│   ├── integer_programming/
+│   ├── operations_research/
+│   └── saved_calculations/
+└── l10n/                   # TR/EN kullanıcı metinleri
+```
+
+### Tasarım sistemi
+
+Material 3 `ColorScheme`, ortak spacing/radius/breakpoint değerleri ve tema türevi yüzeyler kullanılır. Ortak section header, empty state, status banner ve result action bar bileşenleri; light/dark temada tutarlı hiyerarşi sağlar. Ana etkileşimler en az 48 dp dokunma alanını, 320 px genişliği ve %200 metin ölçeğini hedefler.
+
+## Teknoloji
+
+- Flutter / Dart
+- Riverpod
+- go_router
+- SharedPreferences
+- fl_chart
+- flutter_svg
+- share_plus
+
+Matematik ifadeleri `eval` kullanmadan kontrollü lexer/parser katmanlarında işlenir. Büyük veya sayısal olarak riskli problemler merkezi limit ve toleranslarla sınırlandırılır.
+
+## Saved Calculations
+
+Başarılı sonuçlar desteklenen modüllerden ortak Saved Calculations repository’sine kaydedilebilir. Kayıtlar; modül, hesaplama tipi, giriş/sonuç özeti, küçük sürümlenmiş payload, zaman damgası ve favori durumunu içerir. Arama, modül filtresi, sıralama, favori, kopyalama ve silme cihaz içinde çalışır. Bulut senkronizasyonu veya kullanıcı hesabı yoktur.
+
+## Operations Research
+
+- Transportation: North-West Corner, Least Cost ve MODI/U-V; dengeli/dengesiz problem desteği
+- Assignment: Hungarian algoritması; kare/dikdörtgen ve min/max modeller
+- Weighted Goal Programming: hard constraint, hedef ilişkisi ve sapma ağırlıkları
+- CPM/PERT: activity-on-node ağları, forward/backward pass, bolluk ve kritik yol
+
+Başlangıç feasible transportation çözümü optimal olarak etiketlenmez; dummy satır/sütun ve limit durumları kullanıcıya açıkça bildirilir.
 
 ## Çalıştırma
 
-Gereksinimler: Flutter 3.44.0 veya uyumlu kararlı sürüm, Dart 3.12.0+, Android Studio/Android SDK.
+Gereksinimler: Flutter 3.44 veya uyumlu kararlı sürüm, Dart 3.12+, Android SDK.
 
 ```bash
 flutter pub get
 flutter run
 ```
 
-Bağlı cihazları görmek için `flutter devices`, belirli bir cihazı çalıştırmak için `flutter run -d <device-id>` kullanılabilir.
+## Test ve kalite kapısı
 
-## Önemli paketler
-
-- `flutter_riverpod`: ayarlar, hesap makinesi, geçmiş ve kayıt durumları
-- `go_router`: tipik uygulama rotaları ve alt navigasyon kabuğu
-- `shared_preferences`: geçmiş, kaydedilenler ve ayarların yerel saklanması
-- `intl`: yerelleştirilmiş tarih/saat biçimlendirme
-- `flutter_localizations`: Material bileşenlerinin Türkçe/İngilizce yerelleştirmesi
-- `flutter_svg`: resmî Calcademy SVG marka varlığının kayıpsız gösterimi
-- `fl_chart`: etkileşimli Kartezyen fonksiyon grafikleri
-- `share_plus`: PNG byte verisi için güvenli dosya adı ve platformun yerel paylaşım ekranı
-
-Matematik ifadeleri `eval` kullanmadan, uygulamaya ait kontrollü lexer ve recursive-descent parser ile değerlendirilir.
-
-## Proje yapısı
-
-```text
-lib/
-├── app/                 # Uygulama, router, tema ve navigasyon
-├── core/                # Ortak servisler ve widgetlar
-├── features/
-│   ├── calculator/      # Güvenli motor, state ve hesap makinesi UI
-│   ├── graph/           # Güvenli x değerlendiricisi, örnekleme, kayıt ve grafik UI
-│   ├── history/         # Modeller, yerel repository ve geçmiş UI
-│   ├── home/            # Modül kataloğu, ana sayfa ve splash
-│   ├── matrix/          # Immutable model, lineer cebir motoru, kayıt ve matris UI
-│   ├── linear_programming/  # LinearProgram modeli, simpleks çözücü ve LP UI
-│   ├── integer_programming/ # IntegerProgram, Branch-and-Bound çözücü ve MIP UI
-│   ├── saved/           # Hesaplama, grafik, matris ve optimizasyon kayıtlarının ortak görünümü
-│   └── settings/        # Ayarlar ve hakkında
-└── l10n/                # Türkçe/İngilizce metinler
-```
-
-## Testler ve kalite
+Unit testler domain servislerini, solver sonuçlarını, validation ve kayıt adapter’larını; widget testleri navigasyon, form/result akışları, copy/save eylemleri, dark mode ve responsive geometrileri kapsar. Sprint öncesi 431 testlik regresyon tabanı korunur.
 
 ```bash
-flutter test
+dart format --set-exit-if-changed .
 flutter analyze
+flutter test --concurrency=1
+flutter build apk --debug
+git diff --check
 ```
 
-Unit testler işlem önceliği, fonksiyonlar, DEG/RAD, grafik domain/süreksizlikleri, matris işlemleri, satır replay'i, lineer sistem sınıflandırması, simpleks çözücü, Branch-and-Bound dallanma/budama/limit davranışı ve hazır tam sayılı programlama örneklerinin bağımsız doğrulanmış optimumlarını kapsar. Widget testleri hesap makinesi tuş akışını, grafik etkileşimlerini, matris editörünü, LP/IP model editörlerini, çözüm ve branch ağacı ekranlarını, adım ekranını, tema ve responsive davranışları kapsar.
+## Gizlilik ve release yaklaşımı
+
+Bu sürüm hesap, backend, reklam veya analytics kullanmaz. Hesaplamalar ve ayarlar cihazda saklanır. Debug APK CI/yerel kalite kapısından üretilebilir; Play Store imzalama, mağaza metadata’sı, launcher icon sonlandırması ve üretim gizlilik metni ayrı release adımlarıdır.
 
 ## Bilinen sınırlamalar
 
-- Kompleks sayılar desteklenmez.
-- Yüzde postfix olarak `x / 100` anlamına gelir.
-- Matris motoru gerçek sayılarla ve `double` hassasiyetiyle çalışır; çok kötü koşullu veya çok büyük/küçük katsayılı matrislerde yuvarlama hatası oluşabilir.
-- Kesir girişi desteklenir ancak sonuçlar tam rational biçimde tutulmaz; yaklaşık ondalık olarak gösterilir.
-- Özdeğer, özvektör, karakteristik polinom, kompleks matrisler, LU/QR/Cholesky/SVD ayrıştırmaları henüz yoktur.
-- Veriler yalnızca cihazda tutulur; bulut senkronizasyonu yoktur.
-- Tuş sesi platformun sistem tıklama sesini kullanır.
-- Grafik Çizici yalnızca tek değişkenli gerçek Kartezyen fonksiyonları destekler; sembolik analiz, kök/kesişim bulma, parametrik, polar, implicit ve 3D çizim henüz yoktur.
+- Kompleks sayı ve tam sembolik CAS desteği yoktur.
+- Sayısal motorlar `double` hassasiyeti ve modüle özel toleranslarla çalışır.
+- Grafik Çizici gerçek, tek değişkenli Kartezyen fonksiyonlarla sınırlıdır.
+- Büyük matris/optimizasyon/OR problemleri güvenli merkezi limitlerle sınırlandırılır.
+- Saved Calculations için bulut senkronizasyonu ve tüm modüllerde full restore yoktur.
+- PDF/CSV dışa aktarma ve üretim mağaza dağıtımı bu sürümün kapsamı dışındadır.
 
-## Gelecek modüller
+## Yol haritası
 
-Denklem çözücü, calculus, istatistik, nonlinear optimizasyon, dinamik programlama ve sayısal yöntemler. Matris modülünün sonraki aşaması özdeğer/özvektör ve doğrulanmış LU/QR/Cholesky ayrıştırmalarıdır. Tam Sayılı Programlama modülünün sonraki aşaması Gomory cutting planes ve Branch-and-Cut'tır (bkz. "Bilinen sınırlamalar").
-
-## Lineer Programlama 1.0
-
-- 1–10 sürekli ve negatif olmayan karar değişkeni, 1–20 adet `≤`, `≥` veya `=` kısıtı
-- Maksimizasyon/minimizasyon; primal ve iki aşamalı simpleks yönteminin otomatik seçimi
-- Negatif RHS normalizasyonu, slack/surplus/yapay değişkenler ve incelenebilir Faz I/Faz II tabloları
-- Optimal, çoklu optimum, sınırsız, çözümsüz, dejenere, iterasyon sınırı ve sayısal hata ayrımı
-- İki değişkenli modellerde uygun köşeler, uygun bölge ve optimum nokta için grafiksel görünüm
-- Güvenli standart formda dual model üretimi; temel slack, aktif kısıt, baz ve azaltılmış maliyet bilgileri
-- Modeller ve sonuç özetleri `linear_programming.saved` anahtarında yalnızca cihazda saklanır
-
-Lineer programlama motoru `double` hassasiyeti ve merkezi `1e-9` toleransıyla çalışır. Big-M, doğrusal olmayan ve kuadratik optimizasyon bu sürümün kapsamı dışındadır. Kesir girişi kabul edilir fakat hesaplamada yaklaşık ondalığa çevrilir. Gölge fiyat ve izin verilen katsayı aralıkları güvenilirliği garanti edilemediğinde gösterilmez.
-
-## Tam Sayılı Programlama 1.0
-
-Beşinci akademik modül: tam sayı, binary ve karma (mixed) doğrusal programları çevrimdışı Branch-and-Bound ile çözer. Lineer Programlama modülünün `LinearProgram` modelini ve simpleks çözücüsünü servis olarak yeniden kullanır; LP modelleri, LP kayıt formatı ve LP çözücüsü değiştirilmemiştir.
-
-- Sürekli, tam sayı (`xᵢ ∈ Z₊`) ve binary (`xᵢ ∈ {0,1}`) karar değişkenleri; en az bir tam sayı/binary değişken zorunludur
-- Binary üst sınırı (`x ≤ 1`) modele otomatik eklenir; kullanıcıdan ayrı bir kısıt istenmez
-- Maksimizasyon/minimizasyon; her dal düğümünde LP gevşetmesi mevcut simpleks çözücüsüyle çözülür
-- Dallanma stratejisi: en çok kesirli (varsayılan) veya ilk kesirli, değişken sırasına göre deterministik eşitlik kırma
-- Düğüm seçim stratejisi: derinlik öncelikli (varsayılan) veya en iyi sınır, düğüm oluşturma sırasına göre deterministik
-- Incumbent takibi, bound/uygunsuzluk/tam sayılık ile budama, optimality gap (`|incumbent − sınır| / max(1, |incumbent|)`)
-- Sonuç durumları: optimal, limit nedeniyle bulunan en iyi çözüm, uygunsuz, gevşetme sınırsız, düğüm/iterasyon limiti, sayısal hata
-- Genişletilebilir kartlarla girintili Branch-and-Bound ağacı görünümü ve düğüm detay sayfası (bound, kesirli değişkenler, dallanma kısıtları, budama nedeni)
-- Hazır örnekler: 0-1 sırt çantası, proje seçimi (bağımlılık kısıtı), 3×3 atama, sabit maliyetli üretim, saf tam sayılı ürün karması, uygunsuz tam sayı modeli, kesirli gevşetme
-- Modeller ve sonuç özetleri `integer_programming.saved` anahtarında yalnızca cihazda saklanır; Kaydedilenler ekranındaki tek "Optimizasyon" sekmesinde Lineer Programlama kayıtlarıyla birlikte listelenir
-
-### Model boyutu ve limitler
-
-Merkezi sabitler `lib/features/integer_programming/domain/mip_constants.dart` dosyasındadır:
-
-| Sabit | Değer |
-| --- | --- |
-| Toplam değişken (LP modülünden miras) | 10 |
-| Önerilen tam sayı/binary değişken | 8 (aşılırsa arayüzde performans uyarısı gösterilir, model reddedilmez) |
-| Kısıt | 20 |
-| Maksimum düğüm | 5000 |
-| Maksimum derinlik | 50 |
-| Maksimum toplam LP iterasyonu | 100000 |
-| `mipEpsilon` | `1e-9` |
-| `integerEpsilon` | `1e-7` |
-
-Derinlik limitine takılan dallar ağaçta "daha fazla genişletilmedi" olarak işaretlenir ve nihai sonucun gap hesabına dahil edilir; böylece kesilen bir dal varken yanlışlıkla `%0` gap gösterilmez.
-
-### Isolate ve iptal
-
-Branch-and-Bound çözümü `compute()` ile arka plan isolate'inde çalışır; arayüz yalnızca "Model çözülüyor" belirsiz ilerleme göstergesi gösterir (gerçek yüzde ilerleme yoktur). Isolate gerçek anlamda iptal edilemediğinden, controller nesil (generation) sayacı kullanır: model değişirse, yeni bir çözüm başlatılırsa veya sayfadan çıkılırsa önceki isolate sonucu geldiğinde sessizce yok sayılır.
-
-### Bilinen sınırlamalar (Tam Sayılı Programlama)
-
-- Gomory/cutting-plane, branch-and-cut, clique/cover/MIR cuts, column generation, Lagrangian relaxation, Benders decomposition, doğrusal olmayan/kuadratik tam sayı programlama, constraint programming, genetik algoritma, simulated annealing ve dağıtık/bulut çözüm bu sürümün kapsamı dışındadır.
-- Kök LP gevşetmesi sınırsızsa sonuç doğrudan "gevşetme sınırsız" olarak raporlanır; tam sayılık kısıtının problemi yine de sınırlı kılıp kılmayacağı ayrıca ispatlanmaz.
-- Warm-start (üst düğüm simpleks bazının yeniden kullanımı) yoktur; her düğüm sıfırdan çözülür. Küçük model boyutlarında bu kabul edilebilir performans sağlar.
-- Presolve sınırlıdır; karmaşık dönüşümler (ör. katsayı sıkılaştırma) yapılmaz, doğruluk performanstan önceliklidir.
-- Canlı düğüm ilerlemesi (işlenen düğüm sayısı, güncel incumbent/bound) arayüzde akış olarak gösterilmez; yalnızca nihai sonuç ve tam ağaç sunulur.
-
-## Denklem Çözücü 1.0
-
-Altıncı akademik modül: tek değişkenli denklemler, n×n lineer sistemler ve klasik sayısal kök bulma yöntemleri, tamamen çevrimdışı.
-
-- **Tek denklem**: `2x + 5 = 17` gibi `=` içeren girişler veya çıplak ifadeler (`x^2 - 4`). Grafik Çizici'nin ifade derleyicisi yeniden kullanılır: `+ - * / ^`, parantez, tekli eksi, ondalık, `sin cos tan`, `sqrt`, `ln log`, `exp`, `pi`, `e` ve `2x` / `3(x+1)` gibi örtük çarpım desteklenir. Trigonometri radyan modundadır.
-- **Analitik yol**: fonksiyon, doğrulamalı sayısal uyum ile derece ≤ 2 polinom olarak algılanırsa lineer/ikinci derece formülüyle **kesin** çözülür (kararlı q-formülü ile katastrofik iptal önlenir); ayrıca her analitik kök gerçek fonksiyona karşı artık-değer kontrolünden geçer — yanlış algılama durumunda sessizce sayısal taramaya düşülür. Negatif diskriminantta "gerçek kök yok (karmaşık kök olabilir)" ayrımı, `0=0` özdeşliği ve `5=7` çelişkisi ayrı sonuç türleridir.
-- **Sayısal yol**: kullanıcı tarafından değiştirilebilir tarama aralığında (varsayılan [-10, 10], 400 örnek) işaret değişimi köşeleme + bisection iyileştirme; çift katlı (teğet) kökler |f| minimumlarından Newton ile denenir ve uyarıyla işaretlenir; her aday artık-değer kontrolünden geçer (1/x'in 0'daki süreksizliği kök sanılmaz); yinelenen kökler toleransla birleştirilir. Sonuç yalnızca "taranan aralıkta bulunan kökler" iddiasındadır.
-- **Lineer sistem (matris modu)**: 2–10 boyut; katsayı ızgarası + RHS. Çözüm, Matris modülünün test edilmiş Gauss eliminasyon motoruna (`MatrixEngine.solveLinearSystem`) devredilir — tek/sonsuz/çözümsüz sınıflandırması epsilon tabanlıdır, ikinci bir eliminasyon kopyalanmamıştır. Denklem-metni modu bu sürümün kapsamı dışında bırakıldı (yarım özellik olarak eklenmedi).
-- **Sayısal yöntemler**: Bisection (alt/üst sınır), Newton-Raphson (simetrik fark sayısal türevi; türev ≈ 0 tipli hata), Secant (iki tahmin). Her sonuç yakınsama durumu, iterasyon sayısı, artık değer ve son tahmini raporlar; tolerans 1e-14 tabanına, iterasyon 500 tavanına kıskaçlanır.
-- Sonuç kartı: Kesin/Yaklaşık rozeti, kullanılan yöntem, artık değer, taranan aralık, uyarı kartları ve kopyalama. Tüm hata durumları (boş girdi, sözdizimi, bilinmeyen değişken/fonksiyon, geçersiz aralık/bracket, türev≈0, iterasyon limiti, tekil matris...) tipli ve TR/EN yerelleştirilmiş; ham exception UI'ya çıkmaz.
-- Limitler merkezi: `lib/features/equation_solver/domain/equation_solver_limits.dart`.
-
-Kapsam dışı (sonraki sürümler): sembolik CAS, adım adım cebir, karmaşık düzlem görselleştirme, denklem-grafik bindirmesi, geçmiş/favoriler, denklem-metni sistem girişi.
-
-## Calculus 1.0
-
-Yedinci akademik modül: tamamen sayısal analiz odaklı türev, integral ve fonksiyon analizi. Bu sürümde sembolik CAS, sembolik türev veya belirsiz integral yoktur; her sonuç açıkça "yaklaşık" rozetiyle sunulur.
-
-- **Sayısal türev**: İleri, geri ve merkezi fark (varsayılan merkezi). Adım boyutu kullanıcı tarafından ayarlanabilir (1e-10…1 aralığına doğrulanır). Hata tahmini, adım ile yarım adımın Richardson karşılaştırmasından yöntem mertebesine göre ölçeklenir; gösterilen değer daha doğru olan yarım-adım sonucudur.
-- **Sayısal integral**: Yamuk ve Simpson 1/3 kuralları. Simpson için tek alt aralık sayısı sessizce düzeltilmez — doğrulama hatası olarak gösterilir. Hata tahmini n ile 2n karşılaştırmasından (yamuk /3, Simpson /15).
-- **Fonksiyon analizi**: Kullanıcı aralığında (varsayılan [-10, 10], değiştirilebilir) örnekleme tabanlı yaklaşık kökler (Denklem Çözücü'nün `scanForRoots`'u yeniden kullanılır), sayısal birinci/ikinci türev üzerinden ekstremum ve büküm noktaları, artan/azalan aralıklar ve örnekler üzerinde gözlenen min/maks. Düz kritik noktalar ve kısmen tanımsız bölgeler uyarıyla raporlanır; hiçbir bulgu "kesin" olarak sunulmaz.
-- **Grafik entegrasyonu**: Yeni grafik motoru yazılmadı — Grafik Çizici'nin `GraphSampler`'ı (kutup/süreksizlik segmentasyonu dahil) eğriyi üretir, uygulamanın mevcut fl_chart bağımlılığı çizer. Türev sekmesinde hesaplanan türev değerinden üretilen kesikli teğet doğrusu + değerlendirme noktası; integral sekmesinde örneklenen eğriyi birebir izleyen tema-türevi gölgeli alan (dark mode uyumlu).
-- İfade değerlendirme Denklem Çözücü'nün `ParsedEquation` sarmalayıcısı üzerinden Grafik parser'ını kullanır (ikinci parser yok); ifade her çözümde bir kez derlenir ve tüm örneklemelerde yeniden kullanılır.
-- Limitler merkezi: `lib/features/calculus/domain/calculus_limits.dart`. Hata durumları (geçersiz adım/sınır/alt aralık, tek Simpson sayısı, tanımsız bölge…) tipli ve TR/EN yerelleştirilmiş.
-
-Kapsam dışı (sonraki sürümler): sembolik türev/integral, Taylor/Fourier/Laplace, ODE/PDE, adım adım sembolik çözüm.
-
-## Statistics 1.0
-
-Sekizinci akademik modül; veri özetleme, temel olasılık dağılımları ve güven aralıkları için çevrimdışı, tipli ve doğrulanmış bir çalışma alanı sunar.
-
-- Virgül, boşluk, noktalı virgül ve satır sonu ayrımlı veri girişi; belirsiz tek virgülün sessizce yanlış yorumlanmasını önleyen doğrulama
-- Ortalama, medyan, mod, min/maks, açıklık, anakütle/örneklem varyansı ve standart sapması, Q1/Q3/IQR ve 1,5×IQR aykırı değerleri
-- Normal CDF için erf yaklaşımı; Binom ve Poisson için taşmaya dayanıklı logaritmik toplam hesapları
-- Bilinen sigma için z, bilinmeyen sigma için doğrulanmış t kritik değerleri ve oran için Wilson güven aralıkları
-- Merkezi limitler, TR/EN hata ve varsayım mesajları, yaklaşık sonuç rozeti ve sonuç kopyalama
-
-Kapsam dışı: regresyon, korelasyon, ANOVA, hipotez testleri, ki-kare, parametrik olmayan testler, histogram/grafikler ve veri içe/dışa aktarma.
-
-## Financial Calculator 1.0
-
-Dokuzuncu akademik modül; paranın zaman değeri, nakit akışı analizi, sabit ödemeli kredi amortismanı ve temel başabaş/CVP kararlarını tamamen çevrimdışı hesaplar.
-
-- Bugünkü/gelecek değer, dönem başı/sonu anüiteler ve efektif yıllık faiz
-- Başlangıç yatırımını yalnızca t=0'da sayan NPV, bracket+bisection IRR ve basit/iskontolu geri ödeme
-- Sıfır faiz desteği, 600 dönem sınırı ve son bakiyeyi sıfıra kapatan amortisman planı
-- Başabaş miktarı/geliri, hedef kâr miktarı ve güvenlik marjı
-- Açık yüzde oranı etiketleri, TR/EN tipli hatalar, yaklaşık IRR uyarıları ve kopyalanabilir sonuçlar
-
-## Saved Calculations / History 1.0
-
-- Financial Calculator, Statistics ve Calculus sonuç kartlarından ortak kaydetme eylemi
-- Versioned ve boyut limitli JSON payload'larıyla SharedPreferences üzerinde çevrimdışı kalıcılık
-- Başlık, modül, hesaplama türü, giriş/sonuç özeti, zaman damgası ve favori bilgisi
-- Başlık, modül, hesaplama türü, giriş ve sonuç özetlerinde büyük/küçük harf duyarsız arama
-- Tümü/favoriler ve modül filtreleri; en yeni, en eski veya favori öncelikli sıralama
-- Kopyalama, favorileme, modülü açma, onaylı tekil silme ve onaylı tümünü temizleme
-- Bozuk kayıtları güvenli atlama ve desteklenmeyen schema/storage hatalarını tipli biçimde gösterme
-
-Canlı piyasa verisi, yatırım tavsiyesi, vergi/enflasyon, döviz dönüşümü, portföy optimizasyonu ve gelişmiş menkul kıymet analizi kapsam dışıdır.
-
-## Operations Research 1.0
-
-- Transportation: dengeli/dengesiz arz-talep modelleri, yapay kaynak/hedef ile açık dengeleme
-- North-West Corner ve Least Cost başlangıç çözümleri; MODI / U-V ile optimallik kontrolü ve iyileştirme
-- Minimize maliyet ve güvenli maliyet dönüşümüyle maximize kâr
-- Assignment: kare/dikdörtgen matrisler, yapay satır/sütun ve Hungarian algoritması
-- Negatif sonlu atama değerleri, tipli validation, merkezi boyut/iterasyon/tolerans limitleri
-- Responsive giriş ve sonuç tabloları, TR/EN, dark mode, kopyalama ve ortak Saved Calculations kaydı
-
-EOQ, Decision Analysis, kuyruk modelleri ve simülasyon sonraki sürümlerin kapsamındadır.
-
-## Operations Research 1.1
-
-- Weighted Goal Programming: doğrusal hedefler, kesin kısıtlar, eksik/fazla gerçekleşme sapmaları ve Simplex tabanlı optimal çözüm
-- Karar değişkenleri için varsayılan non-negativity ve eşit/en az/en çok hedef ilişkileri
-- CPM: activity-on-node ağları, forward/backward pass, toplam/serbest bolluk ve kritik yol
-- PERT: iyimser, en olası ve kötümser sürelerden beklenen süre/varyans hesabı
-- Çoklu başlangıç/bitiş ve bağlantısız bileşenlerde sanal ağ mantığı; cycle ve eksik öncül doğrulaması
-- Goal Programming ve CPM/PERT sonuçları için kopyalama ve ortak Saved Calculations kaydı
-
-Preemptive ve integer goal programming, deadline olasılığı, resource leveling, Gantt, EOQ ve Decision Analysis kapsam dışıdır.
-
-## Ekran görüntüleri
-
-Ekran görüntüleri Android cihaz doğrulamasından sonra bu bölüme eklenebilir.
+- Release signing, mağaza görselleri ve erişilebilirlik saha doğrulaması
+- Saved Calculations restore kapsamının kontrollü genişletilmesi
+- Sembolik matematik için güvenilir, ayrı bir mimari değerlendirme
+- OR için EOQ, Decision Analysis ve kaynak kısıtlı proje planlama
+- Profiling tabanlı performans ve APK boyutu iyileştirmeleri

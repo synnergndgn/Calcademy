@@ -1,25 +1,49 @@
+import 'package:calcademy/app/theme/app_breakpoints.dart';
 import 'package:calcademy/app/theme/app_colors.dart';
 import 'package:calcademy/app/theme/app_radius.dart';
 import 'package:calcademy/app/theme/app_spacing.dart';
 import 'package:calcademy/core/widgets/calcademy_logo.dart';
 import 'package:calcademy/core/widgets/empty_state.dart';
+import 'package:calcademy/core/widgets/section_header.dart';
 import 'package:calcademy/features/history/domain/calculation_record.dart';
 import 'package:calcademy/features/history/presentation/history_controller.dart';
 import 'package:calcademy/features/home/models/academy_module.dart';
+import 'package:calcademy/features/home/presentation/widgets/professional_module_card.dart';
 import 'package:calcademy/features/settings/presentation/settings_controller.dart';
 import 'package:calcademy/l10n/app_localizations.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
-class HomePage extends ConsumerWidget {
+class HomePage extends ConsumerStatefulWidget {
   const HomePage({super.key});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final recent = ref.watch(historyProvider).take(3).toList();
-    final availableModules = academyModules.where((item) => item.available);
-    final comingModules = academyModules.where((item) => !item.available);
+  ConsumerState<HomePage> createState() => _HomePageState();
+}
+
+class _HomePageState extends ConsumerState<HomePage> {
+  final _searchController = TextEditingController();
+
+  @override
+  void dispose() {
+    _searchController.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final recent = ref.watch(historyProvider).take(3).toList(growable: false);
+    final query = _searchController.text.trim().toLowerCase();
+    final matchingModules = academyModules
+        .where((module) => _matches(module, query))
+        .toList(growable: false);
+    final available = matchingModules.where((module) => module.available);
+    final coming = matchingModules
+        .where((module) => !module.available)
+        .toList();
+    final hasResults = matchingModules.isNotEmpty;
+
     return Scaffold(
       appBar: AppBar(
         title: const _HomeBrand(),
@@ -28,59 +52,101 @@ class HomePage extends ConsumerWidget {
           SizedBox(width: AppSpacing.xs),
         ],
       ),
-      body: CustomScrollView(
-        slivers: [
-          const SliverToBoxAdapter(child: _HeroCard()),
-          SliverToBoxAdapter(child: _SectionTitle(context.l10n.t('available'))),
-          SliverToBoxAdapter(
-            child: Column(
-              children: [
-                for (final module in availableModules)
-                  _ModuleCard(module: module),
-              ],
-            ),
-          ),
-          SliverToBoxAdapter(child: _SectionTitle(context.l10n.t('recent'))),
-          SliverToBoxAdapter(child: _RecentCalculations(records: recent)),
-          SliverToBoxAdapter(
-            child: _SectionTitle(context.l10n.t('comingSoon')),
-          ),
-          SliverToBoxAdapter(
-            child: Padding(
-              padding: const EdgeInsets.fromLTRB(
-                AppSpacing.md,
-                0,
-                AppSpacing.md,
-                AppSpacing.xxl,
-              ),
-              child: LayoutBuilder(
-                builder: (context, constraints) {
-                  final columns = constraints.maxWidth >= 960
-                      ? 3
-                      : constraints.maxWidth >= 600
-                      ? 2
-                      : 1;
-                  final itemWidth =
-                      (constraints.maxWidth - AppSpacing.sm * (columns - 1)) /
-                      columns;
-                  return Wrap(
-                    spacing: AppSpacing.sm,
-                    runSpacing: AppSpacing.sm,
-                    children: [
-                      for (final module in comingModules)
-                        SizedBox(
-                          width: itemWidth,
-                          child: _ModuleCard(module: module, compact: true),
+      body: LayoutBuilder(
+        builder: (context, constraints) => CustomScrollView(
+          key: const Key('home-scroll'),
+          slivers: [
+            SliverToBoxAdapter(
+              child: Center(
+                child: ConstrainedBox(
+                  constraints: const BoxConstraints(
+                    maxWidth: AppBreakpoints.maxContentWidth,
+                  ),
+                  child: Padding(
+                    padding: AppBreakpoints.pagePadding(constraints.maxWidth),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
+                      children: [
+                        const SizedBox(height: AppSpacing.xs),
+                        _HeroCard(
+                          availableCount: academyModules
+                              .where((module) => module.available)
+                              .length,
                         ),
-                    ],
-                  );
-                },
+                        const SizedBox(height: AppSpacing.lg),
+                        _ModuleSearchField(
+                          controller: _searchController,
+                          onChanged: (_) => setState(() {}),
+                          onClear: () {
+                            _searchController.clear();
+                            setState(() {});
+                          },
+                        ),
+                        const SizedBox(height: AppSpacing.xl),
+                        if (!hasResults)
+                          Card(
+                            child: EmptyState(
+                              key: const Key('home-search-empty'),
+                              icon: Icons.search_off_rounded,
+                              title: context.l10n.t('homeNoResultsTitle'),
+                              body: context.l10n.t('homeNoResultsBody'),
+                            ),
+                          )
+                        else ...[
+                          for (final category in AcademyModuleCategory.values)
+                            if (available.any(
+                              (module) => module.category == category,
+                            )) ...[
+                              _ModuleCategorySection(
+                                category: category,
+                                modules: available
+                                    .where(
+                                      (module) => module.category == category,
+                                    )
+                                    .toList(growable: false),
+                              ),
+                              const SizedBox(height: AppSpacing.xl),
+                            ],
+                          if (query.isEmpty) ...[
+                            SectionHeader(
+                              title: context.l10n.t('recent'),
+                              icon: Icons.history_rounded,
+                            ),
+                            const SizedBox(height: AppSpacing.sm),
+                            _RecentCalculations(records: recent),
+                            const SizedBox(height: AppSpacing.xl),
+                          ],
+                          if (coming.isNotEmpty) ...[
+                            SectionHeader(
+                              title: context.l10n.t('comingSoon'),
+                              subtitle: context.l10n.t('homeComingSoonBody'),
+                              icon: Icons.explore_outlined,
+                            ),
+                            const SizedBox(height: AppSpacing.sm),
+                            _ResponsiveModuleGrid(modules: coming),
+                          ],
+                        ],
+                        const SizedBox(height: AppSpacing.xxl),
+                      ],
+                    ),
+                  ),
+                ),
               ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
+  }
+
+  bool _matches(AcademyModule module, String query) {
+    if (query.isEmpty) return true;
+    final searchable = [
+      context.l10n.t(module.titleKey),
+      context.l10n.t(module.descriptionKey),
+      context.l10n.t(module.category.localizationKey),
+    ].join(' ').toLowerCase();
+    return searchable.contains(query);
   }
 }
 
@@ -113,7 +179,9 @@ class _ThemeButton extends ConsumerWidget {
 }
 
 class _HeroCard extends StatelessWidget {
-  const _HeroCard();
+  const _HeroCard({required this.availableCount});
+
+  final int availableCount;
 
   @override
   Widget build(BuildContext context) {
@@ -123,8 +191,16 @@ class _HeroCard extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
+          context.l10n.t('homeHeroEyebrow').toUpperCase(),
+          style: theme.textTheme.labelLarge?.copyWith(
+            color: colors.primary,
+            letterSpacing: 1.1,
+          ),
+        ),
+        const SizedBox(height: AppSpacing.xs),
+        Text(
           context.l10n.t('welcome'),
-          style: theme.textTheme.headlineSmall?.copyWith(
+          style: theme.textTheme.headlineMedium?.copyWith(
             color: colors.onPrimaryContainer,
           ),
         ),
@@ -135,43 +211,94 @@ class _HeroCard extends StatelessWidget {
             color: colors.onPrimaryContainer,
           ),
         ),
+        const SizedBox(height: AppSpacing.md),
+        Wrap(
+          spacing: AppSpacing.xs,
+          runSpacing: AppSpacing.xs,
+          children: [
+            _HeroMetric(
+              icon: Icons.dashboard_customize_outlined,
+              label: '$availableCount ${context.l10n.t('homeTools')}',
+            ),
+            _HeroMetric(
+              icon: Icons.offline_bolt_outlined,
+              label: context.l10n.t('homeOffline'),
+            ),
+            _HeroMetric(
+              icon: Icons.lock_outline_rounded,
+              label: context.l10n.t('homeOnDevice'),
+            ),
+          ],
+        ),
       ],
     );
-    const graphic = _GraphAccent();
 
-    return Container(
-      margin: const EdgeInsets.fromLTRB(
-        AppSpacing.md,
-        AppSpacing.xs,
-        AppSpacing.md,
-        AppSpacing.xs,
-      ),
-      padding: const EdgeInsets.all(AppSpacing.xl),
+    return DecoratedBox(
       decoration: BoxDecoration(
         color: colors.primaryContainer,
         borderRadius: AppRadius.hero,
         border: Border.all(color: colors.outlineVariant),
       ),
-      child: LayoutBuilder(
-        builder: (context, constraints) {
-          if (constraints.maxWidth < 340) {
-            return Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
+      child: Padding(
+        padding: const EdgeInsets.all(AppSpacing.xl),
+        child: LayoutBuilder(
+          builder: (context, constraints) {
+            if (constraints.maxWidth < 560) {
+              return Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const _GraphAccent(),
+                  const SizedBox(height: AppSpacing.lg),
+                  copy,
+                ],
+              );
+            }
+            return Row(
               children: [
-                graphic,
-                const SizedBox(height: AppSpacing.md),
-                copy,
+                Expanded(child: copy),
+                const SizedBox(width: AppSpacing.xl),
+                const _GraphAccent(),
               ],
             );
-          }
-          return Row(
-            children: [
-              Expanded(child: copy),
-              const SizedBox(width: AppSpacing.lg),
-              graphic,
-            ],
-          );
-        },
+          },
+        ),
+      ),
+    );
+  }
+}
+
+class _HeroMetric extends StatelessWidget {
+  const _HeroMetric({required this.icon, required this.label});
+
+  final IconData icon;
+  final String label;
+
+  @override
+  Widget build(BuildContext context) {
+    final colors = Theme.of(context).colorScheme;
+    return ConstrainedBox(
+      constraints: const BoxConstraints(maxWidth: 260),
+      child: Container(
+        padding: const EdgeInsets.symmetric(
+          horizontal: AppSpacing.sm,
+          vertical: AppSpacing.xs,
+        ),
+        decoration: BoxDecoration(
+          color: colors.surface.withValues(alpha: 0.72),
+          borderRadius: AppRadius.button,
+        ),
+        child: Row(
+          children: [
+            Icon(icon, size: 17, color: colors.primary),
+            const SizedBox(width: AppSpacing.xs),
+            Flexible(
+              child: Text(
+                label,
+                style: Theme.of(context).textTheme.labelMedium,
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -187,26 +314,26 @@ class _GraphAccent extends StatelessWidget {
       clipBehavior: Clip.none,
       children: [
         Container(
-          padding: const EdgeInsets.all(AppSpacing.md),
+          padding: const EdgeInsets.all(AppSpacing.lg),
           decoration: BoxDecoration(
-            color: colors.surface.withValues(alpha: 0.7),
+            color: colors.surface.withValues(alpha: 0.78),
             borderRadius: AppRadius.card,
           ),
           child: Icon(
             Icons.auto_graph_rounded,
-            size: 42,
+            size: 48,
             color: colors.primary,
           ),
         ),
         const Positioned(
-          right: 8,
-          bottom: 9,
+          right: 10,
+          bottom: 12,
           child: DecoratedBox(
             decoration: BoxDecoration(
               color: AppColors.dataPoint,
               shape: BoxShape.circle,
             ),
-            child: SizedBox.square(dimension: 10),
+            child: SizedBox.square(dimension: 11),
           ),
         ),
       ],
@@ -214,34 +341,92 @@ class _GraphAccent extends StatelessWidget {
   }
 }
 
-class _SectionTitle extends StatelessWidget {
-  const _SectionTitle(this.title);
+class _ModuleSearchField extends StatelessWidget {
+  const _ModuleSearchField({
+    required this.controller,
+    required this.onChanged,
+    required this.onClear,
+  });
 
-  final String title;
+  final TextEditingController controller;
+  final ValueChanged<String> onChanged;
+  final VoidCallback onClear;
 
   @override
-  Widget build(BuildContext context) => Padding(
-    padding: const EdgeInsets.fromLTRB(
-      AppSpacing.lg,
-      AppSpacing.xl,
-      AppSpacing.lg,
-      AppSpacing.sm,
+  Widget build(BuildContext context) => TextField(
+    key: const Key('home-module-search'),
+    controller: controller,
+    onChanged: onChanged,
+    textInputAction: TextInputAction.search,
+    decoration: InputDecoration(
+      labelText: context.l10n.t('homeSearchLabel'),
+      hintText: context.l10n.t('homeSearchHint'),
+      prefixIcon: const Icon(Icons.search_rounded),
+      suffixIcon: controller.text.isEmpty
+          ? null
+          : IconButton(
+              tooltip: context.l10n.t('clear'),
+              onPressed: onClear,
+              icon: const Icon(Icons.close_rounded),
+            ),
     ),
-    child: Row(
-      children: [
-        const DecoratedBox(
-          decoration: BoxDecoration(
-            color: AppColors.dataPoint,
-            shape: BoxShape.circle,
-          ),
-          child: SizedBox.square(dimension: 8),
-        ),
-        const SizedBox(width: AppSpacing.xs),
-        Expanded(
-          child: Text(title, style: Theme.of(context).textTheme.titleLarge),
-        ),
-      ],
-    ),
+  );
+}
+
+class _ModuleCategorySection extends StatelessWidget {
+  const _ModuleCategorySection({required this.category, required this.modules});
+
+  final AcademyModuleCategory category;
+  final List<AcademyModule> modules;
+
+  @override
+  Widget build(BuildContext context) => Column(
+    key: Key('home-category-${category.name}'),
+    crossAxisAlignment: CrossAxisAlignment.stretch,
+    children: [
+      SectionHeader(
+        title: context.l10n.t(category.localizationKey),
+        subtitle: context.l10n.t('${category.localizationKey}Description'),
+        icon: _categoryIcon(category),
+      ),
+      const SizedBox(height: AppSpacing.sm),
+      _ResponsiveModuleGrid(modules: modules),
+    ],
+  );
+
+  static IconData _categoryIcon(AcademyModuleCategory category) =>
+      switch (category) {
+        AcademyModuleCategory.mathematics => Icons.functions_rounded,
+        AcademyModuleCategory.optimization => Icons.route_rounded,
+        AcademyModuleCategory.data => Icons.query_stats_rounded,
+        AcademyModuleCategory.finance => Icons.account_balance_rounded,
+        AcademyModuleCategory.workspace => Icons.workspaces_outline,
+      };
+}
+
+class _ResponsiveModuleGrid extends StatelessWidget {
+  const _ResponsiveModuleGrid({required this.modules});
+
+  final List<AcademyModule> modules;
+
+  @override
+  Widget build(BuildContext context) => LayoutBuilder(
+    builder: (context, constraints) {
+      final columns = AppBreakpoints.gridColumns(constraints.maxWidth);
+      final width =
+          (constraints.maxWidth - AppSpacing.sm * (columns - 1)) / columns;
+      return Wrap(
+        spacing: AppSpacing.sm,
+        runSpacing: AppSpacing.sm,
+        children: [
+          for (final module in modules)
+            SizedBox(
+              width: width,
+              child: ProfessionalModuleCard(module: module),
+            ),
+        ],
+      );
+    },
   );
 }
 
@@ -253,168 +438,32 @@ class _RecentCalculations extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     if (records.isEmpty) {
-      return Padding(
-        padding: const EdgeInsets.symmetric(horizontal: AppSpacing.md),
-        child: Card(
-          child: EmptyState(
-            icon: Icons.history_toggle_off_rounded,
-            title: context.l10n.t('noRecentTitle'),
-            body: context.l10n.t('noRecent'),
-          ),
+      return Card(
+        child: EmptyState(
+          icon: Icons.history_toggle_off_rounded,
+          title: context.l10n.t('noRecentTitle'),
+          body: context.l10n.t('noRecent'),
         ),
       );
     }
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: AppSpacing.md),
-      child: Card(
-        child: Column(
-          children: [
-            for (final item in records)
-              ListTile(
-                title: Text(
-                  item.expression,
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                ),
-                subtitle: Text('= ${item.result}'),
-                trailing: const Icon(Icons.arrow_forward_rounded),
-                onTap: () => context.push(
-                  '/calculator?expression=${Uri.encodeQueryComponent(item.expression)}',
-                ),
-              ),
-          ],
-        ),
-      ),
-    );
-  }
-}
-
-class _ModuleCard extends StatelessWidget {
-  const _ModuleCard({required this.module, this.compact = false});
-
-  final AcademyModule module;
-  final bool compact;
-
-  @override
-  Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    final colors = theme.colorScheme;
-    final card = Card(
-      margin: compact
-          ? EdgeInsets.zero
-          : const EdgeInsets.symmetric(horizontal: AppSpacing.md),
-      color: module.available
-          ? colors.primaryContainer.withValues(alpha: 0.62)
-          : colors.surfaceContainerLow,
+    return Card(
       clipBehavior: Clip.antiAlias,
-      child: InkWell(
-        onTap: () => module.available
-            ? context.push(module.route!)
-            : context.push('/coming-soon/${module.id}'),
-        child: Padding(
-          padding: EdgeInsets.all(compact ? AppSpacing.md : AppSpacing.lg),
-          child: Row(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Container(
-                padding: const EdgeInsets.all(AppSpacing.sm),
-                decoration: BoxDecoration(
-                  color: module.available
-                      ? colors.primary
-                      : colors.surfaceContainerHighest,
-                  borderRadius: AppRadius.control,
-                ),
-                child: Icon(
-                  module.icon,
-                  color: module.available
-                      ? colors.onPrimary
-                      : colors.onSurfaceVariant,
-                ),
-              ),
-              const SizedBox(width: AppSpacing.md),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Text(
-                      context.l10n.t(module.titleKey),
-                      style: theme.textTheme.titleMedium,
-                      maxLines: 2,
-                      overflow: TextOverflow.ellipsis,
-                    ),
-                    const SizedBox(height: AppSpacing.xxs),
-                    Text(
-                      context.l10n.t(module.descriptionKey),
-                      maxLines: compact ? 3 : 2,
-                      overflow: TextOverflow.ellipsis,
-                      style: theme.textTheme.bodyMedium?.copyWith(
-                        color: colors.onSurfaceVariant,
-                      ),
-                    ),
-                    const SizedBox(height: AppSpacing.sm),
-                    _ModuleStatus(available: module.available),
-                  ],
-                ),
-              ),
-              const SizedBox(width: AppSpacing.xs),
-              Icon(Icons.chevron_right_rounded, color: colors.onSurfaceVariant),
-            ],
-          ),
-        ),
-      ),
-    );
-    return compact
-        ? card
-        : Padding(padding: const EdgeInsets.only(bottom: 4), child: card);
-  }
-}
-
-class _ModuleStatus extends StatelessWidget {
-  const _ModuleStatus({required this.available});
-
-  final bool available;
-
-  @override
-  Widget build(BuildContext context) {
-    final colors = Theme.of(context).colorScheme;
-    return Align(
-      alignment: AlignmentDirectional.centerStart,
-      child: Container(
-        padding: const EdgeInsets.symmetric(
-          horizontal: AppSpacing.sm,
-          vertical: AppSpacing.xxs,
-        ),
-        decoration: BoxDecoration(
-          color: available
-              ? colors.secondaryContainer
-              : colors.tertiaryContainer,
-          borderRadius: AppRadius.button,
-        ),
-        child: Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Icon(
-              available ? Icons.check_circle_outline : Icons.schedule_rounded,
-              size: 15,
-              color: available ? colors.primary : colors.tertiary,
-            ),
-            const SizedBox(width: AppSpacing.xxs),
-            Flexible(
-              child: Text(
-                context.l10n.t(available ? 'availableStatus' : 'comingSoon'),
+      child: Column(
+        children: [
+          for (final item in records)
+            ListTile(
+              title: Text(
+                item.expression,
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
-                style: Theme.of(context).textTheme.labelMedium?.copyWith(
-                  color: available
-                      ? colors.onSecondaryContainer
-                      : colors.onTertiaryContainer,
-                  fontWeight: FontWeight.w600,
-                ),
+              ),
+              subtitle: Text('= ${item.result}'),
+              trailing: const Icon(Icons.arrow_forward_rounded),
+              onTap: () => context.push(
+                '/calculator?expression=${Uri.encodeQueryComponent(item.expression)}',
               ),
             ),
-          ],
-        ),
+        ],
       ),
     );
   }

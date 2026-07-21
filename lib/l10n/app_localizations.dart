@@ -23,7 +23,34 @@ class AppLocalizations {
       'saved': 'Saved',
       'settings': 'Settings',
       'welcome': 'Welcome to Calcademy',
-      'welcomeBody': 'Your modular workspace for scientific problem solving.',
+      'welcomeBody':
+          'A focused workspace for mathematics, data, finance, and engineering decisions.',
+      'homeHeroEyebrow': 'Academic computing workspace',
+      'homeTools': 'active tools',
+      'homeOffline': 'Offline-first',
+      'homeOnDevice': 'On-device data',
+      'homeSearchLabel': 'Find a tool',
+      'homeSearchHint': 'Search by tool, description, or category',
+      'homeNoResultsTitle': 'No matching tools',
+      'homeNoResultsBody': 'Try a different tool name or category.',
+      'homeComingSoonBody':
+          'Focused additions being evaluated for future releases.',
+      'openModule': 'Open workspace',
+      'categoryMathematics': 'Mathematics',
+      'categoryMathematicsDescription':
+          'Calculate, visualize, and solve mathematical models.',
+      'categoryOptimization': 'Optimization & Operations Research',
+      'categoryOptimizationDescription':
+          'Model constraints, optimize decisions, and plan systems.',
+      'categoryDataStatistics': 'Data & Statistics',
+      'categoryDataStatisticsDescription':
+          'Summarize data and evaluate statistical questions.',
+      'categoryFinance': 'Finance',
+      'categoryFinanceDescription':
+          'Evaluate time value, cash flow, loans, and break-even decisions.',
+      'categoryWorkspace': 'Workspace',
+      'categoryWorkspaceDescription':
+          'Organize and revisit calculation results stored on this device.',
       'available': 'Available now',
       'comingSoon': 'Coming soon',
       'open': 'Open',
@@ -1045,7 +1072,34 @@ class AppLocalizations {
       'saved': 'Kaydedilenler',
       'settings': 'Ayarlar',
       'welcome': 'Calcademy’ye hoş geldiniz',
-      'welcomeBody': 'Bilimsel problem çözümü için modüler çalışma alanınız.',
+      'welcomeBody':
+          'Matematik, veri, finans ve mühendislik kararları için odaklı çalışma alanı.',
+      'homeHeroEyebrow': 'Akademik hesaplama çalışma alanı',
+      'homeTools': 'aktif araç',
+      'homeOffline': 'Çevrimdışı öncelikli',
+      'homeOnDevice': 'Veriler cihazda',
+      'homeSearchLabel': 'Araç bul',
+      'homeSearchHint': 'Araç, açıklama veya kategori ara',
+      'homeNoResultsTitle': 'Eşleşen araç yok',
+      'homeNoResultsBody': 'Farklı bir araç adı veya kategori deneyin.',
+      'homeComingSoonBody':
+          'Gelecek sürümler için değerlendirilen odaklı eklemeler.',
+      'openModule': 'Çalışma alanını aç',
+      'categoryMathematics': 'Matematik',
+      'categoryMathematicsDescription':
+          'Matematiksel modelleri hesaplayın, görselleştirin ve çözün.',
+      'categoryOptimization': 'Optimizasyon ve Yöneylem Araştırması',
+      'categoryOptimizationDescription':
+          'Kısıtları modelleyin, kararları optimize edin ve sistemleri planlayın.',
+      'categoryDataStatistics': 'Veri ve İstatistik',
+      'categoryDataStatisticsDescription':
+          'Verileri özetleyin ve istatistiksel soruları değerlendirin.',
+      'categoryFinance': 'Finans',
+      'categoryFinanceDescription':
+          'Paranın zaman değeri, nakit akışı, kredi ve başabaş kararlarını inceleyin.',
+      'categoryWorkspace': 'Çalışma Alanı',
+      'categoryWorkspaceDescription':
+          'Bu cihazda saklanan hesaplama sonuçlarını düzenleyin ve yeniden açın.',
       'available': 'Kullanılabilir',
       'comingSoon': 'Yakında',
       'open': 'Aç',

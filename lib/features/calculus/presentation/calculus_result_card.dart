@@ -1,4 +1,5 @@
 import 'package:calcademy/app/theme/app_spacing.dart';
+import 'package:calcademy/core/widgets/result_action_bar.dart';
 import 'package:calcademy/features/calculus/domain/calculus_result.dart';
 import 'package:calcademy/features/matrix/domain/matrix_number_formatter.dart';
 import 'package:calcademy/features/saved_calculations/domain/saved_calculation.dart';
@@ -6,7 +7,6 @@ import 'package:calcademy/features/saved_calculations/domain/saved_calculation_m
 import 'package:calcademy/features/saved_calculations/presentation/save_result_action.dart';
 import 'package:calcademy/l10n/app_localizations.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 
 String calculusFailureKey(CalculusFailure failure) => switch (failure) {
   CalculusFailure.emptyInput => 'eqErrorEmpty',
@@ -252,30 +252,13 @@ class CalculusResultCard extends StatelessWidget {
           children: [
             ...lines,
             if (current is! CalculusFailureResult)
-              Wrap(
-                alignment: WrapAlignment.end,
-                spacing: AppSpacing.xs,
-                runSpacing: AppSpacing.xxs,
-                children: [
-                  if (copyText != null && copyText.isNotEmpty)
-                    TextButton.icon(
-                      key: const Key('calc-copy-result'),
-                      onPressed: () async {
-                        await Clipboard.setData(ClipboardData(text: copyText!));
-                        if (context.mounted) {
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            SnackBar(content: Text(l10n.t('copied'))),
-                          );
-                        }
-                      },
-                      icon: const Icon(Icons.copy, size: 18),
-                      label: Text(l10n.t('copyResult')),
-                    ),
-                  SaveResultAction(
-                    buttonKey: const Key('calc-save-result'),
-                    draft: _savedDraft(current, functionExpression, l10n),
-                  ),
-                ],
+              ResultActionBar(
+                copyText: copyText ?? '',
+                copyButtonKey: const Key('calc-copy-result'),
+                saveAction: SaveResultAction(
+                  buttonKey: const Key('calc-save-result'),
+                  draft: _savedDraft(current, functionExpression, l10n),
+                ),
               ),
           ],
         ),

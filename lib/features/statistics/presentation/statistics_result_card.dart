@@ -1,4 +1,5 @@
 import 'package:calcademy/app/theme/app_spacing.dart';
+import 'package:calcademy/core/widgets/result_action_bar.dart';
 import 'package:calcademy/features/statistics/domain/statistics_limits.dart';
 import 'package:calcademy/features/statistics/domain/statistics_result.dart';
 import 'package:calcademy/features/saved_calculations/domain/saved_calculation.dart';
@@ -6,7 +7,6 @@ import 'package:calcademy/features/saved_calculations/domain/saved_calculation_m
 import 'package:calcademy/features/saved_calculations/presentation/save_result_action.dart';
 import 'package:calcademy/l10n/app_localizations.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 
 class StatisticsResultCard extends StatelessWidget {
   const StatisticsResultCard({super.key, required this.result});
@@ -88,28 +88,13 @@ class StatisticsResultCard extends StatelessWidget {
               ),
             ],
             const SizedBox(height: AppSpacing.sm),
-            Wrap(
-              alignment: WrapAlignment.end,
-              spacing: AppSpacing.xs,
-              runSpacing: AppSpacing.xxs,
-              children: [
-                TextButton.icon(
-                  key: const Key('stats-copy-result'),
-                  onPressed: () async {
-                    await Clipboard.setData(ClipboardData(text: copyText));
-                    if (!context.mounted) return;
-                    ScaffoldMessenger.of(
-                      context,
-                    ).showSnackBar(SnackBar(content: Text(l10n.t('copied'))));
-                  },
-                  icon: const Icon(Icons.copy_rounded, size: 18),
-                  label: Text(l10n.t('copyResult')),
-                ),
-                SaveResultAction(
-                  buttonKey: const Key('stats-save-result'),
-                  draft: _savedDraft(current, copyText, l10n),
-                ),
-              ],
+            ResultActionBar(
+              copyText: copyText,
+              copyButtonKey: const Key('stats-copy-result'),
+              saveAction: SaveResultAction(
+                buttonKey: const Key('stats-save-result'),
+                draft: _savedDraft(current, copyText, l10n),
+              ),
             ),
           ],
         ),

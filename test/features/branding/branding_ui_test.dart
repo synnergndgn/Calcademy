@@ -53,23 +53,20 @@ void main() {
     await tester.pump(const Duration(milliseconds: 700));
   });
 
-  testWidgets('home shows brand and text plus icon module statuses', (
+  testWidgets('home shows brand and professional module categories', (
     tester,
   ) async {
     await _pumpWithPreferences(tester, const HomePage());
 
     expect(find.byKey(const Key('calcademyLogoMark')), findsOneWidget);
     expect(find.text('Calcademy'), findsOneWidget);
-    expect(find.text('Available'), findsNWidgets(11));
-    expect(find.byIcon(Icons.check_circle_outline), findsNWidgets(11));
-    // The coming-soon section sits below every available-module card, so
-    // scroll in steps until it enters the lazily built list.
-    final comingSoonIcon = find.byIcon(Icons.schedule_rounded);
-    for (var i = 0; i < 8 && comingSoonIcon.evaluate().isEmpty; i++) {
-      await tester.drag(find.byType(CustomScrollView), const Offset(0, -600));
-      await tester.pumpAndSettle();
-    }
-    expect(comingSoonIcon, findsWidgets);
+    expect(find.text('Mathematics'), findsWidgets);
+    expect(find.text('Optimization & Operations Research'), findsWidgets);
+    expect(find.text('Data & Statistics'), findsWidgets);
+    expect(find.text('Finance'), findsWidgets);
+    expect(find.text('Workspace'), findsWidgets);
+    expect(find.byKey(const Key('module-card-calculator')), findsOneWidget);
+    expect(find.byIcon(Icons.schedule_rounded), findsWidgets);
   });
 
   testWidgets('home remains overflow-free on a small screen with large text', (
@@ -77,13 +74,17 @@ void main() {
   ) async {
     tester.view.physicalSize = const Size(320, 640);
     tester.view.devicePixelRatio = 1;
-    tester.platformDispatcher.textScaleFactorTestValue = 1.5;
+    tester.platformDispatcher.textScaleFactorTestValue = 2;
     addTearDown(tester.view.resetPhysicalSize);
     addTearDown(tester.view.resetDevicePixelRatio);
     addTearDown(tester.platformDispatcher.clearTextScaleFactorTestValue);
 
     await _pumpWithPreferences(tester, const HomePage());
     expect(tester.takeException(), isNull);
+    expect(
+      tester.getSize(find.byKey(const Key('home-module-search'))).width,
+      lessThanOrEqualTo(288),
+    );
 
     await tester.fling(
       find.byType(CustomScrollView),

@@ -1,4 +1,5 @@
 import 'package:calcademy/app/theme/app_spacing.dart';
+import 'package:calcademy/core/widgets/result_action_bar.dart';
 import 'package:calcademy/features/equation_solver/application/linear_system_service.dart';
 import 'package:calcademy/features/equation_solver/domain/equation_solver_result.dart';
 import 'package:calcademy/features/matrix/domain/linear_system_result.dart';
@@ -7,7 +8,6 @@ import 'package:calcademy/features/saved_calculations/domain/saved_calculation.d
 import 'package:calcademy/features/saved_calculations/presentation/save_result_action.dart';
 import 'package:calcademy/l10n/app_localizations.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 
 String equationFailureKey(EquationFailure failure) => switch (failure) {
   EquationFailure.emptyInput => 'eqErrorEmpty',
@@ -315,32 +315,14 @@ class EquationResultCard extends StatelessWidget {
             if (copyText != null || savedDraft != null)
               Align(
                 alignment: AlignmentDirectional.centerEnd,
-                child: Wrap(
-                  spacing: AppSpacing.xs,
-                  runSpacing: AppSpacing.xs,
-                  alignment: WrapAlignment.end,
-                  children: [
-                    if (copyText != null)
-                      TextButton.icon(
-                        onPressed: () async {
-                          await Clipboard.setData(
-                            ClipboardData(text: copyText!),
-                          );
-                          if (context.mounted) {
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              SnackBar(content: Text(l10n.t('copied'))),
-                            );
-                          }
-                        },
-                        icon: const Icon(Icons.copy, size: 18),
-                        label: Text(l10n.t('copyResult')),
-                      ),
-                    if (savedDraft case final draft?)
-                      SaveResultAction(
-                        buttonKey: const Key('eq-save-result'),
-                        draft: draft,
-                      ),
-                  ],
+                child: ResultActionBar(
+                  copyText: copyText ?? '',
+                  saveAction: savedDraft == null
+                      ? null
+                      : SaveResultAction(
+                          buttonKey: const Key('eq-save-result'),
+                          draft: savedDraft!,
+                        ),
                 ),
               ),
           ],
