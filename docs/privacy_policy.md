@@ -2,15 +2,15 @@
 
 **Status:** Draft — not ready for publication until every placeholder below is replaced
 
-**Developer/publisher name:** `[REQUIRED — legal or verified publisher name]`
+**Developer/publisher name:** `Ali Gündoğan`
 
-**Effective date:** `[REQUIRED — YYYY-MM-DD]`
+**Effective date:** `2003-01-15`
 
-**Contact email:** `[REQUIRED — monitored support/privacy email]`
+**Contact email:** `calcademyapp@gmail.com`
 
-**Public policy URL:** `[REQUIRED — stable public HTTPS URL]`
+**Public policy URL:** `https://synnergndgn.github.io/Calcademy/privacy_policy`
 
-**Jurisdiction/legal address:** `[OPTIONAL OR REQUIRED BY APPLICABLE LAW/PUBLISHER TYPE]`
+**Jurisdiction/legal address:** `Nilüfer/Bursa Türkiye`
 
 This draft describes Calcademy's current release candidate. It must be reviewed and published at a stable public URL before a store submission.
 
