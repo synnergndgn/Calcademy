@@ -108,6 +108,18 @@ git diff --check
 
 Bu sürüm hesap, backend, reklam veya analytics kullanmaz. Hesaplamalar ve ayarlar cihazda saklanır. Debug APK CI/yerel kalite kapısından üretilebilir; Play Store imzalama, mağaza metadata’sı, launcher icon sonlandırması ve üretim gizlilik metni ayrı release adımlarıdır.
 
+Release hazırlık belgeleri:
+
+- [Android release signing](docs/android_release_signing.md)
+- [Privacy policy taslağı](docs/privacy_policy.md)
+- [Google Play store listing taslağı](docs/store_listing.md)
+- [Screenshot checklist](docs/release_screenshot_checklist.md)
+- [Release smoke test](docs/release_smoke_test.md)
+- [Monetization stratejisi](docs/monetization_strategy.md)
+- [1.0.0 release notes taslağı](docs/release_notes_v1_0_0.md)
+
+Release build, repoya eklenmeyen özel bir upload keystore ve `android/key.properties` gerektirir. R8 ve resource shrinking release varyantında etkindir; debug varyantı bu ayarlardan etkilenmez.
+
 ## Bilinen sınırlamalar
 
 - Kompleks sayı ve tam sembolik CAS desteği yoktur.

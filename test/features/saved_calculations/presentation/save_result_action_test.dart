@@ -61,6 +61,15 @@ void main() {
       expect(repository.items, hasLength(1));
       expect(repository.items.single.calculationType, 'tvm');
       expect(find.text('Calculation saved on this device.'), findsOneWidget);
+
+      final statisticsSave = find.byKey(const Key('stats-save-result'));
+      await tester.ensureVisible(statisticsSave);
+      await tester.pumpAndSettle();
+      await tester.tap(statisticsSave);
+      await tester.pumpAndSettle();
+      expect(repository.items, hasLength(2));
+      expect(repository.items.first.calculationType, 'descriptive');
+      expect(repository.items.first.inputSummary, '1, 2, 3, 4, 5');
     },
   );
 }
@@ -74,13 +83,24 @@ const _financialResult = TvmResult(
   inputs: {'futureValue': 1000, 'rate': 10},
 );
 
-const _statisticsResult = DistributionResult(
-  kind: DistributionKind.normal,
-  operationLabel: 'statsNormalLessOrEqual',
-  probability: 0.5,
-  methodKey: 'statsMethodNormal',
-  inputs: {'mean': 0, 'standardDeviation': 1},
-  diagnostics: [],
+const _statisticsResult = DescriptiveStatisticsResult(
+  values: [1, 2, 3, 4, 5],
+  count: 5,
+  sum: 15,
+  mean: 3,
+  median: 3,
+  modes: [],
+  minimum: 1,
+  maximum: 5,
+  range: 4,
+  populationVariance: 2,
+  sampleVariance: 2.5,
+  populationStandardDeviation: 1.41421356,
+  sampleStandardDeviation: 1.58113883,
+  q1: 1.5,
+  q3: 4.5,
+  iqr: 3,
+  outliers: [],
   warnings: [],
 );
 

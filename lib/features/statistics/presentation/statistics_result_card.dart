@@ -176,18 +176,29 @@ class StatisticsResultCard extends StatelessWidget {
       ConfidenceIntervalResult(:final kind) => kind.name,
       _ => 'statistics',
     };
-    final inputSummary = result.inputs.entries
-        .map((entry) => '${entry.key}: ${_format(entry.value)}')
-        .join(', ');
+    final inputSummary = switch (result) {
+      DescriptiveStatisticsResult(:final values) =>
+        values.map(_format).join(', '),
+      _ =>
+        result.inputs.entries
+            .map((entry) => '${entry.key}: ${_format(entry.value)}')
+            .join(', '),
+    };
+    final fullInputJson = switch (result) {
+      DescriptiveStatisticsResult(:final count) => <String, Object?>{
+        'count': count,
+      },
+      _ => result.inputs.map(
+        (key, value) => MapEntry<String, Object?>(key, value),
+      ),
+    };
     return SavedCalculationDraft(
       title: l10n.t(result.methodKey),
       module: SavedCalculationModule.statistics,
       calculationType: calculationType,
       inputSummary: inputSummary,
       resultSummary: resultSummary,
-      fullInputJson: result.inputs.map(
-        (key, value) => MapEntry<String, Object?>(key, value),
-      ),
+      fullInputJson: fullInputJson,
       resultJson: {
         'methodKey': result.methodKey,
         'approximate': result.approximate,
