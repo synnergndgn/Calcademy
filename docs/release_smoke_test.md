@@ -2,6 +2,8 @@
 
 Run this checklist on the exact signed release APK/AAB candidate, not a debug build. Record device, Android version, app version/build number, locale, theme, and artifact SHA-256.
 
+Complete [Final Release Build Checklist](final_release_build_checklist.md) and [Play Store Final Decision Checklist](play_store_final_checklist.md) before promoting the tested artifact.
+
 ## Installation and platform
 
 - [ ] Clean install succeeds and the launcher label is **Calcademy**.

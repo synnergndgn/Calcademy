@@ -1,7 +1,16 @@
 # Calcademy Privacy Policy — Draft
 
-**Effective date:** Replace before publication
-**Contact:** Replace with the publisher's support email and postal/legal details before publication
+**Status:** Draft — not ready for publication until every placeholder below is replaced
+
+**Developer/publisher name:** `[REQUIRED — legal or verified publisher name]`
+
+**Effective date:** `[REQUIRED — YYYY-MM-DD]`
+
+**Contact email:** `[REQUIRED — monitored support/privacy email]`
+
+**Public policy URL:** `[REQUIRED — stable public HTTPS URL]`
+
+**Jurisdiction/legal address:** `[OPTIONAL OR REQUIRED BY APPLICABLE LAW/PUBLISHER TYPE]`
 
 This draft describes Calcademy's current release candidate. It must be reviewed and published at a stable public URL before a store submission.
 
@@ -19,6 +28,8 @@ Calcademy may store the following locally with Android application storage and S
 - titles, notes, favorites, compact input/result summaries, and timestamps attached to saved items.
 
 This information is not uploaded by Calcademy. There is currently no account, login, backend, cloud synchronization, advertising SDK, analytics SDK, or crash-reporting SDK.
+
+Calcademy does process user-entered expressions, values, matrices, models, notes, and result data locally to provide its calculation and saved-work features. “No developer collection” does not mean that the app performs no data processing on the device.
 
 ## Network access and sharing
 
@@ -45,6 +56,19 @@ Calcademy currently contains no ads or advertising identifiers. If advertising, 
 ## Changes
 
 Material changes will be reflected by updating this policy's effective date and publication text.
+
+## Publication checklist
+
+- [ ] Replace developer/publisher, effective date, contact, and public URL placeholders.
+- [ ] Confirm the publisher name matches the Play Store listing.
+- [ ] Host the complete policy at a stable HTTPS URL accessible without login.
+- [ ] Add an accessible in-app privacy-policy link or policy text if required by the current Google Play User Data policy.
+- [ ] Compare this policy with the exact final AAB, merged manifest, dependencies, Data Safety form, and Ads declaration.
+- [ ] Verify local deletion wording against the release UI.
+- [ ] Obtain legal review appropriate to the publisher and target jurisdictions where needed.
+- [ ] Recheck the [official Google Play User Data policy](https://support.google.com/googleplay/android-developer/answer/10144311) immediately before upload.
+
+This document is a factual product draft, not legal advice or a guarantee of compliance.
 
 ---
 

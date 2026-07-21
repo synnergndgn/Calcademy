@@ -1,5 +1,7 @@
 # Release Screenshot Checklist
 
+This capture checklist is complemented by the format/policy acceptance criteria in [Store Asset Checklist](store_asset_checklist.md). Recheck Google's current official asset requirements before production.
+
 ## Capture standard
 
 - Use a clean production-like build with no debug banner, overflow stripes, keyboard, dialogs, notifications, or developer overlays.

@@ -31,6 +31,32 @@ This document is planning material. The current codebase contains no AdMob, adve
 - Evaluate Google User Messaging Platform and consent requirements for EEA/UK and other applicable regions; provide privacy-options access where required.
 - Test child-directed/content-rating settings and age-audience declarations with legal/policy review.
 
+## Pre-AdMob release-impact checklist
+
+Do not reuse the current ad-free Play declarations after adding advertising. Before the first AdMob-enabled artifact:
+
+- [ ] Add and review the production `INTERNET` permission and final merged manifest.
+- [ ] Add the Google Mobile Ads SDK only from its official maintained package and audit transitive dependencies.
+- [ ] Configure the Android AdMob App ID metadata per environment.
+- [ ] Use only official test App ID/ad units during development and automated/manual testing.
+- [ ] Decide how production IDs are configured and reviewed; never treat IDs as passwords, but avoid accidental mixing of test and live configurations.
+- [ ] Update the privacy policy for advertising, SDK data practices, identifiers, partners, and consent.
+- [ ] Redo the entire Data Safety form using the exact SDK/version and mediation configuration.
+- [ ] Change the Play Ads declaration to **Yes**.
+- [ ] Publish and validate `app-ads.txt` on the verified developer domain.
+- [ ] Evaluate Google's User Messaging Platform and consent/privacy-options requirements for EEA/UK and other applicable regions.
+- [ ] Revisit target audience, child-directed treatment, Families eligibility, and maximum ad content rating.
+- [ ] Test offline/failure behavior, initialization latency, memory, battery, binary size, and accessibility.
+- [ ] Add placement-specific widget/integration tests with ads disabled by default.
+
+## Placement guardrails for Calcademy
+
+- Prefer an ad-free first public/beta release while stability and retention are measured.
+- Do not place interstitial ads during expression entry, solving, calculation, result reading, copy/save, or navigation back from a result.
+- If banners are evaluated, start only on low-criticality surfaces such as Home or Saved, with explicit small-screen, keyboard, dark-mode, and 200% text-scale review.
+- Rewarded ads are not a natural fit for core academic calculations and must not gate correctness, accessibility, or saved data.
+- Consider a transparent premium or voluntary support model as alternatives; any digital purchase must be reviewed against current Google Play Billing requirements.
+
 ## Risks
 
 - Ads can reduce trust and retention in a focused academic workflow.

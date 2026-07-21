@@ -94,7 +94,7 @@ flutter run
 
 ## Test ve kalite kapısı
 
-Unit testler domain servislerini, solver sonuçlarını, validation ve kayıt adapter’larını; widget testleri navigasyon, form/result akışları, copy/save eylemleri, dark mode ve responsive geometrileri kapsar. Sprint öncesi 431 testlik regresyon tabanı korunur.
+Unit testler domain servislerini, solver sonuçlarını, validation ve kayıt adapter’larını; widget testleri navigasyon, form/result akışları, copy/save eylemleri, dark mode ve responsive geometrileri kapsar. Release-readiness tabanında 441 test geçmektedir.
 
 ```bash
 dart format --set-exit-if-changed .
@@ -117,6 +117,15 @@ Release hazırlık belgeleri:
 - [Release smoke test](docs/release_smoke_test.md)
 - [Monetization stratejisi](docs/monetization_strategy.md)
 - [1.0.0 release notes taslağı](docs/release_notes_v1_0_0.md)
+- [Play Store final karar checklist](docs/play_store_final_checklist.md)
+- [Play App Signing karar rehberi](docs/play_app_signing_decision.md)
+- [Final release build checklist](docs/final_release_build_checklist.md)
+- [Play Console App Content checklist](docs/play_console_app_content_checklist.md)
+- [Data Safety taslağı](docs/data_safety_draft.md)
+- [Store asset checklist](docs/store_asset_checklist.md)
+- [Content rating checklist](docs/content_rating_checklist.md)
+- [Target audience checklist](docs/target_audience_checklist.md)
+- [CI ve quality gate rehberi](docs/ci_quality_gate.md)
 
 Release build, repoya eklenmeyen özel bir upload keystore ve `android/key.properties` gerektirir. R8 ve resource shrinking release varyantında etkindir; debug varyantı bu ayarlardan etkilenmez.
 
