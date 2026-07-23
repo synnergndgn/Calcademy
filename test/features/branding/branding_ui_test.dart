@@ -258,7 +258,7 @@ void main() {
     expect(find.byKey(const Key('calcademyLogoMark')), findsOneWidget);
     expect(find.text('Calcademy'), findsOneWidget);
     expect(find.text('Privacy & data handling'), findsOneWidget);
-    expect(find.text('Version 1.0.0 (1)'), findsOneWidget);
+    expect(find.text('Version 1.0.0 (2)'), findsOneWidget);
   });
 
   testWidgets('light and dark brand themes build with distinct surfaces', (

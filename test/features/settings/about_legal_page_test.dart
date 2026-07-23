@@ -23,7 +23,7 @@ void main() {
     await _pumpAbout(tester);
 
     expect(find.text('Calcademy'), findsOneWidget);
-    expect(find.text('Version 1.0.0 (1)'), findsOneWidget);
+    expect(find.text('Version 1.0.0 (2)'), findsOneWidget);
     expect(find.text('Privacy & data handling'), findsOneWidget);
     expect(find.text('Local storage'), findsOneWidget);
     expect(find.text('No ads'), findsOneWidget);
@@ -118,7 +118,7 @@ void main() {
     await tester.pump();
 
     expect(copiedText, contains(AppMetadata.appName));
-    expect(copiedText, contains('Version 1.0.0 (1)'));
+    expect(copiedText, contains('Version 1.0.0 (2)'));
     expect(copiedText, contains(AppMetadata.publisherName));
     expect(copiedText, contains(AppMetadata.applicationId));
     expect(copiedText, contains('No ads'));
