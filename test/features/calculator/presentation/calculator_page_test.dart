@@ -1,3 +1,4 @@
+import 'package:calcademy/app/theme/app_theme.dart';
 import 'package:calcademy/core/services/preferences.dart';
 import 'package:calcademy/features/calculator/presentation/calculator_page.dart';
 import 'package:calcademy/features/calculator/presentation/calculator_keypad.dart';
@@ -58,13 +59,61 @@ void main() {
     final keypadBefore = tester.widget<CalculatorKeypad>(
       find.byType(CalculatorKeypad),
     );
-    await tester.enterText(find.byKey(const Key('expressionField')), '123.45');
+    await _tapKey(tester, '1');
     await tester.pump();
     final keypadAfter = tester.widget<CalculatorKeypad>(
       find.byType(CalculatorKeypad),
     );
 
     expect(identical(keypadAfter, keypadBefore), isTrue);
+  });
+
+  testWidgets('expression field keeps its caret without a system keyboard', (
+    tester,
+  ) async {
+    tester.view.physicalSize = const Size(800, 1000);
+    tester.view.devicePixelRatio = 1;
+    addTearDown(tester.view.resetPhysicalSize);
+    addTearDown(tester.view.resetDevicePixelRatio);
+    await _pump(tester, const CalculatorPage());
+
+    final expressionFinder = find.byKey(const Key('expressionField'));
+    final field = tester.widget<TextField>(expressionFinder);
+    expect(field.readOnly, isTrue);
+    expect(field.showCursor, isTrue);
+
+    await tester.tap(expressionFinder);
+    await tester.pump();
+    expect(tester.testTextInput.isVisible, isFalse);
+
+    await _tapKey(tester, '1');
+    await _tapKey(tester, '+');
+    await _tapKey(tester, '2');
+    expect(field.controller!.text, '1+2');
+
+    await _tapKey(tester, '⌫');
+    expect(field.controller!.text, '1+');
+  });
+
+  testWidgets('calculator stays usable at 320px, 200% text, and dark mode', (
+    tester,
+  ) async {
+    tester.view.physicalSize = const Size(320, 800);
+    tester.view.devicePixelRatio = 1;
+    tester.platformDispatcher.textScaleFactorTestValue = 2;
+    addTearDown(tester.view.resetPhysicalSize);
+    addTearDown(tester.view.resetDevicePixelRatio);
+    addTearDown(tester.platformDispatcher.clearTextScaleFactorTestValue);
+
+    await _pump(tester, const CalculatorPage(), dark: true);
+
+    final fieldFinder = find.byKey(const Key('expressionField'));
+    expect(tester.widget<TextField>(fieldFinder).readOnly, isTrue);
+    expect(find.byType(CalculatorKeypad), findsOneWidget);
+    expect(tester.getRect(fieldFinder).width, lessThanOrEqualTo(288));
+    await _tapKey(tester, '7');
+    expect(tester.widget<TextField>(fieldFinder).controller!.text, '7');
+    expect(tester.takeException(), isNull);
   });
 
   testWidgets('history shows its empty state', (tester) async {
@@ -97,14 +146,22 @@ Future<void> _tapKey(WidgetTester tester, String label) async {
   await tester.pump();
 }
 
-Future<void> _pump(WidgetTester tester, Widget child) async {
+Future<void> _pump(
+  WidgetTester tester,
+  Widget child, {
+  bool dark = false,
+}) async {
   final preferences = await SharedPreferences.getInstance();
   await tester.pumpWidget(
     ProviderScope(
       overrides: [sharedPreferencesProvider.overrideWithValue(preferences)],
       child: Consumer(
         builder: (context, ref, _) => MaterialApp(
-          themeMode: ref.watch(settingsProvider).themeMode,
+          theme: AppTheme.light(),
+          darkTheme: AppTheme.dark(),
+          themeMode: dark
+              ? ThemeMode.dark
+              : ref.watch(settingsProvider).themeMode,
           locale: const Locale('en'),
           supportedLocales: AppLocalizations.supportedLocales,
           localizationsDelegates: const [

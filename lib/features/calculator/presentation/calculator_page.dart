@@ -94,6 +94,8 @@ class _CalculatorPageState extends ConsumerState<CalculatorPage> {
                     key: const Key('expressionField'),
                     controller: _textController,
                     focusNode: _focusNode,
+                    readOnly: true,
+                    showCursor: true,
                     minLines: 2,
                     maxLines: 4,
                     textAlign: TextAlign.end,
