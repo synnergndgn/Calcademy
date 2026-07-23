@@ -65,14 +65,42 @@ void main() {
     final solveFinder = find.byKey(const Key('mip-solve'));
     await tester.ensureVisible(solveFinder);
     await tester.pumpAndSettle();
+    final scrollable = _pageScrollable(tester);
+    final offsetBeforeSolve = scrollable.position.pixels;
     await tester.tap(solveFinder);
     await tester.pumpAndSettle();
     final resultFinder = find.text('Optimal integer solution');
-    await tester.ensureVisible(resultFinder);
-    await tester.pumpAndSettle();
     expect(resultFinder, findsOneWidget);
+    expect(scrollable.position.pixels, greaterThan(offsetBeforeSolve));
+    _expectVisible(tester, resultFinder);
     expect(find.text('Z = 22'), findsOneWidget);
     expect(find.byKey(const Key('ip-save-calculation')), findsOneWidget);
+  });
+
+  testWidgets('validation error does not auto-scroll to an empty result', (
+    tester,
+  ) async {
+    await _pump(tester);
+    await tester.tap(find.widgetWithText(ActionChip, '0-1 Knapsack'));
+    await tester.pump();
+    await tester.enterText(find.byKey(const Key('mip-objective-0')), '');
+    final solveFinder = find.byKey(const Key('mip-solve'));
+    await tester.ensureVisible(solveFinder);
+    await tester.pumpAndSettle();
+    final scrollable = _pageScrollable(tester);
+    final offsetBeforeSolve = scrollable.position.pixels;
+
+    tester.widget<FilledButton>(solveFinder).onPressed!();
+    await tester.pumpAndSettle();
+
+    expect(find.text('Optimal integer solution'), findsNothing);
+    expect(
+      find.text(
+        'Check the model: coefficients, constraints and variable types must be valid.',
+      ),
+      findsOneWidget,
+    );
+    expect(scrollable.position.pixels, offsetBeforeSolve);
   });
 
   testWidgets(
@@ -187,4 +215,22 @@ Future<void> _pump(WidgetTester tester) async {
     ),
   );
   await tester.pumpAndSettle();
+}
+
+ScrollableState _pageScrollable(WidgetTester tester) =>
+    tester.state<ScrollableState>(
+      find
+          .descendant(
+            of: find.byType(ListView).first,
+            matching: find.byType(Scrollable),
+          )
+          .first,
+    );
+
+void _expectVisible(WidgetTester tester, Finder finder) {
+  final rect = tester.getRect(finder);
+  final viewportHeight =
+      tester.view.physicalSize.height / tester.view.devicePixelRatio;
+  expect(rect.bottom, greaterThan(0));
+  expect(rect.top, lessThan(viewportHeight));
 }

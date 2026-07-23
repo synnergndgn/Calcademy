@@ -46,16 +46,44 @@ void main() {
     final solveFinder = find.byKey(const Key('lp-solve'));
     await tester.ensureVisible(solveFinder);
     await tester.pumpAndSettle();
+    final scrollable = _pageScrollable(tester);
+    final offsetBeforeSolve = scrollable.position.pixels;
     final solve = tester.widget<FilledButton>(solveFinder);
     solve.onPressed!();
     await tester.pumpAndSettle();
     final resultFinder = find.text('Optimal solution');
-    await tester.ensureVisible(resultFinder);
-    await tester.pumpAndSettle();
     expect(resultFinder, findsOneWidget);
+    expect(scrollable.position.pixels, greaterThan(offsetBeforeSolve));
+    _expectVisible(tester, resultFinder);
     expect(find.text('z = 10'), findsOneWidget);
     expect(find.text('x1 = 2'), findsOneWidget);
     expect(find.byKey(const Key('lp-save-calculation')), findsOneWidget);
+  });
+
+  testWidgets('validation error does not auto-scroll to an empty result', (
+    tester,
+  ) async {
+    await _pump(tester);
+    await tester.tap(find.widgetWithText(ActionChip, 'Product mix'));
+    await tester.pump();
+    await tester.enterText(find.byKey(const Key('lp-objective-0')), '');
+    final solveFinder = find.byKey(const Key('lp-solve'));
+    await tester.ensureVisible(solveFinder);
+    await tester.pumpAndSettle();
+    final scrollable = _pageScrollable(tester);
+    final offsetBeforeSolve = scrollable.position.pixels;
+
+    tester.widget<FilledButton>(solveFinder).onPressed!();
+    await tester.pumpAndSettle();
+
+    expect(find.text('Optimal solution'), findsNothing);
+    expect(
+      find.text(
+        'Enter a valid finite number or fraction in every coefficient field.',
+      ),
+      findsOneWidget,
+    );
+    expect(scrollable.position.pixels, offsetBeforeSolve);
   });
 
   testWidgets('large text remains scrollable without an exception', (
@@ -94,4 +122,22 @@ Future<void> _pump(WidgetTester tester) async {
     ),
   );
   await tester.pumpAndSettle();
+}
+
+ScrollableState _pageScrollable(WidgetTester tester) =>
+    tester.state<ScrollableState>(
+      find
+          .descendant(
+            of: find.byType(ListView).first,
+            matching: find.byType(Scrollable),
+          )
+          .first,
+    );
+
+void _expectVisible(WidgetTester tester, Finder finder) {
+  final rect = tester.getRect(finder);
+  final viewportHeight =
+      tester.view.physicalSize.height / tester.view.devicePixelRatio;
+  expect(rect.bottom, greaterThan(0));
+  expect(rect.top, lessThan(viewportHeight));
 }

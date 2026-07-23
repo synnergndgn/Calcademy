@@ -13,6 +13,7 @@ import 'package:calcademy/features/linear_programming/presentation/linear_progra
 import 'package:calcademy/features/linear_programming/presentation/linear_program_draft.dart';
 import 'package:calcademy/features/linear_programming/presentation/lp_graph_view.dart';
 import 'package:calcademy/features/linear_programming/presentation/simplex_steps_page.dart';
+import 'package:calcademy/features/optimization/presentation/optimization_result_auto_scroll.dart';
 import 'package:calcademy/features/optimization/presentation/widgets/constraint_relation_options.dart';
 import 'package:calcademy/features/optimization/presentation/widgets/responsive_constraint_card.dart';
 import 'package:calcademy/features/saved_calculations/application/adapters/optimization_saved_adapter.dart';
@@ -33,6 +34,7 @@ class LinearProgramPage extends ConsumerStatefulWidget {
 class _LinearProgramPageState extends ConsumerState<LinearProgramPage> {
   late LinearProgramDraft _draft;
   final _dirty = ValueNotifier(false);
+  final _resultSectionKey = GlobalKey();
   String? _activeSavedId;
 
   @override
@@ -96,13 +98,16 @@ class _LinearProgramPageState extends ConsumerState<LinearProgramPage> {
             const SizedBox(height: AppSpacing.md),
             _buildEditor(context),
             const SizedBox(height: AppSpacing.md),
-            ValueListenableBuilder<bool>(
-              valueListenable: _dirty,
-              builder: (context, dirty, _) => _ResultPanel(
-                dirty: dirty,
-                activeSavedId: _activeSavedId,
-                onSave: _save,
-                onNew: _new,
+            KeyedSubtree(
+              key: _resultSectionKey,
+              child: ValueListenableBuilder<bool>(
+                valueListenable: _dirty,
+                builder: (context, dirty, _) => _ResultPanel(
+                  dirty: dirty,
+                  activeSavedId: _activeSavedId,
+                  onSave: _save,
+                  onNew: _new,
+                ),
               ),
             ),
           ],
@@ -357,6 +362,8 @@ class _LinearProgramPageState extends ConsumerState<LinearProgramPage> {
       await ref
           .read(linearProgramWorkspaceProvider.notifier)
           .solve(program, savedId: _activeSavedId);
+      if (!mounted) return;
+      scheduleOptimizationResultAutoScroll(_resultSectionKey);
     } on Object {
       if (!mounted) return;
       ScaffoldMessenger.of(
