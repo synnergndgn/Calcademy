@@ -66,7 +66,7 @@ void main() {
       SavedCalculationModule.operationsResearch,
     );
     expect(repository.items.single.calculationType, 'transportation');
-    expect(find.text('Calculation saved on this device.'), findsOneWidget);
+    expect(find.text('Saved to Saved Calculations.'), findsOneWidget);
   });
 
   testWidgets('solves assignment and shows Hungarian assignments', (
@@ -240,8 +240,43 @@ void main() {
   testWidgets('builds at 200 percent text scale and in dark mode', (
     tester,
   ) async {
-    _setViewport(tester, const Size(360, 760), scale: 2);
+    _setViewport(tester, const Size(320, 760), scale: 2);
     await _pump(tester, theme: AppTheme.dark());
+    expect(find.text('OR Tools'), findsOneWidget);
+    await tester.scrollUntilVisible(
+      find.byKey(const Key('or-transport-grid-scroll')),
+      200,
+      scrollable: find.byType(Scrollable).first,
+    );
+    await tester.pumpAndSettle();
+    final demandLabel = find.byKey(const Key('or-transport-demand-label'));
+    final supplyLabel = find.byKey(const Key('or-transport-supply-label-0'));
+    expect(tester.widget<Text>(demandLabel).maxLines, 1);
+    expect(tester.widget<Text>(supplyLabel).maxLines, 1);
+    expect(
+      tester
+          .getSize(
+            find.ancestor(of: demandLabel, matching: find.byType(FittedBox)),
+          )
+          .width,
+      lessThanOrEqualTo(64),
+    );
+    expect(
+      tester.getTopLeft(find.byKey(const Key('or-transport-clear'))).dy,
+      greaterThan(
+        tester.getBottomLeft(find.byKey(const Key('or-transport-solve'))).dy,
+      ),
+    );
+    expect(
+      tester.getSize(find.byKey(const Key('or-transport-grid-scroll'))).width,
+      lessThanOrEqualTo(288),
+    );
+    await tester.fling(
+      find.byKey(const Key('or-page-scroll')),
+      const Offset(0, 1800),
+      2000,
+    );
+    await tester.pumpAndSettle();
     await _tapVisible(tester, find.byKey(const Key('or-mode-assignment')));
     await tester.pumpAndSettle();
 

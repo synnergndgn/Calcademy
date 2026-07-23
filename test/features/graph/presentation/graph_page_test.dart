@@ -14,6 +14,21 @@ import 'package:shared_preferences/shared_preferences.dart';
 void main() {
   setUp(() => SharedPreferences.setMockInitialValues({}));
 
+  test('new graph and saved-feedback localization keys have TR/EN parity', () {
+    const english = AppLocalizations(Locale('en'));
+    const turkish = AppLocalizations(Locale('tr'));
+    const keys = [
+      'graphXRangeOrder',
+      'graphXRangeBounds',
+      'graphXRangeHint',
+      'savedCalculationSaved',
+    ];
+    for (final key in keys) {
+      expect(english.t(key), isNot(key), reason: 'English missing $key');
+      expect(turkish.t(key), isNot(key), reason: 'Turkish missing $key');
+    }
+  });
+
   testWidgets('graph page adds, plots, rejects, and removes functions', (
     tester,
   ) async {
@@ -59,9 +74,9 @@ void main() {
   testWidgets('graph controls remain overflow-free with large text', (
     tester,
   ) async {
-    tester.view.physicalSize = const Size(320, 640);
+    tester.view.physicalSize = const Size(320, 760);
     tester.view.devicePixelRatio = 1;
-    tester.platformDispatcher.textScaleFactorTestValue = 1.5;
+    tester.platformDispatcher.textScaleFactorTestValue = 2;
     addTearDown(tester.view.resetPhysicalSize);
     addTearDown(tester.view.resetDevicePixelRatio);
     addTearDown(tester.platformDispatcher.clearTextScaleFactorTestValue);
@@ -69,10 +84,85 @@ void main() {
 
     await tester.tap(find.byKey(const Key('addGraphFunction')));
     await tester.pump();
+    final expressionField = find.byWidgetPredicate(
+      (widget) =>
+          widget is TextField &&
+          widget.decoration?.labelText == 'Function expression',
+    );
+    await tester.enterText(expressionField, 'x^2');
+    await tester.pump(GraphController.debounceDuration);
+    await tester.pumpAndSettle();
+    expect(find.byType(LineChart), findsOneWidget);
+    final legend = find.byKey(const Key('graph-legend-scroll'));
+    expect(legend, findsOneWidget);
+    expect(tester.getSize(legend).width, lessThan(200));
+    final transformation = tester
+        .widget<LineChart>(find.byType(LineChart))
+        .transformationConfig
+        .transformationController!;
+    expect(transformation.value.getMaxScaleOnAxis(), 1);
+    await tester.tap(find.byKey(const Key('graph-zoom-in')));
+    await tester.pump();
+    expect(transformation.value.getMaxScaleOnAxis(), closeTo(1.25, 0.001));
+    await tester.tap(find.byKey(const Key('graph-zoom-out')));
+    await tester.pump();
+    expect(transformation.value.getMaxScaleOnAxis(), closeTo(1, 0.001));
+    expect(find.text('Graphing'), findsOneWidget);
     expect(tester.takeException(), isNull);
     await tester.fling(find.byType(ListView), const Offset(0, -1500), 1000);
     await tester.pumpAndSettle();
+    expect(find.byKey(const Key('graph-x-range-hint')), findsOneWidget);
     expect(tester.takeException(), isNull);
+  });
+
+  testWidgets('X range feedback is specific and reset restores defaults', (
+    tester,
+  ) async {
+    tester.view.physicalSize = const Size(900, 1200);
+    tester.view.devicePixelRatio = 1;
+    addTearDown(tester.view.resetPhysicalSize);
+    addTearDown(tester.view.resetDevicePixelRatio);
+    await _pumpGraph(tester);
+    final minField = find.byKey(const Key('graphXMin'));
+    final maxField = find.byKey(const Key('graphXMax'));
+    final apply = find.byKey(const Key('applyGraphRange'));
+    await tester.ensureVisible(apply);
+    await tester.pumpAndSettle();
+
+    await tester.enterText(minField, '-10000');
+    await tester.enterText(maxField, '10000');
+    await tester.tap(apply);
+    await tester.pump();
+    expect(
+      find.text('X range must stay between -1000 and 1000.'),
+      findsOneWidget,
+    );
+
+    await tester.enterText(minField, '10');
+    await tester.enterText(maxField, '-10');
+    await tester.tap(apply);
+    await tester.pump();
+    expect(find.text('X minimum must be less than X maximum.'), findsOneWidget);
+
+    await tester.enterText(minField, '-1000');
+    await tester.enterText(maxField, '1000');
+    await tester.tap(apply);
+    await tester.pump();
+    final container = ProviderScope.containerOf(
+      tester.element(find.byType(GraphPage)),
+    );
+    expect(container.read(graphProvider).range.min, -1000);
+    expect(container.read(graphProvider).range.max, 1000);
+    expect(find.byKey(const Key('graph-range-error')), findsNothing);
+
+    await tester.enterText(minField, '-10000');
+    await tester.enterText(maxField, '10000');
+    await tester.tap(apply);
+    await tester.pump();
+    await tester.tap(find.byKey(const Key('graph-reset-range')));
+    await tester.pump();
+    expect(tester.widget<TextField>(minField).controller!.text, '-10');
+    expect(tester.widget<TextField>(maxField).controller!.text, '10');
   });
 
   test('controller validates, resets, and persists graph workspaces', () async {
@@ -86,7 +176,15 @@ void main() {
     controller.addFunction();
     final id = container.read(graphProvider).functions.single.id;
     controller.updateExpression(id, 'sin(x)');
-    expect(controller.applyRange(xMin: '5', xMax: '-5'), isFalse);
+    expect(controller.applyRange(xMin: '-100', xMax: '100'), isTrue);
+    expect(controller.applyRange(xMin: '-1000', xMax: '1000'), isTrue);
+    expect(controller.applyRange(xMin: '-10000', xMax: '10000'), isFalse);
+    expect(container.read(graphProvider).rangeError, 'graphXRangeBounds');
+    expect(controller.applyRange(xMin: '10', xMax: '-10'), isFalse);
+    expect(container.read(graphProvider).rangeError, 'graphXRangeOrder');
+    expect(controller.applyRange(xMin: '0', xMax: '0'), isFalse);
+    expect(container.read(graphProvider).rangeError, 'graphXRangeOrder');
+    expect(controller.applyRange(xMin: 'abc', xMax: '10'), isFalse);
     expect(container.read(graphProvider).rangeError, 'graphInvalidRange');
     expect(controller.applyRange(xMin: '-20', xMax: '30'), isTrue);
     expect(container.read(graphProvider).range.min, -20);

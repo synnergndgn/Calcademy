@@ -19,6 +19,8 @@ class TransportationTab extends ConsumerStatefulWidget {
 }
 
 class _TransportationTabState extends ConsumerState<TransportationTab> {
+  static const _rowHeaderWidth = 64.0;
+
   var _sources = 2;
   var _destinations = 2;
   var _objective = OperationsResearchObjective.minimize;
@@ -221,7 +223,14 @@ class _TransportationTabState extends ConsumerState<TransportationTab> {
                   padding: const EdgeInsets.only(bottom: AppSpacing.xs),
                   child: Row(
                     children: [
-                      SizedBox(width: 42, child: Text('S${row + 1}')),
+                      SizedBox(
+                        width: _rowHeaderWidth,
+                        child: Text(
+                          'S${row + 1}',
+                          maxLines: 1,
+                          softWrap: false,
+                        ),
+                      ),
                       for (
                         var column = 0;
                         column < _destinations;
@@ -239,13 +248,26 @@ class _TransportationTabState extends ConsumerState<TransportationTab> {
                         controller: _supply[row],
                         label: l10n.t('orSupply'),
                         width: 84,
+                        labelKey: Key('or-transport-supply-label-$row'),
                       ),
                     ],
                   ),
                 ),
               Row(
                 children: [
-                  SizedBox(width: 42, child: Text(l10n.t('orDemandShort'))),
+                  SizedBox(
+                    width: _rowHeaderWidth,
+                    child: FittedBox(
+                      fit: BoxFit.scaleDown,
+                      alignment: AlignmentDirectional.centerStart,
+                      child: Text(
+                        l10n.t('orDemandShort'),
+                        key: const Key('or-transport-demand-label'),
+                        maxLines: 1,
+                        softWrap: false,
+                      ),
+                    ),
+                  ),
                   for (var column = 0; column < _destinations; column++) ...[
                     OrMatrixField(
                       fieldKey: Key('or-transport-demand-$column'),
@@ -260,28 +282,63 @@ class _TransportationTabState extends ConsumerState<TransportationTab> {
           ),
         ),
         const SizedBox(height: AppSpacing.md),
-        Row(
-          children: [
-            Expanded(
-              child: FilledButton.icon(
-                key: const Key('or-transport-solve'),
-                onPressed: state.loading ? null : _solve,
-                icon: const Icon(Icons.play_arrow_rounded),
-                label: Text(l10n.t('orSolve')),
-              ),
-            ),
-            const SizedBox(width: AppSpacing.sm),
-            OutlinedButton(
-              onPressed: state.loading ? null : _clear,
-              child: Text(l10n.t('orClear')),
-            ),
-          ],
+        _TransportationActions(
+          loading: state.loading,
+          onSolve: _solve,
+          onClear: _clear,
         ),
         const SizedBox(height: AppSpacing.md),
         if (state.loading)
           const Center(child: CircularProgressIndicator())
         else if (state.result != null)
           OperationsResearchResultCard(result: state.result!),
+      ],
+    );
+  }
+}
+
+class _TransportationActions extends StatelessWidget {
+  const _TransportationActions({
+    required this.loading,
+    required this.onSolve,
+    required this.onClear,
+  });
+
+  final bool loading;
+  final VoidCallback onSolve;
+  final VoidCallback onClear;
+
+  @override
+  Widget build(BuildContext context) {
+    final stack =
+        MediaQuery.textScalerOf(context).scale(1) >= 1.6 ||
+        MediaQuery.sizeOf(context).width < 360;
+    final solve = FilledButton.icon(
+      key: const Key('or-transport-solve'),
+      onPressed: loading ? null : onSolve,
+      icon: const Icon(Icons.play_arrow_rounded),
+      label: Text(context.l10n.t('orSolve')),
+    );
+    final clear = OutlinedButton(
+      key: const Key('or-transport-clear'),
+      onPressed: loading ? null : onClear,
+      child: Text(context.l10n.t('orClear')),
+    );
+    if (stack) {
+      return Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          solve,
+          const SizedBox(height: AppSpacing.xs),
+          clear,
+        ],
+      );
+    }
+    return Row(
+      children: [
+        Expanded(child: solve),
+        const SizedBox(width: AppSpacing.sm),
+        clear,
       ],
     );
   }

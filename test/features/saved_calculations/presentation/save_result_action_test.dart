@@ -60,7 +60,7 @@ void main() {
       await tester.pumpAndSettle();
       expect(repository.items, hasLength(1));
       expect(repository.items.single.calculationType, 'tvm');
-      expect(find.text('Calculation saved on this device.'), findsOneWidget);
+      expect(find.text('Saved to Saved Calculations.'), findsOneWidget);
 
       final statisticsSave = find.byKey(const Key('stats-save-result'));
       await tester.ensureVisible(statisticsSave);

@@ -46,12 +46,14 @@ class OrMatrixField extends StatelessWidget {
     required this.label,
     required this.fieldKey,
     this.width = 72,
+    this.labelKey,
   });
 
   final TextEditingController controller;
   final String label;
   final Key fieldKey;
   final double width;
+  final Key? labelKey;
 
   @override
   Widget build(BuildContext context) => SizedBox(
@@ -64,7 +66,14 @@ class OrMatrixField extends StatelessWidget {
         decimal: true,
         signed: true,
       ),
-      decoration: InputDecoration(labelText: label, isDense: true),
+      decoration: InputDecoration(
+        label: FittedBox(
+          fit: BoxFit.scaleDown,
+          alignment: AlignmentDirectional.centerStart,
+          child: Text(label, key: labelKey, maxLines: 1, softWrap: false),
+        ),
+        isDense: true,
+      ),
     ),
   );
 }

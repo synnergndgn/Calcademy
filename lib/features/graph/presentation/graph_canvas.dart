@@ -118,37 +118,43 @@ class _GraphCanvasState extends ConsumerState<GraphCanvas> {
                               padding: const EdgeInsets.fromLTRB(8, 20, 12, 8),
                               child: Stack(
                                 children: [
-                                  GestureDetector(
-                                    behavior: HitTestBehavior.opaque,
-                                    onDoubleTap: _resetTransformation,
-                                    child: LineChart(
-                                      _chartData(
-                                        context,
-                                        visibleSeries,
-                                        visibleFunctions,
-                                        renderState.range.min,
-                                        renderState.range.max,
-                                        yRange,
+                                  MediaQuery.withClampedTextScaling(
+                                    maxScaleFactor: 1.3,
+                                    child: GestureDetector(
+                                      behavior: HitTestBehavior.opaque,
+                                      onDoubleTap: _resetTransformation,
+                                      child: LineChart(
+                                        _chartData(
+                                          context,
+                                          visibleSeries,
+                                          visibleFunctions,
+                                          renderState.range.min,
+                                          renderState.range.max,
+                                          yRange,
+                                        ),
+                                        transformationConfig:
+                                            FlTransformationConfig(
+                                              scaleAxis: FlScaleAxis.free,
+                                              minScale: 1,
+                                              maxScale: 5,
+                                              panEnabled: true,
+                                              scaleEnabled: true,
+                                              transformationController:
+                                                  _transformationController,
+                                            ),
                                       ),
-                                      transformationConfig:
-                                          FlTransformationConfig(
-                                            scaleAxis: FlScaleAxis.free,
-                                            minScale: 1,
-                                            maxScale: 5,
-                                            panEnabled: true,
-                                            scaleEnabled: true,
-                                            transformationController:
-                                                _transformationController,
-                                          ),
                                     ),
                                   ),
                                   Positioned(
                                     top: 0,
                                     left: 52,
                                     right: 62,
-                                    child: _GraphLegend(
-                                      functions: visibleFunctions.values
-                                          .toList(),
+                                    child: MediaQuery.withClampedTextScaling(
+                                      maxScaleFactor: 1.3,
+                                      child: _GraphLegend(
+                                        functions: visibleFunctions.values
+                                            .toList(),
+                                      ),
                                     ),
                                   ),
                                   Positioned(
@@ -186,11 +192,13 @@ class _GraphCanvasState extends ConsumerState<GraphCanvas> {
                             mainAxisSize: MainAxisSize.min,
                             children: [
                               IconButton(
+                                key: const Key('graph-zoom-in'),
                                 tooltip: context.l10n.t('graphZoomIn'),
                                 onPressed: () => _zoom(1.25),
                                 icon: const Icon(Icons.add_rounded),
                               ),
                               IconButton(
+                                key: const Key('graph-zoom-out'),
                                 tooltip: context.l10n.t('graphZoomOut'),
                                 onPressed: () => _zoom(0.8),
                                 icon: const Icon(Icons.remove_rounded),
@@ -346,9 +354,13 @@ class _GraphCanvasState extends ConsumerState<GraphCanvas> {
   }
 
   void _zoom(double factor) {
-    final current = _transformationController.value.getMaxScaleOnAxis();
+    final matrix = _transformationController.value;
+    final current = matrix.getMaxScaleOnAxis();
     final next = (current * factor).clamp(1.0, 5.0);
-    _transformationController.value = Matrix4.diagonal3Values(next, next, 1);
+    if (next == current) return;
+    final ratio = next / current;
+    _transformationController.value = Matrix4.copy(matrix)
+      ..multiply(Matrix4.diagonal3Values(ratio, ratio, 1));
   }
 
   void _resetTransformation() {
@@ -428,37 +440,46 @@ class _GraphLegend extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Wrap(
-      spacing: AppSpacing.sm,
-      runSpacing: 2,
-      children: [
-        for (final function in functions)
-          ConstrainedBox(
-            constraints: const BoxConstraints(maxWidth: 132),
-            child: Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                DecoratedBox(
-                  decoration: BoxDecoration(
-                    color: GraphPalette.colorFor(context, function.visualIndex),
-                    shape: BoxShape.circle,
+    return SingleChildScrollView(
+      key: const Key('graph-legend-scroll'),
+      scrollDirection: Axis.horizontal,
+      child: Row(
+        children: [
+          for (var index = 0; index < functions.length; index++) ...[
+            ConstrainedBox(
+              constraints: const BoxConstraints(maxWidth: 132),
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  DecoratedBox(
+                    decoration: BoxDecoration(
+                      color: GraphPalette.colorFor(
+                        context,
+                        functions[index].visualIndex,
+                      ),
+                      shape: BoxShape.circle,
+                    ),
+                    child: const SizedBox.square(dimension: 7),
                   ),
-                  child: const SizedBox.square(dimension: 7),
-                ),
-                const SizedBox(width: 4),
-                Flexible(
-                  child: Text(
-                    'f${_subscript(function.visualIndex + 1)}: '
-                    '${function.expression.trim()}',
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                    style: Theme.of(context).textTheme.labelSmall,
+                  const SizedBox(width: 4),
+                  Flexible(
+                    child: Text(
+                      'f${_subscript(functions[index].visualIndex + 1)}: '
+                      '${functions[index].expression.trim()}',
+                      maxLines: 1,
+                      softWrap: false,
+                      overflow: TextOverflow.ellipsis,
+                      style: Theme.of(context).textTheme.labelSmall,
+                    ),
                   ),
-                ),
-              ],
+                ],
+              ),
             ),
-          ),
-      ],
+            if (index < functions.length - 1)
+              const SizedBox(width: AppSpacing.sm),
+          ],
+        ],
+      ),
     );
   }
 

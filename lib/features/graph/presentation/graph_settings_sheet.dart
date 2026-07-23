@@ -21,6 +21,7 @@ class _GraphSettingsPanelState extends ConsumerState<GraphSettingsPanel> {
   GraphRange? _lastRange;
   double? _lastYMin;
   double? _lastYMax;
+  int? _lastViewResetRevision;
 
   @override
   void dispose() {
@@ -42,10 +43,16 @@ class _GraphSettingsPanelState extends ConsumerState<GraphSettingsPanel> {
           manualYMax: state.manualYMax,
           angleMode: state.angleMode,
           rangeError: state.rangeError,
+          viewResetRevision: state.viewResetRevision,
         ),
       ),
     );
-    _syncControllers(settings.range, settings.manualYMin, settings.manualYMax);
+    _syncControllers(
+      settings.range,
+      settings.manualYMin,
+      settings.manualYMax,
+      settings.viewResetRevision,
+    );
     final controller = ref.read(graphProvider.notifier);
     return Card(
       child: Padding(
@@ -90,7 +97,11 @@ class _GraphSettingsPanelState extends ConsumerState<GraphSettingsPanel> {
                       signed: true,
                     ),
                     decoration: InputDecoration(
-                      labelText: context.l10n.t('graphXMin'),
+                      label: FittedBox(
+                        fit: BoxFit.scaleDown,
+                        alignment: AlignmentDirectional.centerStart,
+                        child: Text(context.l10n.t('graphXMin')),
+                      ),
                     ),
                   ),
                 ),
@@ -104,11 +115,23 @@ class _GraphSettingsPanelState extends ConsumerState<GraphSettingsPanel> {
                       signed: true,
                     ),
                     decoration: InputDecoration(
-                      labelText: context.l10n.t('graphXMax'),
+                      label: FittedBox(
+                        fit: BoxFit.scaleDown,
+                        alignment: AlignmentDirectional.centerStart,
+                        child: Text(context.l10n.t('graphXMax')),
+                      ),
                     ),
                   ),
                 ),
               ],
+            ),
+            const SizedBox(height: AppSpacing.xs),
+            Text(
+              context.l10n.t('graphXRangeHint'),
+              key: const Key('graph-x-range-hint'),
+              style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                color: Theme.of(context).colorScheme.onSurfaceVariant,
+              ),
             ),
             const SizedBox(height: AppSpacing.md),
             Text(
@@ -166,6 +189,7 @@ class _GraphSettingsPanelState extends ConsumerState<GraphSettingsPanel> {
               const SizedBox(height: AppSpacing.sm),
               Text(
                 context.l10n.t(settings.rangeError!),
+                key: const Key('graph-range-error'),
                 style: TextStyle(color: Theme.of(context).colorScheme.error),
               ),
             ],
@@ -176,6 +200,7 @@ class _GraphSettingsPanelState extends ConsumerState<GraphSettingsPanel> {
               runSpacing: AppSpacing.xs,
               children: [
                 TextButton.icon(
+                  key: const Key('graph-reset-range'),
                   onPressed: controller.resetView,
                   icon: const Icon(Icons.restart_alt_rounded),
                   label: Text(context.l10n.t('graphReset')),
@@ -199,9 +224,16 @@ class _GraphSettingsPanelState extends ConsumerState<GraphSettingsPanel> {
     );
   }
 
-  void _syncControllers(GraphRange range, double yMin, double yMax) {
-    if (!identical(_lastRange, range)) {
+  void _syncControllers(
+    GraphRange range,
+    double yMin,
+    double yMax,
+    int viewResetRevision,
+  ) {
+    if (!identical(_lastRange, range) ||
+        _lastViewResetRevision != viewResetRevision) {
       _lastRange = range;
+      _lastViewResetRevision = viewResetRevision;
       _setText(_xMin, _format(range.min));
       _setText(_xMax, _format(range.max));
     }

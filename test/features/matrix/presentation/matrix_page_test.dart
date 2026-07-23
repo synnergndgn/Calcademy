@@ -11,8 +11,11 @@ import 'package:calcademy/features/matrix/presentation/matrix_home_page.dart';
 import 'package:calcademy/features/matrix/presentation/matrix_steps_page.dart';
 import 'package:calcademy/features/matrix/presentation/matrix_widgets.dart';
 import 'package:calcademy/features/saved/presentation/saved_page.dart';
+import 'package:calcademy/features/saved_calculations/domain/saved_calculation_module.dart';
+import 'package:calcademy/features/saved_calculations/presentation/saved_calculations_controller.dart';
 import 'package:calcademy/l10n/app_localizations.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -76,7 +79,7 @@ void main() {
   testWidgets('matrix multiplication shows result and cell explanation', (
     tester,
   ) async {
-    await _pumpMatrix(tester);
+    final container = await _pumpMatrix(tester);
     await _scrollToCalculate(tester);
     await tester.tap(find.byKey(const ValueKey('matrix-calculate')));
     await tester.pumpAndSettle();
@@ -85,6 +88,36 @@ void main() {
 
     expect(find.byKey(const ValueKey('matrix-result-panel')), findsOneWidget);
     expect(find.byKey(const Key('matrix-save-calculation')), findsOneWidget);
+    expect(find.byKey(const Key('matrix-copy-result')), findsOneWidget);
+    expect(find.text('Save calculation'), findsOneWidget);
+    expect(find.text('Save operation'), findsNothing);
+    await tester.tap(find.byKey(const Key('matrix-save-calculation')));
+    await tester.pumpAndSettle();
+    expect(container.read(savedCalculationsProvider).items, hasLength(1));
+    expect(
+      container.read(savedCalculationsProvider).items.single.module,
+      SavedCalculationModule.matrix,
+    );
+    expect(find.text('Saved to Saved Calculations.'), findsOneWidget);
+    MethodCall? clipboardCall;
+    TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
+        .setMockMethodCallHandler(SystemChannels.platform, (call) async {
+          if (call.method == 'Clipboard.setData') clipboardCall = call;
+          return null;
+        });
+    addTearDown(
+      () => TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
+          .setMockMethodCallHandler(SystemChannels.platform, null),
+    );
+    tester
+        .widget<TextButton>(find.byKey(const Key('matrix-copy-result')))
+        .onPressed!();
+    await tester.pump();
+    expect(clipboardCall?.method, 'Clipboard.setData');
+    expect(
+      (clipboardCall?.arguments as Map<Object?, Object?>)['text'],
+      isNotEmpty,
+    );
     expect(
       find.text('Tap a result cell to inspect its row-by-column calculation.'),
       findsOneWidget,
@@ -195,18 +228,30 @@ void main() {
     expect(state.execution?.result, isA<ScalarMatrixResult>());
   });
 
-  testWidgets('large text on a small screen remains scrollable', (
+  testWidgets('result actions stay compact at 320px and 200% text', (
     tester,
   ) async {
-    tester.view.physicalSize = const Size(360, 700);
+    tester.view.physicalSize = const Size(320, 760);
     tester.view.devicePixelRatio = 1;
-    tester.platformDispatcher.textScaleFactorTestValue = 1.5;
+    tester.platformDispatcher.textScaleFactorTestValue = 2;
     addTearDown(tester.view.resetPhysicalSize);
     addTearDown(tester.view.resetDevicePixelRatio);
     addTearDown(tester.platformDispatcher.clearTextScaleFactorTestValue);
     await _pumpMatrix(tester);
 
+    expect(find.text('Matrices'), findsOneWidget);
     expect(find.byType(Scrollable), findsWidgets);
+    await _scrollToCalculate(tester);
+    await tester.tap(find.byKey(const ValueKey('matrix-calculate')));
+    await tester.pumpAndSettle();
+    final resultPanel = find.byKey(const ValueKey('matrix-result-panel'));
+    await tester.ensureVisible(resultPanel);
+    await tester.pumpAndSettle();
+    expect(tester.getSize(resultPanel).width, lessThanOrEqualTo(288));
+    expect(find.byKey(const Key('matrix-save-calculation')), findsOneWidget);
+    expect(find.byKey(const Key('matrix-copy-result')), findsOneWidget);
+    expect(find.text('Save operation'), findsNothing);
+    expect(find.byKey(const Key('matrix-new-operation')), findsOneWidget);
     expect(tester.takeException(), isNull);
   });
 

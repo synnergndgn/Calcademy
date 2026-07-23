@@ -199,8 +199,16 @@ class GraphController extends Notifier<GraphState> {
   }) {
     final min = double.tryParse(xMin.replaceAll(',', '.'));
     final max = double.tryParse(xMax.replaceAll(',', '.'));
-    if (min == null || max == null || !GraphRange.isValid(min, max)) {
+    if (min == null || max == null || !min.isFinite || !max.isFinite) {
       state = state.copyWith(rangeError: 'graphInvalidRange');
+      return false;
+    }
+    if (min >= max) {
+      state = state.copyWith(rangeError: 'graphXRangeOrder');
+      return false;
+    }
+    if (min < GraphRange.lowerLimit || max > GraphRange.upperLimit) {
+      state = state.copyWith(rangeError: 'graphXRangeBounds');
       return false;
     }
     var manualMin = state.manualYMin;

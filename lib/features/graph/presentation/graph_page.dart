@@ -69,28 +69,37 @@ class _GraphPageState extends ConsumerState<GraphPage> {
         ),
       ),
     );
+    final useCompactTitle =
+        MediaQuery.textScalerOf(context).scale(1) >= 1.6 ||
+        MediaQuery.sizeOf(context).width < 360;
     return Scaffold(
       appBar: AppBar(
-        title: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              workspace.title ?? context.l10n.t('graphing'),
-              maxLines: 1,
-              overflow: TextOverflow.ellipsis,
-            ),
-            Text(
-              [
-                workspace.mode.name == 'radians' ? 'RAD' : 'DEG',
-                if (workspace.isDirty) context.l10n.t('graphModified'),
-                if (workspace.isSampling) context.l10n.t('graphUpdating'),
-              ].join(' | '),
-              style: Theme.of(context).textTheme.labelSmall,
-              maxLines: 1,
-              overflow: TextOverflow.ellipsis,
-            ),
-          ],
-        ),
+        title: useCompactTitle
+            ? Text(
+                context.l10n.t('graphing'),
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+              )
+            : Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    workspace.title ?? context.l10n.t('graphing'),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                  Text(
+                    [
+                      workspace.mode.name == 'radians' ? 'RAD' : 'DEG',
+                      if (workspace.isDirty) context.l10n.t('graphModified'),
+                      if (workspace.isSampling) context.l10n.t('graphUpdating'),
+                    ].join(' | '),
+                    style: Theme.of(context).textTheme.labelSmall,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                ],
+              ),
         actions: [
           IconButton(
             tooltip: context.l10n.t('graphShare'),

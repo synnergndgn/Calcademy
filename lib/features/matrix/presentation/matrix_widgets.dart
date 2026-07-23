@@ -233,10 +233,8 @@ class _DimensionControl extends StatelessWidget {
   final VoidCallback? onIncrease;
 
   @override
-  Widget build(BuildContext context) => Row(
-    mainAxisSize: MainAxisSize.min,
-    children: [
-      Text('$label: $value'),
+  Widget build(BuildContext context) {
+    final controls = [
       IconButton(
         visualDensity: VisualDensity.compact,
         tooltip: context.l10n.t('matrixRemove'),
@@ -249,8 +247,21 @@ class _DimensionControl extends StatelessWidget {
         onPressed: onIncrease,
         icon: const Icon(Icons.add_rounded),
       ),
-    ],
-  );
+    ];
+    if (MediaQuery.textScalerOf(context).scale(1) >= 1.6) {
+      return Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Text('$label: $value', maxLines: 1, overflow: TextOverflow.ellipsis),
+          Row(mainAxisSize: MainAxisSize.min, children: controls),
+        ],
+      );
+    }
+    return Row(
+      mainAxisSize: MainAxisSize.min,
+      children: [Text('$label: $value'), ...controls],
+    );
+  }
 }
 
 class _EditableGridBody extends StatelessWidget {

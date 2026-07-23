@@ -7,6 +7,7 @@ void main() {
     const english = AppLocalizations(Locale('en'));
     const turkish = AppLocalizations(Locale('tr'));
     const keys = [
+      'orShortTitle',
       'orGoalProgramming',
       'orCpmPert',
       'orDecisionVariables',

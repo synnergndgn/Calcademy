@@ -31,8 +31,17 @@ class _OperationsResearchPageState
   Widget build(BuildContext context) {
     final l10n = context.l10n;
     final bottomInset = MediaQuery.viewPaddingOf(context).bottom;
+    final useCompactTitle =
+        MediaQuery.textScalerOf(context).scale(1) >= 1.6 ||
+        MediaQuery.sizeOf(context).width < 360;
     return Scaffold(
-      appBar: AppBar(title: Text(l10n.t('operationsResearch'))),
+      appBar: AppBar(
+        title: Text(
+          l10n.t(useCompactTitle ? 'orShortTitle' : 'operationsResearch'),
+          maxLines: 1,
+          overflow: TextOverflow.ellipsis,
+        ),
+      ),
       body: SafeArea(
         top: false,
         child: Center(

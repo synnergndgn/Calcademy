@@ -1,4 +1,5 @@
 import 'package:calcademy/app/theme/app_spacing.dart';
+import 'package:calcademy/core/widgets/result_action_bar.dart';
 import 'package:calcademy/features/matrix/data/matrix_repository.dart';
 import 'package:calcademy/features/matrix/domain/linear_system_result.dart';
 import 'package:calcademy/features/matrix/domain/matrix_constants.dart';
@@ -8,7 +9,6 @@ import 'package:calcademy/features/matrix/domain/matrix_number_formatter.dart';
 import 'package:calcademy/features/matrix/domain/matrix_operation.dart';
 import 'package:calcademy/features/matrix/domain/matrix_result.dart';
 import 'package:calcademy/features/matrix/domain/matrix_value.dart';
-import 'package:calcademy/features/matrix/domain/saved_matrix_operation.dart';
 import 'package:calcademy/features/matrix/presentation/matrix_controller.dart';
 import 'package:calcademy/features/matrix/presentation/matrix_steps_page.dart';
 import 'package:calcademy/features/matrix/presentation/matrix_widgets.dart';
@@ -16,7 +16,6 @@ import 'package:calcademy/features/saved_calculations/application/adapters/matri
 import 'package:calcademy/features/saved_calculations/presentation/save_result_action.dart';
 import 'package:calcademy/l10n/app_localizations.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 class MatrixHomePage extends ConsumerStatefulWidget {
@@ -73,9 +72,16 @@ class _MatrixHomePageState extends ConsumerState<MatrixHomePage> {
 
   @override
   Widget build(BuildContext context) {
+    final useCompactTitle =
+        MediaQuery.textScalerOf(context).scale(1) >= 1.6 ||
+        MediaQuery.sizeOf(context).width < 360;
     return Scaffold(
       appBar: AppBar(
-        title: Text(context.l10n.t('matrices')),
+        title: Text(
+          context.l10n.t(useCompactTitle ? 'savedMatrices' : 'matrices'),
+          maxLines: 1,
+          overflow: TextOverflow.ellipsis,
+        ),
         actions: [
           IconButton(
             tooltip: context.l10n.t('matrixNewOperation'),
@@ -459,29 +465,24 @@ class _MatrixResultPanelState extends ConsumerState<_MatrixResultPanel> {
                   ),
               ],
             ),
+            ResultActionBar(
+              copyButtonKey: const Key('matrix-copy-result'),
+              copyText: _executionText(context, execution),
+              saveAction: SaveResultAction(
+                buttonKey: const Key('matrix-save-calculation'),
+                draft: MatrixSavedAdapter.fromExecution(
+                  execution,
+                  title: context.l10n.t(execution.operation.localizationKey),
+                ),
+              ),
+            ),
             Wrap(
+              alignment: WrapAlignment.end,
               spacing: AppSpacing.xs,
               runSpacing: AppSpacing.xs,
               children: [
-                OutlinedButton.icon(
-                  onPressed: () => _copy(execution),
-                  icon: const Icon(Icons.copy_rounded),
-                  label: Text(context.l10n.t('matrixCopyResult')),
-                ),
-                OutlinedButton.icon(
-                  onPressed: () => _save(execution),
-                  icon: const Icon(Icons.bookmark_add_outlined),
-                  label: Text(context.l10n.t('matrixSaveResult')),
-                ),
-                SaveResultAction(
-                  buttonKey: const Key('matrix-save-calculation'),
-                  draft: MatrixSavedAdapter.fromExecution(
-                    execution,
-                    title: context.l10n.t(execution.operation.localizationKey),
-                  ),
-                ),
                 if (execution.steps != null)
-                  OutlinedButton.icon(
+                  TextButton.icon(
                     onPressed: () => Navigator.of(context).push(
                       MaterialPageRoute<void>(
                         builder: (context) => MatrixStepsPage(
@@ -496,6 +497,7 @@ class _MatrixResultPanelState extends ConsumerState<_MatrixResultPanel> {
                     label: Text(context.l10n.t('matrixShowSteps')),
                   ),
                 TextButton.icon(
+                  key: const Key('matrix-new-operation'),
                   onPressed: widget.onNewOperation,
                   icon: const Icon(Icons.add_rounded),
                   label: Text(context.l10n.t('matrixNewOperation')),
@@ -554,71 +556,6 @@ class _MatrixResultPanelState extends ConsumerState<_MatrixResultPanel> {
       ),
       LinearSystemMatrixResult(:final value) => _LinearResultView(value: value),
     };
-  }
-
-  Future<void> _copy(MatrixExecution execution) async {
-    await Clipboard.setData(
-      ClipboardData(text: _executionText(context, execution)),
-    );
-    if (!mounted) return;
-    ScaffoldMessenger.of(
-      context,
-    ).showSnackBar(SnackBar(content: Text(context.l10n.t('copied'))));
-  }
-
-  Future<void> _save(MatrixExecution execution) async {
-    final activeId = ref.read(matrixWorkspaceProvider).activeSavedId;
-    final existing = activeId == null
-        ? null
-        : ref.read(savedMatricesProvider.notifier).find(activeId);
-    final title = TextEditingController(
-      text:
-          existing?.title ??
-          context.l10n.t(execution.operation.localizationKey),
-    );
-    final confirmed = await showDialog<bool>(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: Text(context.l10n.t('matrixSaveResult')),
-        content: TextField(
-          controller: title,
-          autofocus: true,
-          decoration: InputDecoration(labelText: context.l10n.t('title')),
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context, false),
-            child: Text(context.l10n.t('cancel')),
-          ),
-          FilledButton(
-            onPressed: () => Navigator.pop(context, true),
-            child: Text(context.l10n.t('save')),
-          ),
-        ],
-      ),
-    );
-    final value = title.text.trim();
-    title.dispose();
-    if (confirmed != true || value.isEmpty) return;
-    await ref
-        .read(savedMatricesProvider.notifier)
-        .upsert(
-          SavedMatrixOperation(
-            id:
-                existing?.id ??
-                'matrix-${DateTime.now().microsecondsSinceEpoch}',
-            title: value,
-            type: execution.operation,
-            inputs: execution.inputs,
-            result: execution.result,
-            parameters: execution.parameters,
-            createdAt: existing?.createdAt ?? DateTime.now(),
-          ),
-        );
-    if (!mounted) return;
-    ScaffoldMessenger.of(
-      context,
-    ).showSnackBar(SnackBar(content: Text(context.l10n.t('matrixSaved'))));
   }
 
   String _executionText(BuildContext context, MatrixExecution execution) =>
