@@ -3,12 +3,18 @@ import 'package:calcademy/features/financial_calculator/domain/financial_result.
 import 'package:calcademy/features/financial_calculator/presentation/financial_controller.dart';
 import 'package:calcademy/features/financial_calculator/presentation/financial_result_card.dart';
 import 'package:calcademy/features/financial_calculator/presentation/financial_widgets.dart';
+import 'package:calcademy/features/matrix/domain/matrix_number_formatter.dart';
+import 'package:calcademy/features/saved_calculations/application/adapters/financial_saved_adapter.dart';
 import 'package:calcademy/l10n/app_localizations.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 class BreakEvenTab extends ConsumerStatefulWidget {
-  const BreakEvenTab({super.key});
+  const BreakEvenTab({super.key, this.restore});
+
+  /// Inputs rebuilt from a saved record; seeds the form (still editable)
+  /// and recomputes automatically.
+  final FinancialRestore? restore;
 
   @override
   ConsumerState<BreakEvenTab> createState() => _BreakEvenTabState();
@@ -21,6 +27,37 @@ class _BreakEvenTabState extends ConsumerState<BreakEvenTab> {
   final _targetProfit = TextEditingController(text: '5000');
   final _actualQuantity = TextEditingController(text: '750');
   var _operation = BreakEvenOperation.breakEven;
+
+  @override
+  void initState() {
+    super.initState();
+    final restore = widget.restore;
+    if (restore == null ||
+        restore.mode != FinancialRestoreMode.breakEven ||
+        restore.breakEvenOperation == null) {
+      return;
+    }
+    _operation = restore.breakEvenOperation!;
+    final fields = restore.fields;
+    if (fields['fixedCost'] != null) {
+      _fixedCost.text = formatMatrixNumber(fields['fixedCost']!);
+    }
+    if (fields['unitPrice'] != null) {
+      _price.text = formatMatrixNumber(fields['unitPrice']!);
+    }
+    if (fields['variableCost'] != null) {
+      _variableCost.text = formatMatrixNumber(fields['variableCost']!);
+    }
+    if (fields['targetProfit'] != null) {
+      _targetProfit.text = formatMatrixNumber(fields['targetProfit']!);
+    }
+    if (fields['actualSalesQuantity'] != null) {
+      _actualQuantity.text = formatMatrixNumber(fields['actualSalesQuantity']!);
+    }
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted) _calculate();
+    });
+  }
 
   @override
   void dispose() {

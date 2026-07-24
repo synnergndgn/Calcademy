@@ -1,18 +1,33 @@
+import 'dart:convert';
+
 import 'package:calcademy/app/theme/app_theme.dart';
+import 'package:calcademy/core/services/preferences.dart';
 import 'package:calcademy/features/financial_calculator/presentation/financial_calculator_page.dart';
+import 'package:calcademy/features/saved_calculations/application/saved_calculations_service.dart';
+import 'package:calcademy/features/saved_calculations/data/saved_calculations_repository.dart';
+import 'package:calcademy/features/saved_calculations/domain/saved_calculation.dart';
+import 'package:calcademy/features/saved_calculations/domain/saved_calculation_module.dart';
+import 'package:calcademy/features/saved_calculations/domain/saved_calculations_limits.dart';
 import 'package:calcademy/l10n/app_localizations.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 Future<void> _pump(
   WidgetTester tester, {
   ThemeData? theme,
   Locale locale = const Locale('en'),
+  String? savedCalculationId,
+  SharedPreferences? preferences,
 }) async {
   await tester.pumpWidget(
     ProviderScope(
+      overrides: [
+        if (preferences != null)
+          sharedPreferencesProvider.overrideWithValue(preferences),
+      ],
       child: MaterialApp(
         theme: theme ?? AppTheme.light(),
         locale: locale,
@@ -23,7 +38,7 @@ Future<void> _pump(
           GlobalWidgetsLocalizations.delegate,
           GlobalCupertinoLocalizations.delegate,
         ],
-        home: const FinancialCalculatorPage(),
+        home: FinancialCalculatorPage(savedCalculationId: savedCalculationId),
       ),
     ),
   );
@@ -188,4 +203,68 @@ void main() {
       Brightness.dark,
     );
   });
+
+  testWidgets('opening a saved TVM record seeds inputs and recomputes', (
+    tester,
+  ) async {
+    final preferences = await _seedSaved(
+      const SavedCalculationDraft(
+        title: 'TVM',
+        module: SavedCalculationModule.financialCalculator,
+        calculationType: 'tvm',
+        inputSummary: 'input',
+        resultSummary: 'result',
+        fullInputJson: {
+          'operation': 'presentValue',
+          'futureValue': 2000.0,
+          'ratePercent': 8.0,
+          'periodCount': 3.0,
+          'frequency': 1.0,
+        },
+        resultJson: {},
+      ),
+      id: 'fin-restore',
+    );
+    await _pump(
+      tester,
+      savedCalculationId: 'fin-restore',
+      preferences: preferences,
+    );
+
+    final amount = tester.widget<TextField>(
+      find.byKey(const Key('fin-tvm-amount')),
+    );
+    expect(amount.controller!.text, '2000');
+    await _scrollTo(tester, find.byKey(const Key('financial-result-card')));
+    expect(find.byKey(const Key('financial-result-card')), findsOneWidget);
+  });
+
+  testWidgets('an unknown saved id opens a fresh page without crashing', (
+    tester,
+  ) async {
+    await _pump(tester, savedCalculationId: 'missing');
+    expect(tester.takeException(), isNull);
+    final amount = tester.widget<TextField>(
+      find.byKey(const Key('fin-tvm-amount')),
+    );
+    expect(amount.controller!.text, '1000');
+  });
+}
+
+Future<SharedPreferences> _seedSaved(
+  SavedCalculationDraft draft, {
+  required String id,
+}) async {
+  final item = SavedCalculationsService().create(
+    draft,
+    id: id,
+    now: DateTime.utc(2026, 7, 24),
+  );
+  SharedPreferences.setMockInitialValues({
+    SharedPreferencesSavedCalculationsRepository.storageKey: jsonEncode({
+      'schemaVersion': SavedCalculationsLimits.schemaVersion,
+      'items': [item.toJson()],
+    }),
+  });
+  return SharedPreferences.getInstance();
 }

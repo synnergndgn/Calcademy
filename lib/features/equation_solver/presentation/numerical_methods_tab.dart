@@ -5,6 +5,7 @@ import 'package:calcademy/features/equation_solver/presentation/equation_solver_
 import 'package:calcademy/features/saved_calculations/application/adapters/equation_solver_saved_adapter.dart';
 import 'package:calcademy/features/linear_programming/domain/linear_program.dart'
     show parseLpNumber;
+import 'package:calcademy/features/matrix/domain/matrix_number_formatter.dart';
 import 'package:calcademy/l10n/app_localizations.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -15,7 +16,11 @@ enum _Method { bisection, newton, secant }
 /// with the selected method - only the inputs that method actually uses
 /// are shown (bounds for bisection, one guess for Newton, two for secant).
 class NumericalMethodsTab extends ConsumerStatefulWidget {
-  const NumericalMethodsTab({super.key});
+  const NumericalMethodsTab({super.key, this.restore});
+
+  /// Inputs rebuilt from a saved record; when present they seed the form
+  /// (still fully editable) and the method is re-run automatically.
+  final EquationSolverRestore? restore;
 
   @override
   ConsumerState<NumericalMethodsTab> createState() =>
@@ -34,6 +39,38 @@ class _NumericalMethodsTabState extends ConsumerState<NumericalMethodsTab> {
   String? _inputError;
   String _solvedFunction = '';
   List<double> _solvedInitialValues = const [];
+  double? _solvedTolerance;
+  int? _solvedMaxIterations;
+
+  @override
+  void initState() {
+    super.initState();
+    final restore = widget.restore;
+    if (restore != null &&
+        restore.mode == EquationSolverRestoreMode.numerical) {
+      _function.text = restore.function ?? '';
+      _method = switch (restore.method) {
+        'newtonRaphson' => _Method.newton,
+        'secant' => _Method.secant,
+        _ => _Method.bisection,
+      };
+      if (restore.initialValues.isNotEmpty) {
+        _first.text = formatMatrixNumber(restore.initialValues.first);
+      }
+      if (restore.initialValues.length > 1) {
+        _second.text = formatMatrixNumber(restore.initialValues[1]);
+      }
+      if (restore.tolerance != null) {
+        _tolerance.text = '${restore.tolerance}';
+      }
+      if (restore.maxIterations != null) {
+        _maxIterations.text = '${restore.maxIterations}';
+      }
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (mounted) _run();
+      });
+    }
+  }
 
   @override
   void dispose() {
@@ -67,6 +104,8 @@ class _NumericalMethodsTabState extends ConsumerState<NumericalMethodsTab> {
       _solvedInitialValues = _method == _Method.newton
           ? [first]
           : [first, second];
+      _solvedTolerance = tolerance;
+      _solvedMaxIterations = maxIterations;
     });
     ref
         .read(equationWorkspaceProvider.notifier)
@@ -209,6 +248,8 @@ class _NumericalMethodsTabState extends ConsumerState<NumericalMethodsTab> {
               function: _solvedFunction,
               result: state.methodResult,
               initialValues: _solvedInitialValues,
+              tolerance: _solvedTolerance,
+              maxIterations: _solvedMaxIterations,
             ),
           ),
       ],

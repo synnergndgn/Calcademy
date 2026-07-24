@@ -1,4 +1,6 @@
 import 'package:calcademy/app/theme/app_spacing.dart';
+import 'package:calcademy/features/matrix/domain/matrix_number_formatter.dart';
+import 'package:calcademy/features/saved_calculations/application/adapters/statistics_saved_adapter.dart';
 import 'package:calcademy/features/statistics/domain/statistics_result.dart';
 import 'package:calcademy/features/statistics/presentation/statistics_controller.dart';
 import 'package:calcademy/features/statistics/presentation/statistics_result_card.dart';
@@ -8,7 +10,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 class DistributionTab extends ConsumerStatefulWidget {
-  const DistributionTab({super.key});
+  const DistributionTab({super.key, this.restore});
+
+  /// Inputs rebuilt from a saved record; seeds the fields (still editable)
+  /// and recomputes automatically.
+  final StatisticsRestore? restore;
 
   @override
   ConsumerState<DistributionTab> createState() => _DistributionTabState();
@@ -27,6 +33,53 @@ class _DistributionTabState extends ConsumerState<DistributionTab> {
   var _kind = DistributionKind.normal;
   var _normalOperation = NormalOperation.lessOrEqual;
   var _discreteOperation = DiscreteOperation.equal;
+
+  @override
+  void initState() {
+    super.initState();
+    final restore = widget.restore;
+    if (restore == null ||
+        restore.mode != StatisticsRestoreMode.distribution ||
+        restore.distributionKind == null) {
+      return;
+    }
+    _kind = restore.distributionKind!;
+    final fields = restore.fields;
+    void seed(
+      TextEditingController controller,
+      String key, {
+      bool asInt = false,
+    }) {
+      final value = fields[key];
+      if (value == null) return;
+      controller.text = asInt ? '${value.round()}' : formatMatrixNumber(value);
+    }
+
+    switch (_kind) {
+      case DistributionKind.normal:
+        _normalOperation =
+            restore.normalOperation ?? NormalOperation.lessOrEqual;
+        seed(_mean, 'mean');
+        seed(_standardDeviation, 'sigma');
+        seed(_x, 'x');
+        seed(_lower, 'lower');
+        seed(_upper, 'upper');
+      case DistributionKind.binomial:
+        _discreteOperation =
+            restore.discreteOperation ?? DiscreteOperation.equal;
+        seed(_n, 'n', asInt: true);
+        seed(_p, 'p');
+        seed(_k, 'k', asInt: true);
+      case DistributionKind.poisson:
+        _discreteOperation =
+            restore.discreteOperation ?? DiscreteOperation.equal;
+        seed(_lambda, 'lambda');
+        seed(_k, 'k', asInt: true);
+    }
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted) _calculate();
+    });
+  }
 
   @override
   void dispose() {

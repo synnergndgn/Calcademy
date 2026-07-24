@@ -3,12 +3,18 @@ import 'package:calcademy/features/financial_calculator/domain/financial_result.
 import 'package:calcademy/features/financial_calculator/presentation/financial_controller.dart';
 import 'package:calcademy/features/financial_calculator/presentation/financial_result_card.dart';
 import 'package:calcademy/features/financial_calculator/presentation/financial_widgets.dart';
+import 'package:calcademy/features/matrix/domain/matrix_number_formatter.dart';
+import 'package:calcademy/features/saved_calculations/application/adapters/financial_saved_adapter.dart';
 import 'package:calcademy/l10n/app_localizations.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 class CashFlowTab extends ConsumerStatefulWidget {
-  const CashFlowTab({super.key});
+  const CashFlowTab({super.key, this.restore});
+
+  /// Inputs rebuilt from a saved record; seeds the form (still editable)
+  /// and recomputes automatically.
+  final FinancialRestore? restore;
 
   @override
   ConsumerState<CashFlowTab> createState() => _CashFlowTabState();
@@ -19,6 +25,31 @@ class _CashFlowTabState extends ConsumerState<CashFlowTab> {
   final _rate = TextEditingController(text: '10');
   final _cashFlows = TextEditingController(text: '600, 600');
   var _operation = CashFlowOperation.npv;
+
+  @override
+  void initState() {
+    super.initState();
+    final restore = widget.restore;
+    if (restore == null ||
+        restore.mode != FinancialRestoreMode.cashFlow ||
+        restore.cashFlowOperation == null) {
+      return;
+    }
+    _operation = restore.cashFlowOperation!;
+    final fields = restore.fields;
+    if (fields['initialInvestment'] != null) {
+      _initial.text = formatMatrixNumber(fields['initialInvestment']!);
+    }
+    if (fields['discountRatePercent'] != null) {
+      _rate.text = formatMatrixNumber(fields['discountRatePercent']!);
+    }
+    if (restore.cashFlows.isNotEmpty) {
+      _cashFlows.text = restore.cashFlows.map(formatMatrixNumber).join(', ');
+    }
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted) _calculate();
+    });
+  }
 
   @override
   void dispose() {

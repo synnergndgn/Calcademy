@@ -74,19 +74,27 @@ final appRouter = GoRouter(
     ),
     GoRoute(
       path: '/equation-solver',
-      builder: (context, state) => const EquationSolverPage(),
+      builder: (context, state) => EquationSolverPage(
+        savedCalculationId: state.uri.queryParameters['savedCalculationId'],
+      ),
     ),
     GoRoute(
       path: '/calculus',
-      builder: (context, state) => const CalculusPage(),
+      builder: (context, state) => CalculusPage(
+        savedCalculationId: state.uri.queryParameters['savedCalculationId'],
+      ),
     ),
     GoRoute(
       path: '/statistics',
-      builder: (context, state) => const StatisticsPage(),
+      builder: (context, state) => StatisticsPage(
+        savedCalculationId: state.uri.queryParameters['savedCalculationId'],
+      ),
     ),
     GoRoute(
       path: '/financial-calculator',
-      builder: (context, state) => const FinancialCalculatorPage(),
+      builder: (context, state) => FinancialCalculatorPage(
+        savedCalculationId: state.uri.queryParameters['savedCalculationId'],
+      ),
     ),
     GoRoute(
       path: '/saved-calculations',

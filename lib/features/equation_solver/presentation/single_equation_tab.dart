@@ -5,6 +5,7 @@ import 'package:calcademy/features/equation_solver/presentation/equation_solver_
 import 'package:calcademy/features/saved_calculations/application/adapters/equation_solver_saved_adapter.dart';
 import 'package:calcademy/features/linear_programming/domain/linear_program.dart'
     show parseLpNumber;
+import 'package:calcademy/features/matrix/domain/matrix_number_formatter.dart';
 import 'package:calcademy/l10n/app_localizations.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -13,7 +14,11 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 /// solve/clear, and the typed result card. No math lives here - the tab
 /// only gathers input and renders results.
 class SingleEquationTab extends ConsumerStatefulWidget {
-  const SingleEquationTab({super.key});
+  const SingleEquationTab({super.key, this.restore});
+
+  /// Inputs rebuilt from a saved record; when present they seed the form
+  /// (still fully editable) and the equation is re-solved automatically.
+  final EquationSolverRestore? restore;
 
   @override
   ConsumerState<SingleEquationTab> createState() => _SingleEquationTabState();
@@ -29,6 +34,26 @@ class _SingleEquationTabState extends ConsumerState<SingleEquationTab> {
   );
   String? _inputError;
   String _solvedEquation = '';
+  double _solvedScanMin = EquationSolverLimits.defaultScanMin;
+  double _solvedScanMax = EquationSolverLimits.defaultScanMax;
+
+  @override
+  void initState() {
+    super.initState();
+    final restore = widget.restore;
+    if (restore != null && restore.mode == EquationSolverRestoreMode.single) {
+      _equation.text = restore.equation ?? '';
+      if (restore.scanMin != null) {
+        _scanMin.text = formatMatrixNumber(restore.scanMin!);
+      }
+      if (restore.scanMax != null) {
+        _scanMax.text = formatMatrixNumber(restore.scanMax!);
+      }
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (mounted) _solve();
+      });
+    }
+  }
 
   @override
   void dispose() {
@@ -52,6 +77,8 @@ class _SingleEquationTabState extends ConsumerState<SingleEquationTab> {
     setState(() {
       _inputError = null;
       _solvedEquation = _equation.text;
+      _solvedScanMin = min;
+      _solvedScanMax = max;
     });
     ref
         .read(equationWorkspaceProvider.notifier)
@@ -150,6 +177,8 @@ class _SingleEquationTabState extends ConsumerState<SingleEquationTab> {
             savedDraft: EquationSolverSavedAdapter.trySingle(
               equation: _solvedEquation,
               result: state.singleResult,
+              scanMin: _solvedScanMin,
+              scanMax: _solvedScanMax,
             ),
           ),
       ],

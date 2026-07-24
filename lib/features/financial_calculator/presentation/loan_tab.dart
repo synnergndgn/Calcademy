@@ -3,12 +3,18 @@ import 'package:calcademy/features/financial_calculator/domain/financial_result.
 import 'package:calcademy/features/financial_calculator/presentation/financial_controller.dart';
 import 'package:calcademy/features/financial_calculator/presentation/financial_result_card.dart';
 import 'package:calcademy/features/financial_calculator/presentation/financial_widgets.dart';
+import 'package:calcademy/features/matrix/domain/matrix_number_formatter.dart';
+import 'package:calcademy/features/saved_calculations/application/adapters/financial_saved_adapter.dart';
 import 'package:calcademy/l10n/app_localizations.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 class LoanTab extends ConsumerStatefulWidget {
-  const LoanTab({super.key});
+  const LoanTab({super.key, this.restore});
+
+  /// Inputs rebuilt from a saved record; seeds the form (still editable)
+  /// and recomputes automatically.
+  final FinancialRestore? restore;
 
   @override
   ConsumerState<LoanTab> createState() => _LoanTabState();
@@ -19,6 +25,29 @@ class _LoanTabState extends ConsumerState<LoanTab> {
   final _rate = TextEditingController(text: '12');
   final _term = TextEditingController(text: '2');
   final _paymentsPerYear = TextEditingController(text: '12');
+
+  @override
+  void initState() {
+    super.initState();
+    final restore = widget.restore;
+    if (restore == null || restore.mode != FinancialRestoreMode.loan) return;
+    final fields = restore.fields;
+    if (fields['principal'] != null) {
+      _principal.text = formatMatrixNumber(fields['principal']!);
+    }
+    if (fields['annualRatePercent'] != null) {
+      _rate.text = formatMatrixNumber(fields['annualRatePercent']!);
+    }
+    if (fields['termYears'] != null) {
+      _term.text = '${fields['termYears']!.round()}';
+    }
+    if (fields['paymentsPerYear'] != null) {
+      _paymentsPerYear.text = '${fields['paymentsPerYear']!.round()}';
+    }
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted) _calculate();
+    });
+  }
 
   @override
   void dispose() {

@@ -4,14 +4,22 @@ import 'package:calcademy/features/financial_calculator/presentation/cash_flow_t
 import 'package:calcademy/features/financial_calculator/presentation/financial_controller.dart';
 import 'package:calcademy/features/financial_calculator/presentation/loan_tab.dart';
 import 'package:calcademy/features/financial_calculator/presentation/tvm_tab.dart';
+import 'package:calcademy/features/saved_calculations/application/adapters/financial_saved_adapter.dart';
+import 'package:calcademy/features/saved_calculations/presentation/saved_calculations_controller.dart';
 import 'package:calcademy/l10n/app_localizations.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 enum FinancialMode { tvm, cashFlows, loan, breakEven }
 
+/// The `/financial-calculator` route. When opened with a
+/// [savedCalculationId], the matching saved record's inputs are restored
+/// into the right workflow; an unknown or non-restorable id silently falls
+/// back to a fresh page.
 class FinancialCalculatorPage extends ConsumerStatefulWidget {
-  const FinancialCalculatorPage({super.key});
+  const FinancialCalculatorPage({super.key, this.savedCalculationId});
+
+  final String? savedCalculationId;
 
   @override
   ConsumerState<FinancialCalculatorPage> createState() =>
@@ -21,6 +29,28 @@ class FinancialCalculatorPage extends ConsumerStatefulWidget {
 class _FinancialCalculatorPageState
     extends ConsumerState<FinancialCalculatorPage> {
   var _mode = FinancialMode.tvm;
+  FinancialRestore? _restore;
+
+  @override
+  void initState() {
+    super.initState();
+    final id = widget.savedCalculationId;
+    if (id == null) return;
+    for (final item in ref.read(savedCalculationsProvider).items) {
+      if (item.id != id) continue;
+      final restore = FinancialSavedAdapter.tryRestore(item);
+      if (restore != null) {
+        _restore = restore;
+        _mode = switch (restore.mode) {
+          FinancialRestoreMode.tvm => FinancialMode.tvm,
+          FinancialRestoreMode.cashFlow => FinancialMode.cashFlows,
+          FinancialRestoreMode.loan => FinancialMode.loan,
+          FinancialRestoreMode.breakEven => FinancialMode.breakEven,
+        };
+      }
+      return;
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -84,10 +114,12 @@ class _FinancialCalculatorPageState
                   child: Padding(
                     padding: const EdgeInsets.all(AppSpacing.md),
                     child: switch (_mode) {
-                      FinancialMode.tvm => const TvmTab(),
-                      FinancialMode.cashFlows => const CashFlowTab(),
-                      FinancialMode.loan => const LoanTab(),
-                      FinancialMode.breakEven => const BreakEvenTab(),
+                      FinancialMode.tvm => TvmTab(restore: _restore),
+                      FinancialMode.cashFlows => CashFlowTab(restore: _restore),
+                      FinancialMode.loan => LoanTab(restore: _restore),
+                      FinancialMode.breakEven => BreakEvenTab(
+                        restore: _restore,
+                      ),
                     },
                   ),
                 ),

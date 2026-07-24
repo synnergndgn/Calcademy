@@ -5,6 +5,7 @@ import 'package:calcademy/features/equation_solver/presentation/equation_solver_
 import 'package:calcademy/features/saved_calculations/application/adapters/equation_solver_saved_adapter.dart';
 import 'package:calcademy/features/linear_programming/domain/linear_program.dart'
     show parseLpNumber;
+import 'package:calcademy/features/matrix/domain/matrix_number_formatter.dart';
 import 'package:calcademy/l10n/app_localizations.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -14,7 +15,11 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 /// solve/clear actions. Cell state lives in local controllers (the same
 /// pattern the matrix and optimization editors use).
 class LinearSystemTab extends ConsumerStatefulWidget {
-  const LinearSystemTab({super.key});
+  const LinearSystemTab({super.key, this.restore});
+
+  /// Inputs rebuilt from a saved record; when present they seed the grid
+  /// (still fully editable) and the system is re-solved automatically.
+  final EquationSolverRestore? restore;
 
   @override
   ConsumerState<LinearSystemTab> createState() => _LinearSystemTabState();
@@ -26,11 +31,30 @@ class _LinearSystemTabState extends ConsumerState<LinearSystemTab> {
   final _rhs = <TextEditingController>[];
   String? _inputError;
   int _solvedDimension = 0;
+  List<List<double>>? _solvedCoefficients;
+  List<double>? _solvedRhs;
 
   @override
   void initState() {
     super.initState();
     _resize(_size);
+    final restore = widget.restore;
+    if (restore != null &&
+        restore.mode == EquationSolverRestoreMode.linearSystem &&
+        restore.rhs.isNotEmpty) {
+      _resize(restore.rhs.length);
+      for (var row = 0; row < _size; row++) {
+        for (var column = 0; column < _size; column++) {
+          _cells[row][column].text = formatMatrixNumber(
+            restore.coefficients[row][column],
+          );
+        }
+        _rhs[row].text = formatMatrixNumber(restore.rhs[row]);
+      }
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (mounted) _solve();
+      });
+    }
   }
 
   void _resize(int size) {
@@ -90,6 +114,8 @@ class _LinearSystemTabState extends ConsumerState<LinearSystemTab> {
     setState(() {
       _inputError = null;
       _solvedDimension = _size;
+      _solvedCoefficients = coefficients;
+      _solvedRhs = rhs;
     });
     ref.read(equationWorkspaceProvider.notifier).solveSystem(coefficients, rhs);
   }
@@ -212,6 +238,8 @@ class _LinearSystemTabState extends ConsumerState<LinearSystemTab> {
             savedDraft: EquationSolverSavedAdapter.tryLinearSystem(
               dimension: _solvedDimension,
               result: state.systemResult,
+              coefficients: _solvedCoefficients,
+              rhs: _solvedRhs,
             ),
           ),
       ],

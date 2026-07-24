@@ -1,4 +1,6 @@
 import 'package:calcademy/app/theme/app_spacing.dart';
+import 'package:calcademy/features/matrix/domain/matrix_number_formatter.dart';
+import 'package:calcademy/features/saved_calculations/application/adapters/statistics_saved_adapter.dart';
 import 'package:calcademy/features/statistics/presentation/statistics_controller.dart';
 import 'package:calcademy/features/statistics/presentation/statistics_result_card.dart';
 import 'package:calcademy/l10n/app_localizations.dart';
@@ -6,7 +8,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 class DescriptiveStatisticsTab extends ConsumerStatefulWidget {
-  const DescriptiveStatisticsTab({super.key});
+  const DescriptiveStatisticsTab({super.key, this.restore});
+
+  /// Inputs rebuilt from a saved record; seeds the dataset (still editable)
+  /// and recomputes automatically.
+  final StatisticsRestore? restore;
 
   @override
   ConsumerState<DescriptiveStatisticsTab> createState() =>
@@ -16,6 +22,20 @@ class DescriptiveStatisticsTab extends ConsumerStatefulWidget {
 class _DescriptiveStatisticsTabState
     extends ConsumerState<DescriptiveStatisticsTab> {
   final _data = TextEditingController();
+
+  @override
+  void initState() {
+    super.initState();
+    final restore = widget.restore;
+    if (restore != null &&
+        restore.mode == StatisticsRestoreMode.descriptive &&
+        restore.values.isNotEmpty) {
+      _data.text = restore.values.map(formatMatrixNumber).join(', ');
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (mounted) _calculate();
+      });
+    }
+  }
 
   @override
   void dispose() {

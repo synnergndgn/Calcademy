@@ -3,6 +3,8 @@ import 'package:calcademy/features/statistics/presentation/confidence_interval_t
 import 'package:calcademy/features/statistics/presentation/descriptive_statistics_tab.dart';
 import 'package:calcademy/features/statistics/presentation/distribution_tab.dart';
 import 'package:calcademy/features/statistics/presentation/statistics_controller.dart';
+import 'package:calcademy/features/saved_calculations/application/adapters/statistics_saved_adapter.dart';
+import 'package:calcademy/features/saved_calculations/presentation/saved_calculations_controller.dart';
 import 'package:calcademy/l10n/app_localizations.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -10,7 +12,9 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 enum StatisticsMode { descriptive, distributions, confidenceIntervals }
 
 class StatisticsPage extends ConsumerStatefulWidget {
-  const StatisticsPage({super.key});
+  const StatisticsPage({super.key, this.savedCalculationId});
+
+  final String? savedCalculationId;
 
   @override
   ConsumerState<StatisticsPage> createState() => _StatisticsPageState();
@@ -18,6 +22,28 @@ class StatisticsPage extends ConsumerStatefulWidget {
 
 class _StatisticsPageState extends ConsumerState<StatisticsPage> {
   var _mode = StatisticsMode.descriptive;
+  StatisticsRestore? _restore;
+
+  @override
+  void initState() {
+    super.initState();
+    final id = widget.savedCalculationId;
+    if (id == null) return;
+    for (final item in ref.read(savedCalculationsProvider).items) {
+      if (item.id != id) continue;
+      final restore = StatisticsSavedAdapter.tryRestore(item);
+      if (restore != null) {
+        _restore = restore;
+        _mode = switch (restore.mode) {
+          StatisticsRestoreMode.descriptive => StatisticsMode.descriptive,
+          StatisticsRestoreMode.distribution => StatisticsMode.distributions,
+          StatisticsRestoreMode.confidenceInterval =>
+            StatisticsMode.confidenceIntervals,
+        };
+      }
+      return;
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -77,11 +103,14 @@ class _StatisticsPageState extends ConsumerState<StatisticsPage> {
                   child: Padding(
                     padding: const EdgeInsets.all(AppSpacing.md),
                     child: switch (_mode) {
-                      StatisticsMode.descriptive =>
-                        const DescriptiveStatisticsTab(),
-                      StatisticsMode.distributions => const DistributionTab(),
+                      StatisticsMode.descriptive => DescriptiveStatisticsTab(
+                        restore: _restore,
+                      ),
+                      StatisticsMode.distributions => DistributionTab(
+                        restore: _restore,
+                      ),
                       StatisticsMode.confidenceIntervals =>
-                        const ConfidenceIntervalTab(),
+                        ConfidenceIntervalTab(restore: _restore),
                     },
                   ),
                 ),

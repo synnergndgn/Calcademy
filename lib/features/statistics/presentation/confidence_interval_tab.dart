@@ -1,4 +1,6 @@
 import 'package:calcademy/app/theme/app_spacing.dart';
+import 'package:calcademy/features/matrix/domain/matrix_number_formatter.dart';
+import 'package:calcademy/features/saved_calculations/application/adapters/statistics_saved_adapter.dart';
 import 'package:calcademy/features/statistics/domain/statistics_limits.dart';
 import 'package:calcademy/features/statistics/domain/statistics_result.dart';
 import 'package:calcademy/features/statistics/presentation/statistics_controller.dart';
@@ -9,7 +11,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 class ConfidenceIntervalTab extends ConsumerStatefulWidget {
-  const ConfidenceIntervalTab({super.key});
+  const ConfidenceIntervalTab({super.key, this.restore});
+
+  /// Inputs rebuilt from a saved record; seeds the fields (still editable)
+  /// and recomputes automatically.
+  final StatisticsRestore? restore;
 
   @override
   ConsumerState<ConfidenceIntervalTab> createState() =>
@@ -23,6 +29,34 @@ class _ConfidenceIntervalTabState extends ConsumerState<ConfidenceIntervalTab> {
   final _successes = TextEditingController(text: '40');
   var _kind = ConfidenceIntervalKind.knownSigmaMean;
   var _confidenceLevel = 0.95;
+
+  @override
+  void initState() {
+    super.initState();
+    final restore = widget.restore;
+    if (restore == null ||
+        restore.mode != StatisticsRestoreMode.confidenceInterval ||
+        restore.intervalKind == null) {
+      return;
+    }
+    _kind = restore.intervalKind!;
+    _confidenceLevel = restore.confidenceLevel ?? 0.95;
+    final fields = restore.fields;
+    final n = fields['n'];
+    if (n != null) _sampleSize.text = '${n.round()}';
+    if (_kind == ConfidenceIntervalKind.proportion) {
+      final successes = fields['successes'];
+      if (successes != null) _successes.text = '${successes.round()}';
+    } else {
+      final mean = fields['mean'];
+      final spread = fields['spread'];
+      if (mean != null) _sampleMean.text = formatMatrixNumber(mean);
+      if (spread != null) _spread.text = formatMatrixNumber(spread);
+    }
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted) _calculate();
+    });
+  }
 
   @override
   void dispose() {

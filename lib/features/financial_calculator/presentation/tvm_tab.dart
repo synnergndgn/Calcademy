@@ -3,12 +3,18 @@ import 'package:calcademy/features/financial_calculator/domain/financial_result.
 import 'package:calcademy/features/financial_calculator/presentation/financial_controller.dart';
 import 'package:calcademy/features/financial_calculator/presentation/financial_result_card.dart';
 import 'package:calcademy/features/financial_calculator/presentation/financial_widgets.dart';
+import 'package:calcademy/features/matrix/domain/matrix_number_formatter.dart';
+import 'package:calcademy/features/saved_calculations/application/adapters/financial_saved_adapter.dart';
 import 'package:calcademy/l10n/app_localizations.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 class TvmTab extends ConsumerStatefulWidget {
-  const TvmTab({super.key});
+  const TvmTab({super.key, this.restore});
+
+  /// Inputs rebuilt from a saved record; seeds the form (still editable)
+  /// and recomputes automatically.
+  final FinancialRestore? restore;
 
   @override
   ConsumerState<TvmTab> createState() => _TvmTabState();
@@ -21,6 +27,35 @@ class _TvmTabState extends ConsumerState<TvmTab> {
   final _frequency = TextEditingController(text: '1');
   var _operation = TvmOperation.presentValue;
   var _timing = PaymentTiming.endOfPeriod;
+
+  @override
+  void initState() {
+    super.initState();
+    final restore = widget.restore;
+    if (restore == null ||
+        restore.mode != FinancialRestoreMode.tvm ||
+        restore.tvmOperation == null) {
+      return;
+    }
+    _operation = restore.tvmOperation!;
+    _timing = restore.timing ?? PaymentTiming.endOfPeriod;
+    final fields = restore.fields;
+    if (fields['amount'] != null) {
+      _amount.text = formatMatrixNumber(fields['amount']!);
+    }
+    if (fields['ratePercent'] != null) {
+      _rate.text = formatMatrixNumber(fields['ratePercent']!);
+    }
+    if (fields['periodCount'] != null) {
+      _periods.text = '${fields['periodCount']!.round()}';
+    }
+    if (fields['frequency'] != null) {
+      _frequency.text = '${fields['frequency']!.round()}';
+    }
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted) _calculate();
+    });
+  }
 
   @override
   void dispose() {

@@ -13,6 +13,10 @@ class StatisticsResultCard extends StatelessWidget {
 
   final StatisticsResult result;
 
+  /// Above this size, a descriptive dataset is stored count-only (to stay
+  /// within the payload budget) and is not restorable.
+  static const _maxRestorableDatasetSize = 500;
+
   @override
   Widget build(BuildContext context) {
     final l10n = context.l10n;
@@ -184,9 +188,22 @@ class StatisticsResultCard extends StatelessWidget {
             .map((entry) => '${entry.key}: ${_format(entry.value)}')
             .join(', '),
     };
+    // Restore payload: descriptive stores the full value list; distribution
+    // records also store the operation label (which the numeric inputs
+    // alone cannot recover: ≤ vs ≥ vs =). Legacy records lack these keys
+    // and stay non-restorable.
     final fullInputJson = switch (result) {
-      DescriptiveStatisticsResult(:final count) => <String, Object?>{
-        'count': count,
+      // Cap the stored value list so a huge dataset never blows the 32KB
+      // payload budget and breaks saving; such records keep saving with
+      // just the count and remain non-restorable.
+      DescriptiveStatisticsResult(:final count, :final values) =>
+        <String, Object?>{
+          'count': count,
+          if (values.length <= _maxRestorableDatasetSize) 'values': values,
+        },
+      DistributionResult(:final inputs, :final operationLabel) => {
+        for (final entry in inputs.entries) entry.key: entry.value,
+        'operation': operationLabel,
       },
       _ => result.inputs.map(
         (key, value) => MapEntry<String, Object?>(key, value),

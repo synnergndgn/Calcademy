@@ -3,6 +3,8 @@ import 'package:calcademy/features/calculus/presentation/analysis_tab.dart';
 import 'package:calcademy/features/calculus/presentation/calculus_controller.dart';
 import 'package:calcademy/features/calculus/presentation/differentiation_tab.dart';
 import 'package:calcademy/features/calculus/presentation/integration_tab.dart';
+import 'package:calcademy/features/saved_calculations/application/adapters/calculus_saved_adapter.dart';
+import 'package:calcademy/features/saved_calculations/presentation/saved_calculations_controller.dart';
 import 'package:calcademy/l10n/app_localizations.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -11,9 +13,13 @@ enum _Mode { differentiation, integration, analysis }
 
 /// The `/calculus` route: three numerical-analysis workflows behind the
 /// same segmented selector and 840px-bounded centred column the other
-/// Calcademy workspaces use.
+/// Calcademy workspaces use. When opened with a [savedCalculationId], the
+/// matching saved record's inputs are restored into the right workflow;
+/// an unknown or non-restorable id silently falls back to a fresh page.
 class CalculusPage extends ConsumerStatefulWidget {
-  const CalculusPage({super.key});
+  const CalculusPage({super.key, this.savedCalculationId});
+
+  final String? savedCalculationId;
 
   @override
   ConsumerState<CalculusPage> createState() => _CalculusPageState();
@@ -21,6 +27,27 @@ class CalculusPage extends ConsumerStatefulWidget {
 
 class _CalculusPageState extends ConsumerState<CalculusPage> {
   var _mode = _Mode.differentiation;
+  CalculusRestore? _restore;
+
+  @override
+  void initState() {
+    super.initState();
+    final id = widget.savedCalculationId;
+    if (id == null) return;
+    for (final item in ref.read(savedCalculationsProvider).items) {
+      if (item.id != id) continue;
+      final restore = CalculusSavedAdapter.tryRestore(item);
+      if (restore != null) {
+        _restore = restore;
+        _mode = switch (restore.mode) {
+          CalculusRestoreMode.differentiation => _Mode.differentiation,
+          CalculusRestoreMode.integration => _Mode.integration,
+          CalculusRestoreMode.analysis => _Mode.analysis,
+        };
+      }
+      return;
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -79,9 +106,11 @@ class _CalculusPageState extends ConsumerState<CalculusPage> {
                   child: Padding(
                     padding: const EdgeInsets.all(AppSpacing.md),
                     child: switch (_mode) {
-                      _Mode.differentiation => const DifferentiationTab(),
-                      _Mode.integration => const IntegrationTab(),
-                      _Mode.analysis => const AnalysisTab(),
+                      _Mode.differentiation => DifferentiationTab(
+                        restore: _restore,
+                      ),
+                      _Mode.integration => IntegrationTab(restore: _restore),
+                      _Mode.analysis => AnalysisTab(restore: _restore),
                     },
                   ),
                 ),

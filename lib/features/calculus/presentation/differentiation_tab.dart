@@ -6,6 +6,8 @@ import 'package:calcademy/features/calculus/presentation/calculus_graph_view.dar
 import 'package:calcademy/features/calculus/presentation/calculus_result_card.dart';
 import 'package:calcademy/features/graph/domain/graph_expression.dart';
 import 'package:calcademy/features/graph/domain/graph_range.dart';
+import 'package:calcademy/features/matrix/domain/matrix_number_formatter.dart';
+import 'package:calcademy/features/saved_calculations/application/adapters/calculus_saved_adapter.dart';
 import 'package:calcademy/features/linear_programming/domain/linear_program.dart'
     show parseLpNumber;
 import 'package:calcademy/l10n/app_localizations.dart';
@@ -18,7 +20,11 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 /// tab only gathers input, and compiles the expression once per solve for
 /// the graph overlay.
 class DifferentiationTab extends ConsumerStatefulWidget {
-  const DifferentiationTab({super.key});
+  const DifferentiationTab({super.key, this.restore});
+
+  /// Inputs rebuilt from a saved record; seeds the form (still editable)
+  /// and recomputes the derivative automatically.
+  final CalculusRestore? restore;
 
   @override
   ConsumerState<DifferentiationTab> createState() => _DifferentiationTabState();
@@ -36,6 +42,25 @@ class _DifferentiationTabState extends ConsumerState<DifferentiationTab> {
   GraphEvaluator? _graphEvaluator;
   TangentOverlay? _tangent;
   GraphRange? _graphRange;
+
+  @override
+  void initState() {
+    super.initState();
+    final restore = widget.restore;
+    if (restore != null &&
+        restore.mode == CalculusRestoreMode.differentiation) {
+      _function.text = restore.function ?? '';
+      _point.text = formatMatrixNumber(restore.point ?? 1);
+      _step.text = '${restore.stepSize ?? CalculusLimits.defaultStepSize}';
+      _method = DifferentiationMethod.values.firstWhere(
+        (value) => value.name == restore.method,
+        orElse: () => DifferentiationMethod.central,
+      );
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (mounted) _solve();
+      });
+    }
+  }
 
   @override
   void dispose() {

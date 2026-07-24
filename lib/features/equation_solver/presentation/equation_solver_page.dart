@@ -1,5 +1,7 @@
 import 'package:calcademy/app/theme/app_spacing.dart';
 import 'package:calcademy/features/equation_solver/presentation/equation_solver_controller.dart';
+import 'package:calcademy/features/saved_calculations/application/adapters/equation_solver_saved_adapter.dart';
+import 'package:calcademy/features/saved_calculations/presentation/saved_calculations_controller.dart';
 import 'package:calcademy/features/equation_solver/presentation/linear_system_tab.dart';
 import 'package:calcademy/features/equation_solver/presentation/numerical_methods_tab.dart';
 import 'package:calcademy/features/equation_solver/presentation/single_equation_tab.dart';
@@ -12,9 +14,13 @@ enum _Mode { single, system, methods }
 /// The `/equation-solver` route: three clearly separated workflows
 /// (single equation, linear system, numerical methods) behind a segmented
 /// selector, inside the same 840px-bounded centred column the other
-/// Calcademy workspaces use.
+/// Calcademy workspaces use. When opened with a [savedCalculationId], the
+/// matching saved record's inputs are restored into the right workflow;
+/// an unknown or non-restorable id silently falls back to a fresh page.
 class EquationSolverPage extends ConsumerStatefulWidget {
-  const EquationSolverPage({super.key});
+  const EquationSolverPage({super.key, this.savedCalculationId});
+
+  final String? savedCalculationId;
 
   @override
   ConsumerState<EquationSolverPage> createState() => _EquationSolverPageState();
@@ -22,6 +28,27 @@ class EquationSolverPage extends ConsumerStatefulWidget {
 
 class _EquationSolverPageState extends ConsumerState<EquationSolverPage> {
   var _mode = _Mode.single;
+  EquationSolverRestore? _restore;
+
+  @override
+  void initState() {
+    super.initState();
+    final id = widget.savedCalculationId;
+    if (id == null) return;
+    for (final item in ref.read(savedCalculationsProvider).items) {
+      if (item.id != id) continue;
+      final restore = EquationSolverSavedAdapter.tryRestore(item);
+      if (restore != null) {
+        _restore = restore;
+        _mode = switch (restore.mode) {
+          EquationSolverRestoreMode.single => _Mode.single,
+          EquationSolverRestoreMode.linearSystem => _Mode.system,
+          EquationSolverRestoreMode.numerical => _Mode.methods,
+        };
+      }
+      return;
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -71,9 +98,9 @@ class _EquationSolverPageState extends ConsumerState<EquationSolverPage> {
                 child: Padding(
                   padding: const EdgeInsets.all(AppSpacing.md),
                   child: switch (_mode) {
-                    _Mode.single => const SingleEquationTab(),
-                    _Mode.system => const LinearSystemTab(),
-                    _Mode.methods => const NumericalMethodsTab(),
+                    _Mode.single => SingleEquationTab(restore: _restore),
+                    _Mode.system => LinearSystemTab(restore: _restore),
+                    _Mode.methods => NumericalMethodsTab(restore: _restore),
                   },
                 ),
               ),

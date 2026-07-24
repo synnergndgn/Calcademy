@@ -2,6 +2,8 @@ import 'package:calcademy/app/theme/app_spacing.dart';
 import 'package:calcademy/features/calculus/domain/calculus_limits.dart';
 import 'package:calcademy/features/calculus/presentation/calculus_controller.dart';
 import 'package:calcademy/features/calculus/presentation/calculus_result_card.dart';
+import 'package:calcademy/features/matrix/domain/matrix_number_formatter.dart';
+import 'package:calcademy/features/saved_calculations/application/adapters/calculus_saved_adapter.dart';
 import 'package:calcademy/features/linear_programming/domain/linear_program.dart'
     show parseLpNumber;
 import 'package:calcademy/l10n/app_localizations.dart';
@@ -11,7 +13,11 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 /// Function analysis workflow: function + editable analysis range, with
 /// all outputs explicitly labelled approximate and interval-bound.
 class AnalysisTab extends ConsumerStatefulWidget {
-  const AnalysisTab({super.key});
+  const AnalysisTab({super.key, this.restore});
+
+  /// Inputs rebuilt from a saved record; seeds the form (still editable)
+  /// and reruns the analysis automatically.
+  final CalculusRestore? restore;
 
   @override
   ConsumerState<AnalysisTab> createState() => _AnalysisTabState();
@@ -26,6 +32,24 @@ class _AnalysisTabState extends ConsumerState<AnalysisTab> {
     text: '${CalculusLimits.defaultAnalysisMax.toInt()}',
   );
   String? _inputError;
+
+  @override
+  void initState() {
+    super.initState();
+    final restore = widget.restore;
+    if (restore != null && restore.mode == CalculusRestoreMode.analysis) {
+      _function.text = restore.function ?? '';
+      _rangeMin.text = formatMatrixNumber(
+        restore.rangeMin ?? CalculusLimits.defaultAnalysisMin,
+      );
+      _rangeMax.text = formatMatrixNumber(
+        restore.rangeMax ?? CalculusLimits.defaultAnalysisMax,
+      );
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (mounted) _solve();
+      });
+    }
+  }
 
   @override
   void dispose() {

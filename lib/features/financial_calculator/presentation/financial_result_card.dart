@@ -189,15 +189,22 @@ class FinancialResultCard extends StatelessWidget {
       LoanResult(:final schedule) => schedule.length,
       _ => 0,
     };
+    // Restore payload: the numeric inputs alone cannot recover the TVM
+    // sub-operation or the cash-flow list, so those are added explicitly.
+    // Legacy records lack them and stay non-restorable.
+    final fullInputJson = <String, Object?>{
+      for (final entry in result.inputs.entries) entry.key: entry.value,
+      if (result is TvmResult) 'operation': result.operation.name,
+      if (result is CashFlowResult)
+        'cashFlows': result.rows.map((row) => row.cashFlow).toList(),
+    };
     return SavedCalculationDraft(
       title: l10n.t(result.methodKey),
       module: SavedCalculationModule.financialCalculator,
       calculationType: calculationType,
       inputSummary: inputSummary,
       resultSummary: resultSummary,
-      fullInputJson: result.inputs.map(
-        (key, value) => MapEntry<String, Object?>(key, value),
-      ),
+      fullInputJson: fullInputJson,
       resultJson: {
         'methodKey': result.methodKey,
         'approximate': result.approximate,

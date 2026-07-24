@@ -6,6 +6,8 @@ import 'package:calcademy/features/calculus/presentation/calculus_graph_view.dar
 import 'package:calcademy/features/calculus/presentation/calculus_result_card.dart';
 import 'package:calcademy/features/graph/domain/graph_expression.dart';
 import 'package:calcademy/features/graph/domain/graph_range.dart';
+import 'package:calcademy/features/matrix/domain/matrix_number_formatter.dart';
+import 'package:calcademy/features/saved_calculations/application/adapters/calculus_saved_adapter.dart';
 import 'package:calcademy/features/linear_programming/domain/linear_program.dart'
     show parseLpNumber;
 import 'package:calcademy/l10n/app_localizations.dart';
@@ -15,7 +17,11 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 /// Numerical integration workflow: inputs, method selector, result card,
 /// and the function curve with the integrated interval shaded.
 class IntegrationTab extends ConsumerStatefulWidget {
-  const IntegrationTab({super.key});
+  const IntegrationTab({super.key, this.restore});
+
+  /// Inputs rebuilt from a saved record; seeds the form (still editable)
+  /// and recomputes the integral automatically.
+  final CalculusRestore? restore;
 
   @override
   ConsumerState<IntegrationTab> createState() => _IntegrationTabState();
@@ -34,6 +40,26 @@ class _IntegrationTabState extends ConsumerState<IntegrationTab> {
   GraphEvaluator? _graphEvaluator;
   IntegralOverlay? _integral;
   GraphRange? _graphRange;
+
+  @override
+  void initState() {
+    super.initState();
+    final restore = widget.restore;
+    if (restore != null && restore.mode == CalculusRestoreMode.integration) {
+      _function.text = restore.function ?? '';
+      _lower.text = formatMatrixNumber(restore.lowerBound ?? 0);
+      _upper.text = formatMatrixNumber(restore.upperBound ?? 1);
+      _subintervals.text =
+          '${restore.subintervals ?? CalculusLimits.defaultSubintervals}';
+      _method = IntegrationMethod.values.firstWhere(
+        (value) => value.name == restore.method,
+        orElse: () => IntegrationMethod.simpson13,
+      );
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (mounted) _solve();
+      });
+    }
+  }
 
   @override
   void dispose() {

@@ -1,18 +1,34 @@
+import 'dart:convert';
+
 import 'package:calcademy/app/theme/app_theme.dart';
+import 'package:calcademy/core/services/preferences.dart';
+import 'package:calcademy/features/equation_solver/domain/equation_solver_result.dart';
 import 'package:calcademy/features/equation_solver/presentation/equation_solver_page.dart';
+import 'package:calcademy/features/saved_calculations/application/adapters/equation_solver_saved_adapter.dart';
+import 'package:calcademy/features/saved_calculations/application/saved_calculations_service.dart';
+import 'package:calcademy/features/saved_calculations/data/saved_calculations_repository.dart';
+import 'package:calcademy/features/saved_calculations/domain/saved_calculation.dart';
+import 'package:calcademy/features/saved_calculations/domain/saved_calculations_limits.dart';
 import 'package:calcademy/l10n/app_localizations.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 Future<void> _pump(
   WidgetTester tester, {
   ThemeData? theme,
   Locale locale = const Locale('en'),
+  String? savedCalculationId,
+  SharedPreferences? preferences,
 }) async {
   await tester.pumpWidget(
     ProviderScope(
+      overrides: [
+        if (preferences != null)
+          sharedPreferencesProvider.overrideWithValue(preferences),
+      ],
       child: MaterialApp(
         theme: theme ?? AppTheme.light(),
         locale: locale,
@@ -23,7 +39,7 @@ Future<void> _pump(
           GlobalWidgetsLocalizations.delegate,
           GlobalCupertinoLocalizations.delegate,
         ],
-        home: const EquationSolverPage(),
+        home: EquationSolverPage(savedCalculationId: savedCalculationId),
       ),
     ),
   );
@@ -263,4 +279,66 @@ void main() {
     );
     expect(firstCell.controller!.text, '42');
   });
+
+  testWidgets('opening a saved single equation seeds inputs and re-solves', (
+    tester,
+  ) async {
+    final draft = EquationSolverSavedAdapter.single(
+      equation: '2x + 5 = 17',
+      result: EquationRootsFound(
+        method: EquationSolveMethod.analyticLinear,
+        roots: const [EquationRoot(value: 6, residual: 0, exact: true)],
+      ),
+      scanMin: -10,
+      scanMax: 10,
+    );
+    final preferences = await _seedSaved(draft, id: 'eq-restore');
+    await _pump(
+      tester,
+      savedCalculationId: 'eq-restore',
+      preferences: preferences,
+    );
+
+    final input = tester.widget<TextField>(
+      find.byKey(const Key('eq-single-input')),
+    );
+    expect(input.controller!.text, '2x + 5 = 17');
+    final resultCard = find.byKey(const Key('eq-result-card'));
+    await tester.ensureVisible(resultCard);
+    await tester.pumpAndSettle();
+    expect(find.text('x = 6'), findsOneWidget);
+  });
+
+  testWidgets('an unknown saved id opens a fresh page without crashing', (
+    tester,
+  ) async {
+    await _pump(tester, savedCalculationId: 'missing');
+    expect(tester.takeException(), isNull);
+    expect(find.byKey(const Key('eq-single-input')), findsOneWidget);
+    final input = tester.widget<TextField>(
+      find.byKey(const Key('eq-single-input')),
+    );
+    expect(input.controller!.text, isEmpty);
+  });
+}
+
+/// Persists [draft] into a mock SharedPreferences store keyed the same way
+/// the real repository loads it, and returns the seeded instance so the page
+/// can be pointed at that store.
+Future<SharedPreferences> _seedSaved(
+  SavedCalculationDraft draft, {
+  required String id,
+}) async {
+  final item = SavedCalculationsService().create(
+    draft,
+    id: id,
+    now: DateTime.utc(2026, 7, 24),
+  );
+  SharedPreferences.setMockInitialValues({
+    SharedPreferencesSavedCalculationsRepository.storageKey: jsonEncode({
+      'schemaVersion': SavedCalculationsLimits.schemaVersion,
+      'items': [item.toJson()],
+    }),
+  });
+  return SharedPreferences.getInstance();
 }

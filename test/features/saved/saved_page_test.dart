@@ -64,6 +64,41 @@ void main() {
     expect(find.byKey(const ValueKey('saved-open-archive-1')), findsOneWidget);
   });
 
+  testWidgets('a restorable equation archive exposes an Open action', (
+    tester,
+  ) async {
+    final restorable = _archived(
+      id: 'eq-restorable',
+      title: 'Restorable equation',
+      module: SavedCalculationModule.equationSolver,
+      type: 'singleEquation',
+      input: const {'equation': 'x^2 - 4 = 0', 'method': 'analytic'},
+    );
+    await _pumpSaved(tester, archived: [restorable]);
+
+    expect(find.text('Restorable equation'), findsOneWidget);
+    expect(
+      find.byKey(const ValueKey('saved-open-eq-restorable')),
+      findsOneWidget,
+    );
+  });
+
+  testWidgets('a non-restorable archive hides the Open action', (tester) async {
+    // A linear system stored before coefficients were persisted cannot be
+    // rebuilt, so no Open button should appear.
+    final legacy = _archived(
+      id: 'eq-legacy',
+      title: 'Legacy system',
+      module: SavedCalculationModule.equationSolver,
+      type: 'linearSystem',
+      input: const {'dimension': 2},
+    );
+    await _pumpSaved(tester, archived: [legacy]);
+
+    expect(find.text('Legacy system'), findsOneWidget);
+    expect(find.byKey(const ValueKey('saved-open-eq-legacy')), findsNothing);
+  });
+
   testWidgets('opening a saved graph restores its complete workspace', (
     tester,
   ) async {
@@ -196,6 +231,27 @@ SavedCalculation _calculation() => SavedCalculation(
   expression: '2+2',
   result: '4',
   createdAt: DateTime(2026, 7, 17),
+);
+
+unified.SavedCalculation _archived({
+  required String id,
+  required String title,
+  required SavedCalculationModule module,
+  required String type,
+  required Map<String, Object?> input,
+}) => unified.SavedCalculation(
+  id: id,
+  title: title,
+  module: module,
+  calculationType: type,
+  createdAt: DateTime.utc(2026, 7, 18),
+  updatedAt: DateTime.utc(2026, 7, 18),
+  isFavorite: false,
+  inputSummary: 'input',
+  resultSummary: 'result',
+  fullInputJson: input,
+  resultJson: const {},
+  tags: const [],
 );
 
 unified.SavedCalculation _archivedCalculation() => unified.SavedCalculation(
