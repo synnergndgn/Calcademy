@@ -1098,7 +1098,6 @@ class AppLocalizations {
       'openSourceLicensesBody':
           'Review licenses for the open-source packages used by Calcademy.',
       'viewLicenses': 'View licenses',
-      'version': 'Version 1.0.0',
       'today': 'Today',
       'yesterday': 'Yesterday',
       'older': 'Earlier',
@@ -2196,7 +2195,6 @@ class AppLocalizations {
       'openSourceLicensesBody':
           'Calcademy’de kullanılan açık kaynak paketlerinin lisanslarını inceleyin.',
       'viewLicenses': 'Lisansları görüntüle',
-      'version': 'Sürüm 1.0.0',
       'today': 'Bugün',
       'yesterday': 'Dün',
       'older': 'Daha önce',
