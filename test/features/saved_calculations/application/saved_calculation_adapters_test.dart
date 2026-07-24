@@ -119,6 +119,16 @@ void main() {
 
       expect(draft.module, SavedCalculationModule.matrix);
       expect(draft.resultJson['value'], -2);
+      expect(draft.fullInputJson['inputs'], [
+        {
+          'rows': 2,
+          'columns': 2,
+          'values': [
+            [1.0, 2.0],
+            [3.0, 4.0],
+          ],
+        },
+      ]);
     });
 
     test('truncates a large matrix preview at the central limit', () {

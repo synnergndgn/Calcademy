@@ -12,6 +12,11 @@ import 'package:calcademy/features/graph/presentation/graph_page.dart';
 import 'package:calcademy/features/history/domain/saved_calculation.dart';
 import 'package:calcademy/features/saved/presentation/saved_controller.dart';
 import 'package:calcademy/features/saved/presentation/saved_page.dart';
+import 'package:calcademy/features/saved_calculations/data/saved_calculations_repository.dart';
+import 'package:calcademy/features/saved_calculations/domain/saved_calculation.dart'
+    as unified;
+import 'package:calcademy/features/saved_calculations/domain/saved_calculation_module.dart';
+import 'package:calcademy/features/saved_calculations/domain/saved_calculations_limits.dart';
 import 'package:calcademy/l10n/app_localizations.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
@@ -30,7 +35,7 @@ void main() {
     final calculation = _calculation();
     await _pumpSaved(tester, graphs: [graph], calculations: [calculation]);
 
-    expect(find.text('Calculations'), findsOneWidget);
+    expect(find.text('Results'), findsOneWidget);
     expect(find.text('Graphs'), findsOneWidget);
     expect(find.text('Useful result'), findsOneWidget);
 
@@ -38,6 +43,25 @@ void main() {
     await tester.pumpAndSettle();
     expect(find.text('Parabola'), findsOneWidget);
     expect(find.textContaining('x^2'), findsOneWidget);
+  });
+
+  testWidgets('new result archives and legacy saves share the Saved center', (
+    tester,
+  ) async {
+    final calculation = _calculation();
+    final archived = _archivedCalculation();
+    await _pumpSaved(tester, calculations: [calculation], archived: [archived]);
+
+    expect(find.text('Archived result'), findsOneWidget);
+    await tester.fling(
+      find.byKey(const Key('saved-calculations-list')),
+      const Offset(0, -1200),
+      1000,
+    );
+    await tester.pumpAndSettle();
+    expect(find.text('Legacy calculator saves'), findsOneWidget);
+    expect(find.text('Useful result'), findsOneWidget);
+    expect(find.byKey(const ValueKey('saved-open-archive-1')), findsOneWidget);
   });
 
   testWidgets('opening a saved graph restores its complete workspace', (
@@ -108,12 +132,17 @@ Future<ProviderContainer> _pumpSaved(
   WidgetTester tester, {
   List<SavedGraph> graphs = const [],
   List<SavedCalculation> calculations = const [],
+  List<unified.SavedCalculation> archived = const [],
 }) async {
   SharedPreferences.setMockInitialValues({
     'graph.saved': jsonEncode(graphs.map((item) => item.toJson()).toList()),
     'calculator.saved': jsonEncode(
       calculations.map((item) => item.toJson()).toList(),
     ),
+    SharedPreferencesSavedCalculationsRepository.storageKey: jsonEncode({
+      'schemaVersion': SavedCalculationsLimits.schemaVersion,
+      'items': archived.map((item) => item.toJson()).toList(),
+    }),
   });
   final preferences = await SharedPreferences.getInstance();
   final router = GoRouter(
@@ -167,4 +196,19 @@ SavedCalculation _calculation() => SavedCalculation(
   expression: '2+2',
   result: '4',
   createdAt: DateTime(2026, 7, 17),
+);
+
+unified.SavedCalculation _archivedCalculation() => unified.SavedCalculation(
+  id: 'archive-1',
+  title: 'Archived result',
+  module: SavedCalculationModule.scientificCalculator,
+  calculationType: 'expression',
+  createdAt: DateTime.utc(2026, 7, 18),
+  updatedAt: DateTime.utc(2026, 7, 18),
+  isFavorite: false,
+  inputSummary: '3+4',
+  resultSummary: '3+4 = 7',
+  fullInputJson: const {'expression': '3+4', 'angleMode': 'radians'},
+  resultJson: const {'result': '7'},
+  tags: const [],
 );

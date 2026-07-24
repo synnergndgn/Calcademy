@@ -13,7 +13,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 void main() {
   setUp(() => SharedPreferences.setMockInitialValues({}));
 
-  testWidgets('groups active tools into the five professional categories', (
+  testWidgets('groups active tools without a duplicate Saved module', (
     tester,
   ) async {
     await _pumpHome(tester);
@@ -22,7 +22,11 @@ void main() {
     expect(find.byKey(const Key('home-category-optimization')), findsOneWidget);
     expect(find.byKey(const Key('home-category-data')), findsOneWidget);
     expect(find.byKey(const Key('home-category-finance')), findsOneWidget);
-    expect(find.byKey(const Key('home-category-workspace')), findsOneWidget);
+    expect(find.byKey(const Key('home-category-workspace')), findsNothing);
+    expect(
+      find.byKey(const Key('module-card-saved-calculations')),
+      findsNothing,
+    );
     expect(
       find.descendant(
         of: find.byKey(const Key('home-category-mathematics')),
@@ -44,12 +48,23 @@ void main() {
       ),
       findsOneWidget,
     );
+  });
+
+  testWidgets('search does not expose Saved Calculations as a home module', (
+    tester,
+  ) async {
+    await _pumpHome(tester);
+
+    await tester.enterText(
+      find.byKey(const Key('home-module-search')),
+      'Saved Calculations',
+    );
+    await tester.pump();
+
+    expect(find.byKey(const Key('home-search-empty')), findsOneWidget);
     expect(
-      find.descendant(
-        of: find.byKey(const Key('home-category-workspace')),
-        matching: find.text('Saved Calculations'),
-      ),
-      findsOneWidget,
+      find.byKey(const Key('module-card-saved-calculations')),
+      findsNothing,
     );
   });
 

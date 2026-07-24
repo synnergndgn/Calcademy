@@ -8,15 +8,22 @@ import 'package:calcademy/features/graph/presentation/graph_function_card.dart';
 import 'package:calcademy/features/graph/presentation/graph_settings_sheet.dart';
 import 'package:calcademy/features/saved_calculations/application/adapters/graph_saved_adapter.dart';
 import 'package:calcademy/features/saved_calculations/presentation/save_result_action.dart';
+import 'package:calcademy/features/saved_calculations/presentation/saved_calculations_controller.dart';
 import 'package:calcademy/l10n/app_localizations.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
 
 class GraphPage extends ConsumerStatefulWidget {
-  const GraphPage({super.key, this.savedGraphId, this.shareOnOpen = false});
+  const GraphPage({
+    super.key,
+    this.savedGraphId,
+    this.savedCalculationId,
+    this.shareOnOpen = false,
+  });
 
   final String? savedGraphId;
+  final String? savedCalculationId;
   final bool shareOnOpen;
 
   @override
@@ -39,8 +46,24 @@ class _GraphPageState extends ConsumerState<GraphPage> {
     if (!_didLoadRoute) {
       _didLoadRoute = true;
       WidgetsBinding.instance.addPostFrameCallback((_) {
-        final id = widget.savedGraphId;
-        if (id != null) ref.read(graphProvider.notifier).loadSaved(id);
+        final archiveId = widget.savedCalculationId;
+        if (archiveId != null) {
+          final items = ref.read(savedCalculationsProvider).items;
+          for (final item in items) {
+            if (item.id != archiveId) continue;
+            final graph = GraphSavedAdapter.tryRestore(item);
+            if (graph != null) {
+              ref
+                  .read(graphProvider.notifier)
+                  .loadConfiguration(graph, savedWorkspace: false);
+            }
+            return;
+          }
+        }
+        final workspaceId = widget.savedGraphId;
+        if (workspaceId != null) {
+          ref.read(graphProvider.notifier).loadSaved(workspaceId);
+        }
       });
     }
     ref.listen(

@@ -1,5 +1,6 @@
 import 'package:calcademy/app/theme/app_spacing.dart';
 import 'package:calcademy/core/widgets/empty_state.dart';
+import 'package:calcademy/features/saved_calculations/application/saved_calculation_restore.dart';
 import 'package:calcademy/features/saved_calculations/domain/saved_calculation_module.dart';
 import 'package:calcademy/features/saved_calculations/domain/saved_calculations_failure.dart';
 import 'package:calcademy/features/saved_calculations/domain/saved_calculations_limits.dart';
@@ -13,7 +14,16 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 class SavedCalculationsPage extends ConsumerWidget {
-  const SavedCalculationsPage({super.key});
+  const SavedCalculationsPage({
+    super.key,
+    this.embedded = false,
+    this.footer,
+    this.suppressEmptyState = false,
+  });
+
+  final bool embedded;
+  final Widget? footer;
+  final bool suppressEmptyState;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -21,50 +31,39 @@ class SavedCalculationsPage extends ConsumerWidget {
     final controller = ref.read(savedCalculationsProvider.notifier);
     final items = state.error == null ? controller.visibleItems : const [];
     final bottomInset = MediaQuery.viewPaddingOf(context).bottom;
-    return Scaffold(
-      appBar: AppBar(
-        title: Text(context.l10n.t('savedCalculationsTitle')),
-        actions: [
-          IconButton(
-            key: const Key('saved-clear-all'),
-            tooltip: context.l10n.t('savedClearAll'),
-            onPressed: state.items.isEmpty
-                ? null
-                : () => _confirmClear(context, ref),
-            icon: const Icon(Icons.delete_sweep_outlined),
-          ),
-        ],
-      ),
-      body: SafeArea(
-        top: false,
-        child: ListView.builder(
-          key: const Key('saved-calculations-list'),
-          keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
-          padding: EdgeInsets.fromLTRB(
-            AppSpacing.md,
-            AppSpacing.md,
-            AppSpacing.md,
-            AppSpacing.lg + bottomInset,
-          ),
-          itemCount:
-              1 + (state.error != null || items.isEmpty ? 1 : items.length),
-          itemBuilder: (context, index) {
-            if (index == 0) {
-              return _SavedFilters(state: state);
-            }
-            if (state.error case final SavedCalculationsIssue error) {
-              return EmptyState(
-                icon: Icons.storage_rounded,
-                title: context.l10n.t('savedLoadFailed'),
-                body: context.l10n.t(savedIssueKey(error)),
-                action: FilledButton.icon(
-                  onPressed: controller.reload,
-                  icon: const Icon(Icons.refresh_rounded),
-                  label: Text(context.l10n.t('retry')),
-                ),
-              );
-            }
-            if (items.isEmpty) {
+    final showStatus =
+        state.error != null || (items.isEmpty && !suppressEmptyState);
+    final content = SafeArea(
+      top: false,
+      child: ListView.builder(
+        key: const Key('saved-calculations-list'),
+        keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
+        padding: EdgeInsets.fromLTRB(
+          AppSpacing.md,
+          AppSpacing.md,
+          AppSpacing.md,
+          AppSpacing.lg + bottomInset,
+        ),
+        itemCount:
+            1 + (showStatus ? 1 : items.length) + (footer == null ? 0 : 1),
+        itemBuilder: (context, index) {
+          if (index == 0) {
+            return _SavedFilters(state: state);
+          }
+          if (showStatus) {
+            if (index == 1) {
+              if (state.error case final SavedCalculationsIssue error) {
+                return EmptyState(
+                  icon: Icons.storage_rounded,
+                  title: context.l10n.t('savedLoadFailed'),
+                  body: context.l10n.t(savedIssueKey(error)),
+                  action: FilledButton.icon(
+                    onPressed: controller.reload,
+                    icon: const Icon(Icons.refresh_rounded),
+                    label: Text(context.l10n.t('retry')),
+                  ),
+                );
+              }
               final filtered = state.items.isNotEmpty;
               return EmptyState(
                 icon: filtered
@@ -78,28 +77,46 @@ class SavedCalculationsPage extends ConsumerWidget {
                 ),
               );
             }
-            final item = items[index - 1];
-            return SavedCalculationCard(
-              item: item,
-              onCopy: () async {
-                await Clipboard.setData(
-                  ClipboardData(text: item.resultSummary),
-                );
-                if (!context.mounted) return;
-                ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(content: Text(context.l10n.t('copied'))),
-                );
-              },
-              onFavorite: () =>
-                  _runAction(context, () => controller.toggleFavorite(item.id)),
-              onDelete: () => _confirmDelete(context, ref, item.id),
-              onOpenModule: item.module.route == null
-                  ? null
-                  : () => context.push(item.module.route!),
-            );
-          },
-        ),
+            return footer!;
+          }
+          if (index > items.length) return footer!;
+          final item = items[index - 1];
+          final restoreRoute = savedCalculationRestoreRoute(item);
+          return SavedCalculationCard(
+            item: item,
+            onCopy: () async {
+              await Clipboard.setData(ClipboardData(text: item.resultSummary));
+              if (!context.mounted) return;
+              ScaffoldMessenger.of(
+                context,
+              ).showSnackBar(SnackBar(content: Text(context.l10n.t('copied'))));
+            },
+            onFavorite: () =>
+                _runAction(context, () => controller.toggleFavorite(item.id)),
+            onDelete: () => _confirmDelete(context, ref, item.id),
+            onOpenSavedItem: restoreRoute == null
+                ? null
+                : () => context.push(restoreRoute),
+          );
+        },
       ),
+    );
+    if (embedded) return content;
+    return Scaffold(
+      appBar: AppBar(
+        title: Text(context.l10n.t('saved')),
+        actions: [
+          IconButton(
+            key: const Key('saved-clear-all'),
+            tooltip: context.l10n.t('savedClearAll'),
+            onPressed: state.items.isEmpty
+                ? null
+                : () => _confirmClear(context, ref),
+            icon: const Icon(Icons.delete_sweep_outlined),
+          ),
+        ],
+      ),
+      body: content,
     );
   }
 

@@ -11,7 +11,11 @@ import 'package:calcademy/features/matrix/presentation/matrix_home_page.dart';
 import 'package:calcademy/features/matrix/presentation/matrix_steps_page.dart';
 import 'package:calcademy/features/matrix/presentation/matrix_widgets.dart';
 import 'package:calcademy/features/saved/presentation/saved_page.dart';
+import 'package:calcademy/features/saved_calculations/application/adapters/matrix_saved_adapter.dart';
+import 'package:calcademy/features/saved_calculations/application/saved_calculations_service.dart';
+import 'package:calcademy/features/saved_calculations/data/saved_calculations_repository.dart';
 import 'package:calcademy/features/saved_calculations/domain/saved_calculation_module.dart';
+import 'package:calcademy/features/saved_calculations/domain/saved_calculations_limits.dart';
 import 'package:calcademy/features/saved_calculations/presentation/saved_calculations_controller.dart';
 import 'package:calcademy/l10n/app_localizations.dart';
 import 'package:flutter/material.dart';
@@ -98,7 +102,7 @@ void main() {
       container.read(savedCalculationsProvider).items.single.module,
       SavedCalculationModule.matrix,
     );
-    expect(find.text('Saved to Saved Calculations.'), findsOneWidget);
+    expect(find.text('Saved to Saved.'), findsOneWidget);
     MethodCall? clipboardCall;
     TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
         .setMockMethodCallHandler(SystemChannels.platform, (call) async {
@@ -228,6 +232,51 @@ void main() {
     expect(state.execution?.result, isA<ScalarMatrixResult>());
   });
 
+  testWidgets('saved calculation payload restores a new matrix archive', (
+    tester,
+  ) async {
+    final input = MatrixValue(const [
+      [2, 1],
+      [5, 3],
+    ]);
+    final draft = MatrixSavedAdapter.fromExecution(
+      MatrixExecution(
+        operation: MatrixOperationType.determinant,
+        inputs: [input],
+        result: const ScalarMatrixResult(1),
+      ),
+    );
+    final item = SavedCalculationsService().create(
+      draft,
+      id: 'matrix-archive',
+      now: DateTime.utc(2026, 7, 24),
+    );
+    SharedPreferences.setMockInitialValues({
+      SharedPreferencesSavedCalculationsRepository.storageKey: jsonEncode({
+        'schemaVersion': SavedCalculationsLimits.schemaVersion,
+        'items': [item.toJson()],
+      }),
+    });
+
+    final container = await _pumpMatrix(tester, savedCalculationId: item.id);
+
+    final state = container.read(matrixWorkspaceProvider);
+    expect(state.operation, MatrixOperationType.determinant);
+    expect(state.activeSavedId, isNull);
+    expect(state.execution?.inputs.single, input);
+    expect(
+      (state.execution?.result as ScalarMatrixResult).value,
+      closeTo(1, 1e-10),
+    );
+    await tester.fling(
+      find.byType(ListView).first,
+      const Offset(0, -1800),
+      1200,
+    );
+    await tester.pumpAndSettle();
+    expect(find.byKey(const ValueKey('matrix-result-panel')), findsOneWidget);
+  });
+
   testWidgets('result actions stay compact at 320px and 200% text', (
     tester,
   ) async {
@@ -295,6 +344,7 @@ Future<ProviderContainer> _pumpMatrix(
   WidgetTester tester, {
   bool dark = false,
   String? savedMatrixId,
+  String? savedCalculationId,
 }) async {
   final preferences = await SharedPreferences.getInstance();
   await tester.pumpWidget(
@@ -312,7 +362,10 @@ Future<ProviderContainer> _pumpMatrix(
           GlobalWidgetsLocalizations.delegate,
           GlobalCupertinoLocalizations.delegate,
         ],
-        home: MatrixHomePage(savedMatrixId: savedMatrixId),
+        home: MatrixHomePage(
+          savedMatrixId: savedMatrixId,
+          savedCalculationId: savedCalculationId,
+        ),
       ),
     ),
   );
@@ -328,8 +381,10 @@ Future<void> _pumpSaved(WidgetTester tester) async {
       GoRoute(path: '/saved', builder: (_, _) => const SavedPage()),
       GoRoute(
         path: '/matrix',
-        builder: (_, state) =>
-            MatrixHomePage(savedMatrixId: state.uri.queryParameters['savedId']),
+        builder: (_, state) => MatrixHomePage(
+          savedMatrixId: state.uri.queryParameters['savedId'],
+          savedCalculationId: state.uri.queryParameters['savedCalculationId'],
+        ),
       ),
     ],
   );

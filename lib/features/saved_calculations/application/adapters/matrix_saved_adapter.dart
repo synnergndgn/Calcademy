@@ -40,6 +40,7 @@ abstract final class MatrixSavedAdapter {
       resultSummary: resultSummary,
       fullInputJson: {
         'operation': execution.operation.name,
+        'inputs': [for (final matrix in execution.inputs) matrix.toJson()],
         'inputDimensions': [
           for (final matrix in execution.inputs)
             {'rows': matrix.rows, 'columns': matrix.columns},
@@ -48,6 +49,45 @@ abstract final class MatrixSavedAdapter {
       },
       resultJson: resultJson,
     );
+  }
+
+  static MatrixSavedInput? tryRestore(SavedCalculation item) {
+    if (item.module != SavedCalculationModule.matrix) return null;
+    try {
+      final payload = item.fullInputJson;
+      final operationName = payload['operation'];
+      final rawInputs = payload['inputs'];
+      if (operationName is! String || rawInputs is! List<Object?>) return null;
+      final operation = MatrixOperationType.values
+          .where((value) => value.name == operationName)
+          .firstOrNull;
+      if (operation == null) return null;
+      final inputs = <MatrixValue>[];
+      for (final rawInput in rawInputs) {
+        if (rawInput is! Map) return null;
+        inputs.add(MatrixValue.fromJson(Map<String, Object?>.from(rawInput)));
+      }
+      final expectedInputCount = operation.needsSecondMatrix ? 2 : 1;
+      if (inputs.length != expectedInputCount) return null;
+      final parameters = <String, double>{};
+      final rawParameters = payload['parameters'];
+      if (rawParameters != null) {
+        if (rawParameters is! Map) return null;
+        for (final entry in rawParameters.entries) {
+          if (entry.key is! String || entry.value is! num) return null;
+          final value = (entry.value as num).toDouble();
+          if (!value.isFinite) return null;
+          parameters[entry.key as String] = value;
+        }
+      }
+      return MatrixSavedInput(
+        operation: operation,
+        inputs: List.unmodifiable(inputs),
+        parameters: Map.unmodifiable(parameters),
+      );
+    } on Object {
+      return null;
+    }
   }
 
   static String _matrixResult(
@@ -98,4 +138,16 @@ abstract final class MatrixSavedAdapter {
       }(),
     };
   }
+}
+
+class MatrixSavedInput {
+  const MatrixSavedInput({
+    required this.operation,
+    required this.inputs,
+    required this.parameters,
+  });
+
+  final MatrixOperationType operation;
+  final List<MatrixValue> inputs;
+  final Map<String, double> parameters;
 }

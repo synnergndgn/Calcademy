@@ -15,6 +15,9 @@ import 'package:calcademy/features/linear_programming/domain/saved_linear_progra
 import 'package:calcademy/features/integer_programming/data/integer_program_repository.dart';
 import 'package:calcademy/features/integer_programming/domain/saved_integer_program.dart';
 import 'package:calcademy/features/saved/presentation/saved_controller.dart';
+import 'package:calcademy/features/saved_calculations/domain/saved_calculation_module.dart';
+import 'package:calcademy/features/saved_calculations/presentation/saved_calculations_page.dart';
+import 'package:calcademy/features/saved_calculations/presentation/saved_calculations_controller.dart';
 import 'package:calcademy/l10n/app_localizations.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -36,7 +39,7 @@ class SavedPage extends StatelessWidget {
             isScrollable: true,
             tabAlignment: TabAlignment.start,
             tabs: [
-              Tab(text: context.l10n.t('savedCalculations')),
+              Tab(text: context.l10n.t('savedResults')),
               Tab(text: context.l10n.t('savedGraphs')),
               Tab(text: context.l10n.t('savedMatrices')),
               Tab(text: context.l10n.t('savedOptimizations')),
@@ -45,7 +48,7 @@ class SavedPage extends StatelessWidget {
         ),
         body: const TabBarView(
           children: [
-            _SavedCalculationsTab(),
+            _UnifiedSavedResultsTab(),
             _SavedGraphsTab(),
             _SavedMatricesTab(),
             _SavedOptimizationsTab(),
@@ -509,23 +512,68 @@ String _savedMatrixResultSummary(
   },
 };
 
-class _SavedCalculationsTab extends ConsumerWidget {
-  const _SavedCalculationsTab();
+class _UnifiedSavedResultsTab extends ConsumerWidget {
+  const _UnifiedSavedResultsTab();
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final items = ref.watch(savedProvider);
-    return items.isEmpty
-        ? EmptyState(
-            icon: Icons.bookmark_border_rounded,
-            title: context.l10n.t('noSaved'),
-            body: context.l10n.t('noSavedBody'),
-          )
-        : ListView.builder(
-            padding: const EdgeInsets.all(AppSpacing.md),
-            itemCount: items.length,
-            itemBuilder: (context, index) => _SavedCard(item: items[index]),
-          );
+    final legacyItems = ref.watch(savedProvider);
+    final archiveState = ref.watch(savedCalculationsProvider);
+    final query = archiveState.query.trim().toLowerCase();
+    final visibleLegacyItems =
+        archiveState.scope == SavedCalculationsScope.favorites ||
+            (archiveState.module != null &&
+                archiveState.module !=
+                    SavedCalculationModule.scientificCalculator)
+        ? const <SavedCalculation>[]
+        : legacyItems
+              .where(
+                (item) =>
+                    query.isEmpty ||
+                    [
+                      item.title,
+                      item.expression,
+                      item.result,
+                      item.note ?? '',
+                    ].any((value) => value.toLowerCase().contains(query)),
+              )
+              .toList(growable: false);
+    return SavedCalculationsPage(
+      embedded: true,
+      suppressEmptyState: visibleLegacyItems.isNotEmpty,
+      footer: visibleLegacyItems.isEmpty
+          ? null
+          : _LegacyCalculatorSaves(items: visibleLegacyItems),
+    );
+  }
+}
+
+class _LegacyCalculatorSaves extends StatelessWidget {
+  const _LegacyCalculatorSaves({required this.items});
+
+  final List<SavedCalculation> items;
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.only(top: AppSpacing.sm),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          Text(
+            context.l10n.t('savedLegacyCalculator'),
+            style: Theme.of(context).textTheme.titleMedium,
+          ),
+          const SizedBox(height: AppSpacing.xs),
+          Text(
+            context.l10n.t('savedLegacyCalculatorBody'),
+            style: Theme.of(context).textTheme.bodySmall,
+          ),
+          const SizedBox(height: AppSpacing.sm),
+          for (final item in items) _SavedCard(item: item),
+        ],
+      ),
+    );
   }
 }
 

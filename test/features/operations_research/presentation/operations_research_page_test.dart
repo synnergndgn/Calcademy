@@ -66,7 +66,7 @@ void main() {
       SavedCalculationModule.operationsResearch,
     );
     expect(repository.items.single.calculationType, 'transportation');
-    expect(find.text('Saved to Saved Calculations.'), findsOneWidget);
+    expect(find.text('Saved to Saved.'), findsOneWidget);
   });
 
   testWidgets('solves assignment and shows Hungarian assignments', (

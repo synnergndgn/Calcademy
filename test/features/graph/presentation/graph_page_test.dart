@@ -1,8 +1,15 @@
+import 'dart:convert';
+
 import 'package:calcademy/app/theme/app_theme.dart';
 import 'package:calcademy/core/services/preferences.dart';
 import 'package:calcademy/features/graph/data/graph_repository.dart';
+import 'package:calcademy/features/graph/domain/graph_expression.dart';
 import 'package:calcademy/features/graph/presentation/graph_controller.dart';
 import 'package:calcademy/features/graph/presentation/graph_page.dart';
+import 'package:calcademy/features/saved_calculations/data/saved_calculations_repository.dart';
+import 'package:calcademy/features/saved_calculations/domain/saved_calculation.dart';
+import 'package:calcademy/features/saved_calculations/domain/saved_calculation_module.dart';
+import 'package:calcademy/features/saved_calculations/domain/saved_calculations_limits.dart';
 import 'package:calcademy/l10n/app_localizations.dart';
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
@@ -69,6 +76,53 @@ void main() {
     await tester.pump();
     expect(container.read(graphProvider).functions, isEmpty);
     expect(find.text('No graph to display'), findsOneWidget);
+  });
+
+  testWidgets('saved calculation route restores the archived graph config', (
+    tester,
+  ) async {
+    final item = SavedCalculation(
+      id: 'graph-archive',
+      title: 'Archived parabola',
+      module: SavedCalculationModule.graphPlotter,
+      calculationType: 'graphConfiguration',
+      createdAt: DateTime.utc(2026, 7, 24),
+      updatedAt: DateTime.utc(2026, 7, 24),
+      isFavorite: false,
+      inputSummary: 'x^2',
+      resultSummary: 'one function',
+      fullInputJson: const {
+        'expressions': ['x^2'],
+        'xRange': {'min': -4.0, 'max': 6.0},
+        'autoY': false,
+        'yRange': {'min': -2.0, 'max': 20.0},
+        'angleMode': 'degrees',
+      },
+      resultJson: const {'kind': 'configuration'},
+      tags: const [],
+    );
+    SharedPreferences.setMockInitialValues({
+      SharedPreferencesSavedCalculationsRepository.storageKey: jsonEncode({
+        'schemaVersion': SavedCalculationsLimits.schemaVersion,
+        'items': [item.toJson()],
+      }),
+    });
+
+    await _pumpGraph(tester, savedCalculationId: item.id);
+
+    final container = ProviderScope.containerOf(
+      tester.element(find.byType(GraphPage)),
+    );
+    final state = container.read(graphProvider);
+    expect(state.functions.single.expression, 'x^2');
+    expect(state.range.min, -4);
+    expect(state.range.max, 6);
+    expect(state.autoY, isFalse);
+    expect(state.manualYMin, -2);
+    expect(state.manualYMax, 20);
+    expect(state.angleMode, GraphAngleMode.degrees);
+    expect(state.activeGraphId, isNull);
+    expect(find.byType(LineChart), findsOneWidget);
   });
 
   testWidgets('graph controls remain overflow-free with large text', (
@@ -322,6 +376,7 @@ void main() {
 Future<void> _pumpGraph(
   WidgetTester tester, {
   ThemeMode themeMode = ThemeMode.light,
+  String? savedCalculationId,
 }) async {
   final preferences = await SharedPreferences.getInstance();
   await tester.pumpWidget(
@@ -339,7 +394,7 @@ Future<void> _pumpGraph(
           GlobalWidgetsLocalizations.delegate,
           GlobalCupertinoLocalizations.delegate,
         ],
-        home: const GraphPage(),
+        home: GraphPage(savedCalculationId: savedCalculationId),
       ),
     ),
   );

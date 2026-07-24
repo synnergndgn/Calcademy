@@ -3,7 +3,6 @@ import 'package:calcademy/app/theme/app_radius.dart';
 import 'package:calcademy/features/calculator/domain/calculator_error.dart';
 import 'package:calcademy/features/calculator/presentation/calculator_controller.dart';
 import 'package:calcademy/features/calculator/presentation/calculator_keypad.dart';
-import 'package:calcademy/features/saved/presentation/saved_controller.dart';
 import 'package:calcademy/features/saved_calculations/application/adapters/calculator_saved_adapter.dart';
 import 'package:calcademy/features/saved_calculations/presentation/save_result_action.dart';
 import 'package:calcademy/features/settings/domain/app_settings.dart';
@@ -109,11 +108,7 @@ class _CalculatorPageState extends ConsumerState<CalculatorPage> {
                     onSubmitted: (_) => _evaluate(),
                   ),
                   const SizedBox(height: 12),
-                  _CalculatorResultPanel(
-                    onCopy: _copy,
-                    onSave: _save,
-                    onUse: _replaceText,
-                  ),
+                  _CalculatorResultPanel(onCopy: _copy, onUse: _replaceText),
                   const SizedBox(height: 16),
                   CalculatorKeypad(
                     onKey: _handleKey,
@@ -230,50 +225,6 @@ class _CalculatorPageState extends ConsumerState<CalculatorPage> {
       ).showSnackBar(SnackBar(content: Text(context.l10n.t('copied'))));
     }
   }
-
-  Future<void> _save() async {
-    final record = ref.read(calculatorProvider).lastRecord;
-    if (record == null) return;
-    final title = TextEditingController();
-    final note = TextEditingController();
-    final confirmed = await showDialog<bool>(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: Text(context.l10n.t('saveResult')),
-        content: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            TextField(
-              controller: title,
-              decoration: InputDecoration(labelText: context.l10n.t('title')),
-            ),
-            const SizedBox(height: 12),
-            TextField(
-              controller: note,
-              decoration: InputDecoration(labelText: context.l10n.t('note')),
-            ),
-          ],
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context, false),
-            child: Text(context.l10n.t('cancel')),
-          ),
-          FilledButton(
-            onPressed: () => Navigator.pop(context, true),
-            child: Text(context.l10n.t('save')),
-          ),
-        ],
-      ),
-    );
-    if (confirmed == true) {
-      await ref
-          .read(savedProvider.notifier)
-          .addFromRecord(record, title: title.text, note: note.text);
-    }
-    title.dispose();
-    note.dispose();
-  }
 }
 
 class _AngleModeButton extends ConsumerWidget {
@@ -328,14 +279,9 @@ class _CalculatorCopyMenu extends ConsumerWidget {
 }
 
 class _CalculatorResultPanel extends ConsumerWidget {
-  const _CalculatorResultPanel({
-    required this.onCopy,
-    required this.onSave,
-    required this.onUse,
-  });
+  const _CalculatorResultPanel({required this.onCopy, required this.onUse});
 
   final ValueChanged<String> onCopy;
-  final VoidCallback onSave;
   final ValueChanged<String> onUse;
 
   @override
@@ -403,11 +349,6 @@ class _CalculatorResultPanel extends ConsumerWidget {
                   tooltip: context.l10n.t('copyResult'),
                   onPressed: () => onCopy(panelState.result),
                   icon: const Icon(Icons.copy_rounded),
-                ),
-                IconButton(
-                  tooltip: context.l10n.t('saveResult'),
-                  onPressed: panelState.lastRecord == null ? null : onSave,
-                  icon: const Icon(Icons.bookmark_add_outlined),
                 ),
                 if (panelState.lastRecord case final record?)
                   SaveResultAction(

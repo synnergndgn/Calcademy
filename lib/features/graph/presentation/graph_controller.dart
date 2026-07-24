@@ -332,6 +332,10 @@ class GraphController extends Notifier<GraphState> {
   void loadSaved(String id) {
     final graph = ref.read(savedGraphsProvider.notifier).find(id);
     if (graph == null) return;
+    loadConfiguration(graph, savedWorkspace: true);
+  }
+
+  void loadConfiguration(SavedGraph graph, {required bool savedWorkspace}) {
     _cancelPending();
     _compiled.clear();
     state = GraphState(
@@ -342,7 +346,7 @@ class GraphController extends Notifier<GraphState> {
       manualYMax: graph.manualYMax,
       angleMode: graph.angleMode,
       viewResetRevision: state.viewResetRevision + 1,
-      activeGraphId: graph.id,
+      activeGraphId: savedWorkspace ? graph.id : null,
       activeTitle: graph.title,
     );
     _scheduleAll(compileMissing: true, preserveCleanState: true);

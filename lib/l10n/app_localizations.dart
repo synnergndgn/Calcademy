@@ -819,7 +819,7 @@ class AppLocalizations {
       'savedCalculationsDescription':
           'Your central library for searching, favoriting, copying, and managing saved results on this device.',
       'savedUnknownModule': 'Unknown module',
-      'savedCalculationSaved': 'Saved to Saved Calculations.',
+      'savedCalculationSaved': 'Saved to Saved.',
       'savedSearch': 'Search saved calculations',
       'savedAll': 'All',
       'savedFavorites': 'Favorites',
@@ -832,6 +832,11 @@ class AppLocalizations {
       'savedFavorite': 'Add to favorites',
       'savedUnfavorite': 'Remove from favorites',
       'savedOpenModule': 'Open module',
+      'savedOpenItem': 'Open saved item',
+      'savedResults': 'Results',
+      'savedLegacyCalculator': 'Legacy calculator saves',
+      'savedLegacyCalculatorBody':
+          'Earlier calculator saves remain available here and can be reused.',
       'savedClearAll': 'Clear all',
       'savedEmptyTitle': 'No saved calculations',
       'savedEmptyBody':
@@ -1005,7 +1010,7 @@ class AppLocalizations {
       'copyExpression': 'Copy expression',
       'copyResult': 'Copy result',
       'saveResult': 'Save calculation',
-      'saveToSavedCalculations': 'Save to Saved Calculations',
+      'saveToSavedCalculations': 'Save',
       'useResult': 'Use result',
       'copied': 'Copied to clipboard',
       'degrees': 'Degrees',
@@ -1913,7 +1918,7 @@ class AppLocalizations {
       'savedCalculationsDescription':
           'Bu cihazdaki kaydedilmiş sonuçları arayabileceğiniz, favorileyebileceğiniz, kopyalayabileceğiniz ve yönetebileceğiniz merkezi arşiv.',
       'savedUnknownModule': 'Bilinmeyen modül',
-      'savedCalculationSaved': 'Kaydedilen Hesaplamalar’a kaydedildi.',
+      'savedCalculationSaved': 'Saved sayfasına kaydedildi.',
       'savedSearch': 'Kaydedilen hesaplamalarda ara',
       'savedAll': 'Tümü',
       'savedFavorites': 'Favoriler',
@@ -1926,6 +1931,11 @@ class AppLocalizations {
       'savedFavorite': 'Favorilere ekle',
       'savedUnfavorite': 'Favorilerden çıkar',
       'savedOpenModule': 'Modülü aç',
+      'savedOpenItem': 'Kaydı aç',
+      'savedResults': 'Sonuçlar',
+      'savedLegacyCalculator': 'Eski hesap makinesi kayıtları',
+      'savedLegacyCalculatorBody':
+          'Önceki hesap makinesi kayıtları burada korunur ve yeniden kullanılabilir.',
       'savedClearAll': 'Tümünü temizle',
       'savedEmptyTitle': 'Kaydedilmiş hesaplama yok',
       'savedEmptyBody':
@@ -2097,7 +2107,7 @@ class AppLocalizations {
       'copyExpression': 'İfadeyi kopyala',
       'copyResult': 'Sonucu kopyala',
       'saveResult': 'Hesaplamayı kaydet',
-      'saveToSavedCalculations': 'Kaydedilen Hesaplamalar’a ekle',
+      'saveToSavedCalculations': 'Kaydet',
       'useResult': 'Sonucu kullan',
       'copied': 'Panoya kopyalandı',
       'degrees': 'Derece',

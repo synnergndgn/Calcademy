@@ -14,14 +14,20 @@ import 'package:calcademy/features/matrix/presentation/matrix_steps_page.dart';
 import 'package:calcademy/features/matrix/presentation/matrix_widgets.dart';
 import 'package:calcademy/features/saved_calculations/application/adapters/matrix_saved_adapter.dart';
 import 'package:calcademy/features/saved_calculations/presentation/save_result_action.dart';
+import 'package:calcademy/features/saved_calculations/presentation/saved_calculations_controller.dart';
 import 'package:calcademy/l10n/app_localizations.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 class MatrixHomePage extends ConsumerStatefulWidget {
-  const MatrixHomePage({this.savedMatrixId, super.key});
+  const MatrixHomePage({
+    this.savedMatrixId,
+    this.savedCalculationId,
+    super.key,
+  });
 
   final String? savedMatrixId;
+  final String? savedCalculationId;
 
   @override
   ConsumerState<MatrixHomePage> createState() => _MatrixHomePageState();
@@ -53,8 +59,23 @@ class _MatrixHomePageState extends ConsumerState<MatrixHomePage> {
   }
 
   void _loadSavedIfNeeded() {
-    if (_loadedSaved || widget.savedMatrixId == null || !mounted) return;
+    if (_loadedSaved ||
+        (widget.savedMatrixId == null && widget.savedCalculationId == null) ||
+        !mounted) {
+      return;
+    }
     _loadedSaved = true;
+    final archiveId = widget.savedCalculationId;
+    if (archiveId != null) {
+      final items = ref.read(savedCalculationsProvider).items;
+      for (final item in items) {
+        if (item.id != archiveId) continue;
+        final restored = MatrixSavedAdapter.tryRestore(item);
+        if (restored != null) _loadSavedCalculation(restored);
+        return;
+      }
+      return;
+    }
     final saved = ref
         .read(savedMatricesProvider.notifier)
         .find(widget.savedMatrixId!);
@@ -68,6 +89,20 @@ class _MatrixHomePageState extends ConsumerState<MatrixHomePage> {
       _editorRevision++;
     });
     ref.read(matrixWorkspaceProvider.notifier).loadSaved(saved);
+  }
+
+  void _loadSavedCalculation(MatrixSavedInput restored) {
+    setState(() {
+      _initialA = restored.inputs.first;
+      if (restored.inputs.length > 1) _initialB = restored.inputs[1];
+      _scalar.text = formatMatrixNumber(restored.parameters['scalar'] ?? 2);
+      _rowOne.text = '${(restored.parameters['row1'] ?? 0).round() + 1}';
+      _rowTwo.text = '${(restored.parameters['row2'] ?? 1).round() + 1}';
+      _editorRevision++;
+    });
+    final controller = ref.read(matrixWorkspaceProvider.notifier);
+    controller.selectOperation(restored.operation);
+    controller.execute(restored.inputs, parameters: restored.parameters);
   }
 
   @override

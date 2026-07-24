@@ -38,6 +38,7 @@ void main() {
       find.byKey(const Key('calculator-save-calculation')),
       findsOneWidget,
     );
+    expect(find.byIcon(Icons.bookmark_add_outlined), findsNothing);
 
     await _tapKey(tester, 'AC');
     await tester.pump();
@@ -66,6 +67,17 @@ void main() {
     );
 
     expect(identical(keypadAfter, keypadBefore), isTrue);
+  });
+
+  testWidgets('saved expression route input is restored into the editor', (
+    tester,
+  ) async {
+    await _pump(tester, const CalculatorPage(initialExpression: 'sin(30) + 2'));
+
+    final field = tester.widget<TextField>(
+      find.byKey(const Key('expressionField')),
+    );
+    expect(field.controller!.text, 'sin(30) + 2');
   });
 
   testWidgets('expression field keeps its caret without a system keyboard', (

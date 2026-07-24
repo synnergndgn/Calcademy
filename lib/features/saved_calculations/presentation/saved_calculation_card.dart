@@ -10,14 +10,14 @@ class SavedCalculationCard extends StatelessWidget {
     required this.onCopy,
     required this.onFavorite,
     required this.onDelete,
-    required this.onOpenModule,
+    required this.onOpenSavedItem,
   });
 
   final SavedCalculation item;
   final VoidCallback onCopy;
   final VoidCallback onFavorite;
   final VoidCallback onDelete;
-  final VoidCallback? onOpenModule;
+  final VoidCallback? onOpenSavedItem;
 
   @override
   Widget build(BuildContext context) {
@@ -109,12 +109,12 @@ class SavedCalculationCard extends StatelessWidget {
               spacing: AppSpacing.xs,
               runSpacing: AppSpacing.xxs,
               children: [
-                if (onOpenModule != null)
+                if (onOpenSavedItem != null)
                   TextButton.icon(
                     key: ValueKey('saved-open-${item.id}'),
-                    onPressed: onOpenModule,
+                    onPressed: onOpenSavedItem,
                     icon: const Icon(Icons.open_in_new_rounded, size: 18),
-                    label: Text(l10n.t('savedOpenModule')),
+                    label: Text(l10n.t('savedOpenItem')),
                   ),
                 TextButton.icon(
                   key: ValueKey('saved-copy-${item.id}'),

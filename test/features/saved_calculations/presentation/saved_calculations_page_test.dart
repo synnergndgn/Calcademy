@@ -116,6 +116,36 @@ void main() {
     await tester.pumpAndSettle();
     expect(repository.items.single.isFavorite, isTrue);
     expect(find.byIcon(Icons.star_rounded), findsOneWidget);
+    expect(find.byKey(const ValueKey('saved-open-calculus')), findsNothing);
+  });
+
+  testWidgets('Open is shown only when the archived input can be restored', (
+    tester,
+  ) async {
+    final calculator = _item(
+      'calculator',
+      'Reusable expression',
+      SavedCalculationModule.scientificCalculator,
+      DateTime.utc(2026, 4, 3),
+      result: '2+2 = 4',
+      input: const {'expression': '2+2'},
+    );
+    final resultOnly = _item(
+      'lp-result',
+      'LP result archive',
+      SavedCalculationModule.linearProgramming,
+      DateTime.utc(2026, 4, 4),
+      result: 'z = 10',
+    );
+    await _pump(tester, _MemoryRepository(items: [calculator, resultOnly]));
+
+    await _scrollTo(
+      tester,
+      find.byKey(const ValueKey('saved-open-calculator')),
+    );
+    expect(find.byKey(const ValueKey('saved-open-calculator')), findsOneWidget);
+    expect(find.text('Open saved item'), findsOneWidget);
+    expect(find.byKey(const ValueKey('saved-open-lp-result')), findsNothing);
   });
 
   testWidgets('lists and filters a Graph Plotter record', (tester) async {
@@ -248,6 +278,7 @@ SavedCalculation _item(
   DateTime createdAt, {
   bool favorite = false,
   required String result,
+  Map<String, Object?> input = const {},
 }) => SavedCalculation(
   id: id,
   title: title,
@@ -258,7 +289,7 @@ SavedCalculation _item(
   isFavorite: favorite,
   inputSummary: 'input for $title',
   resultSummary: result,
-  fullInputJson: const {},
+  fullInputJson: input,
   resultJson: const {},
   tags: const [],
 );

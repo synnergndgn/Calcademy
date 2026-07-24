@@ -8,7 +8,7 @@ abstract final class CalculatorSavedAdapter {
   static SavedCalculationDraft fromRecord(CalculationRecord record) {
     requireSavedText(record.expression);
     requireSavedText(record.result);
-    final expression = truncateSavedText(
+    final expressionSummary = truncateSavedText(
       record.expression,
       SavedCalculationsLimits.maxExpressionSummaryLength,
     );
@@ -18,15 +18,15 @@ abstract final class CalculatorSavedAdapter {
     );
     return SavedCalculationDraft(
       title: truncateSavedText(
-        expression,
+        expressionSummary,
         SavedCalculationsLimits.maxTitleLength,
       ),
       module: SavedCalculationModule.scientificCalculator,
       calculationType: 'expression',
-      inputSummary: '$expression · ${record.angleMode.name}',
-      resultSummary: '$expression = $result',
+      inputSummary: '$expressionSummary · ${record.angleMode.name}',
+      resultSummary: '$expressionSummary = $result',
       fullInputJson: {
-        'expression': expression,
+        'expression': record.expression,
         'angleMode': record.angleMode.name,
         'timestamp': record.createdAt.toUtc().toIso8601String(),
       },

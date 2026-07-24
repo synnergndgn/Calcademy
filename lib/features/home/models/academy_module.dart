@@ -97,15 +97,6 @@ const academyModules = [
     available: true,
   ),
   AcademyModule(
-    id: 'saved-calculations',
-    titleKey: 'savedCalculationsTitle',
-    icon: Icons.bookmarks_rounded,
-    category: AcademyModuleCategory.workspace,
-    route: '/saved-calculations',
-    descriptionKey: 'savedCalculationsDescription',
-    available: true,
-  ),
-  AcademyModule(
     id: 'linear-programming',
     titleKey: 'linearProgramming',
     icon: Icons.polyline_rounded,

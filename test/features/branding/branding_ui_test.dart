@@ -1,3 +1,4 @@
+import 'package:calcademy/app/app_metadata.dart';
 import 'package:calcademy/app/theme/app_colors.dart';
 import 'package:calcademy/app/theme/app_theme.dart';
 import 'package:calcademy/core/services/preferences.dart';
@@ -7,7 +8,6 @@ import 'package:calcademy/features/home/presentation/home_page.dart';
 import 'package:calcademy/features/operations_research/presentation/operations_research_page.dart';
 import 'package:calcademy/features/home/presentation/splash_page.dart';
 import 'package:calcademy/features/financial_calculator/presentation/financial_calculator_page.dart';
-import 'package:calcademy/features/saved_calculations/presentation/saved_calculations_page.dart';
 import 'package:calcademy/features/settings/presentation/about_page.dart';
 import 'package:calcademy/features/statistics/presentation/statistics_page.dart';
 import 'package:calcademy/l10n/app_localizations.dart';
@@ -64,7 +64,7 @@ void main() {
     expect(find.text('Optimization & Operations Research'), findsWidgets);
     expect(find.text('Data & Statistics'), findsWidgets);
     expect(find.text('Finance'), findsWidgets);
-    expect(find.text('Workspace'), findsWidgets);
+    expect(find.text('Workspace'), findsNothing);
     expect(find.byKey(const Key('module-card-calculator')), findsOneWidget);
     expect(find.byIcon(Icons.schedule_rounded), findsWidgets);
   });
@@ -185,38 +185,6 @@ void main() {
     expect(find.byKey(const Key('fin-tvm-operation')), findsOneWidget);
   });
 
-  testWidgets('Saved Calculations card opens its workspace', (tester) async {
-    final preferences = await SharedPreferences.getInstance();
-    final router = GoRouter(
-      initialLocation: '/home',
-      routes: [
-        GoRoute(path: '/home', builder: (_, _) => const HomePage()),
-        GoRoute(
-          path: '/saved-calculations',
-          builder: (_, _) => const SavedCalculationsPage(),
-        ),
-      ],
-    );
-    addTearDown(router.dispose);
-    await tester.pumpWidget(
-      ProviderScope(
-        overrides: [sharedPreferencesProvider.overrideWithValue(preferences)],
-        child: _localizedApp(routerConfig: router),
-      ),
-    );
-    await tester.pumpAndSettle();
-    final savedCard = find.text('Saved Calculations');
-    for (var i = 0; i < 12 && savedCard.hitTestable().evaluate().isEmpty; i++) {
-      await tester.drag(find.byType(CustomScrollView), const Offset(0, -400));
-      await tester.pumpAndSettle();
-    }
-    await tester.tap(savedCard.hitTestable());
-    await tester.pumpAndSettle();
-
-    expect(find.byType(SavedCalculationsPage), findsOneWidget);
-    expect(find.byKey(const Key('saved-search')), findsOneWidget);
-  });
-
   testWidgets('Operations Research card opens its workspace', (tester) async {
     final preferences = await SharedPreferences.getInstance();
     final router = GoRouter(
@@ -258,7 +226,7 @@ void main() {
     expect(find.byKey(const Key('calcademyLogoMark')), findsOneWidget);
     expect(find.text('Calcademy'), findsOneWidget);
     expect(find.text('Privacy & data handling'), findsOneWidget);
-    expect(find.text('Version 1.0.0 (2)'), findsOneWidget);
+    expect(find.text(_versionText), findsOneWidget);
   });
 
   testWidgets('light and dark brand themes build with distinct surfaces', (
@@ -323,6 +291,9 @@ void main() {
     expect(find.text('Start'), findsOneWidget);
   });
 }
+
+const _versionText =
+    'Version ${AppMetadata.versionName} (${AppMetadata.buildNumber})';
 
 Future<void> _pumpWithPreferences(WidgetTester tester, Widget child) async {
   final preferences = await SharedPreferences.getInstance();

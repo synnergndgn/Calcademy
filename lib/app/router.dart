@@ -14,7 +14,6 @@ import 'package:calcademy/features/calculus/presentation/calculus_page.dart';
 import 'package:calcademy/features/statistics/presentation/statistics_page.dart';
 import 'package:calcademy/features/financial_calculator/presentation/financial_calculator_page.dart';
 import 'package:calcademy/features/saved/presentation/saved_page.dart';
-import 'package:calcademy/features/saved_calculations/presentation/saved_calculations_page.dart';
 import 'package:calcademy/features/settings/presentation/about_page.dart';
 import 'package:calcademy/features/settings/presentation/settings_page.dart';
 import 'package:flutter/material.dart';
@@ -52,13 +51,16 @@ final appRouter = GoRouter(
       path: '/graph',
       builder: (context, state) => GraphPage(
         savedGraphId: state.uri.queryParameters['graphId'],
+        savedCalculationId: state.uri.queryParameters['savedCalculationId'],
         shareOnOpen: state.uri.queryParameters['share'] == '1',
       ),
     ),
     GoRoute(
       path: '/matrix',
-      builder: (context, state) =>
-          MatrixHomePage(savedMatrixId: state.uri.queryParameters['savedId']),
+      builder: (context, state) => MatrixHomePage(
+        savedMatrixId: state.uri.queryParameters['savedId'],
+        savedCalculationId: state.uri.queryParameters['savedCalculationId'],
+      ),
     ),
     GoRoute(
       path: '/linear-programming',
@@ -88,7 +90,7 @@ final appRouter = GoRouter(
     ),
     GoRoute(
       path: '/saved-calculations',
-      builder: (context, state) => const SavedCalculationsPage(),
+      redirect: (context, state) => '/saved',
     ),
     GoRoute(
       path: '/operations-research',
