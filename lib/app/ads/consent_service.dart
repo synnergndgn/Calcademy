@@ -1,47 +1,79 @@
+import 'dart:async';
+
 import 'package:calcademy/app/ads/ad_config.dart';
 import 'package:flutter/foundation.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
 
-/// Thin scaffold around the Google User Messaging Platform (UMP) consent flow.
+/// Thin, fail-closed scaffold around the Google User Messaging Platform (UMP)
+/// consent flow.
 ///
-/// This sprint wires the *gathering* step so a consent form can be presented in
+/// This wires the *gathering* step so a consent form can be presented in
 /// regulated regions (EEA / UK / Switzerland) once the messages are configured
-/// in the AdMob console. The app makes no assumption of personalized-ad consent
-/// until UMP confirms it: if the status is unknown or the request fails, we
-/// keep the conservative default (`canRequestAds` gates personalized serving).
+/// in the AdMob console. Every UMP call is guarded: an unconfigured console,
+/// an unavailable form, or any error is treated as normal and never rethrown,
+/// so consent handling can never crash startup. When consent cannot be
+/// confirmed, [canRequestAds] returns `false` and the banner simply stays
+/// hidden (the app runs ad-free).
 ///
 /// Guarded by [AdConfig.adsEnabled], so tests and unsupported platforms never
-/// reach the platform channel. Nothing here ever throws to the caller.
+/// reach the platform channel.
 abstract final class ConsentService {
-  /// Requests the latest consent information and, only when UMP reports that a
-  /// form is required and available, loads and shows it. Called once at app
-  /// start after [AdService.ensureInitialized].
-  static Future<void> gatherIfRequired() async {
-    if (!AdConfig.adsEnabled) return;
-    // Fire-and-forget: consent gathering runs alongside the first ad request
-    // and must never block app start.
+  static Future<void>? _gatherFuture;
+
+  @visibleForTesting
+  static void resetForTest() => _gatherFuture = null;
+
+  /// Runs the UMP consent-info update at most once (result cached). Completes
+  /// when the update finishes or errors; never throws and never blocks longer
+  /// than the SDK itself takes. Safe to await from multiple callers.
+  static Future<void> ensureGathered() {
+    if (!AdConfig.adsEnabled) return Future.value();
+    return _gatherFuture ??= _gather();
+  }
+
+  /// Backwards-compatible entry point invoked during app bootstrap.
+  static Future<void> gatherIfRequired() => ensureGathered();
+
+  static Future<void> _gather() async {
+    final completer = Completer<void>();
+    void done() {
+      if (!completer.isCompleted) completer.complete();
+    }
+
     try {
       ConsentInformation.instance.requestConsentInfoUpdate(
         ConsentRequestParameters(),
         () {
-          ConsentForm.loadAndShowConsentFormIfRequired((formError) {
-            if (formError != null) {
-              debugPrint('Consent form error: ${formError.message}');
-            }
-          });
+          // Consent info succeeded. Best-effort: show a form only if UMP
+          // requires one and it loads. Any error here is non-fatal.
+          try {
+            ConsentForm.loadAndShowConsentFormIfRequired((formError) {
+              if (formError != null) {
+                debugPrint('Consent form error: ${formError.message}');
+              }
+              done();
+            });
+          } on Object catch (error) {
+            debugPrint('Consent form load failed: $error');
+            done();
+          }
         },
         (requestError) {
-          // Status unknown → callers keep non-personalized-safe behavior.
+          // Status unknown → callers keep the non-personalized-safe default.
           debugPrint('Consent info update error: ${requestError.message}');
+          done();
         },
       );
     } on Object catch (error) {
       debugPrint('Consent gathering failed: $error');
+      done();
     }
+
+    return completer.future;
   }
 
-  /// Whether personalized ads may be requested. Stays `false` until UMP
-  /// confirms, and on any platform where ads are disabled.
+  /// Whether ads may be requested. Returns `false` on any platform where ads
+  /// are disabled and on any UMP error (fail-closed → app runs ad-free).
   static Future<bool> canRequestAds() async {
     if (!AdConfig.adsEnabled) return false;
     try {

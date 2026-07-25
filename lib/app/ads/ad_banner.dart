@@ -1,14 +1,20 @@
+import 'dart:async';
+
 import 'package:calcademy/app/ads/ad_config.dart';
+import 'package:calcademy/app/ads/ad_service.dart';
+import 'package:calcademy/app/ads/consent_service.dart';
 import 'package:flutter/material.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
 
 /// A low-intrusion anchored banner that reserves **no** layout space until an
 /// ad has actually loaded.
 ///
-/// When ads are disabled (every test, web, and desktop) or the ad has not yet
-/// loaded — including permanent failure and offline — it renders
-/// [SizedBox.shrink], so it can never overflow its parent, block interaction,
-/// or crash. This makes it safe to drop into any `bottomNavigationBar` slot.
+/// It only ever requests an ad after the SDK reports a successful init
+/// ([AdService.isAvailable]) *and* consent gathering says ads may be requested.
+/// When ads are disabled (every test, web, desktop), init failed, consent is
+/// unavailable, the ad has not yet loaded, or loading failed (including
+/// offline), it renders [SizedBox.shrink] — so it can never overflow, block
+/// interaction, or crash. Safe to drop into any `bottomNavigationBar` slot.
 class AdBanner extends StatefulWidget {
   const AdBanner({super.key, this.enabled});
 
@@ -29,7 +35,23 @@ class _AdBannerState extends State<AdBanner> {
   @override
   void initState() {
     super.initState();
-    if (_enabled) _load();
+    if (_enabled) unawaited(_prepareAndLoad());
+  }
+
+  /// Fully guarded: SDK init, consent, and ad load can each fail without ever
+  /// throwing out of here or affecting the widget tree beyond staying hidden.
+  Future<void> _prepareAndLoad() async {
+    try {
+      final ready = await AdService.ensureInitialized();
+      if (!ready || !mounted) return;
+      await ConsentService.ensureGathered();
+      if (!mounted) return;
+      final canRequest = await ConsentService.canRequestAds();
+      if (!canRequest || !mounted) return;
+      _load();
+    } on Object catch (error) {
+      debugPrint('AdBanner preparation failed (staying hidden): $error');
+    }
   }
 
   void _load() {

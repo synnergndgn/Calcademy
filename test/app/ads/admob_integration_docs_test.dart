@@ -19,6 +19,24 @@ void main() {
     expect(manifest, contains('android.permission.ACCESS_NETWORK_STATE'));
   });
 
+  test('manifest embeds the App ID (with ~) but not the banner unit', () async {
+    final manifest = await File(
+      'android/app/src/main/AndroidManifest.xml',
+    ).readAsString();
+
+    // App ids use '~'; ad-unit ids use '/'. The banner unit must never leak
+    // into the manifest APPLICATION_ID slot.
+    expect(manifest, contains(AdConfig.androidAppId));
+    expect(AdConfig.androidAppId, contains('~'));
+    expect(manifest, isNot(contains(AdConfig.bannerAdUnitId)));
+  });
+
+  test('release proguard keeps the AdMob/UMP SDK surface', () async {
+    final rules = await File('android/app/proguard-rules.pro').readAsString();
+    expect(rules, contains('com.google.android.gms.ads'));
+    expect(rules, contains('com.google.android.ump'));
+  });
+
   test('no Firebase/analytics config or google-services.json is present', () {
     expect(File('android/app/google-services.json').existsSync(), isFalse);
     expect(File('google-services.json').existsSync(), isFalse);

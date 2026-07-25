@@ -12,16 +12,28 @@ Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   final preferences = await SharedPreferences.getInstance();
 
-  // Ads are gated by AdConfig.adsEnabled: on unsupported platforms and in
-  // tests both calls are inert no-ops. Consent gathering is fire-and-forget so
-  // it never blocks first frame.
-  await AdService.ensureInitialized();
-  unawaited(ConsentService.gatherIfRequired());
-
+  // Start the app first. Ads must never delay or crash startup, so the app is
+  // running before any Mobile Ads / UMP work begins.
   runApp(
     ProviderScope(
       overrides: [sharedPreferencesProvider.overrideWithValue(preferences)],
       child: const CalcademyApp(),
     ),
   );
+
+  // Fire-and-forget, fully guarded: any ad/consent failure leaves the app
+  // running ad-free instead of crashing. Inert on unsupported platforms/tests.
+  unawaited(_initializeAdsSafely());
+}
+
+Future<void> _initializeAdsSafely() async {
+  try {
+    final ready = await AdService.ensureInitialized();
+    if (!ready) return;
+    await ConsentService.gatherIfRequired();
+  } on Object catch (error, stackTrace) {
+    debugPrint(
+      'Ads bootstrap failed (continuing ad-free): $error\n$stackTrace',
+    );
+  }
 }

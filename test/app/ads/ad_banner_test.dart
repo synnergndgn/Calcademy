@@ -55,6 +55,22 @@ void main() {
     expect(find.text('content'), findsOneWidget);
   });
 
+  testWidgets('enabled:true still stays hidden and safe on the test host', (
+    tester,
+  ) async {
+    // Even when explicitly enabled, the SDK-init/consent gate keeps the banner
+    // inert on the test host, so no plugin call is made and nothing crashes.
+    await tester.pumpWidget(
+      const MaterialApp(
+        home: Scaffold(bottomNavigationBar: AdBanner(enabled: true)),
+      ),
+    );
+    await tester.pumpAndSettle();
+
+    expect(tester.takeException(), isNull);
+    expect(tester.getSize(find.byType(AdBanner)).height, 0);
+  });
+
   testWidgets('builds without error in dark theme', (tester) async {
     await tester.pumpWidget(
       MaterialApp(
