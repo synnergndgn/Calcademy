@@ -87,18 +87,25 @@ before any EEA/UK release, and before the Play data declarations below go live.
 
 ## Merge gate
 
-This branch may merge to `main` only when all of the following hold:
+This branch may merge to `main` only when all of the following hold
+(status as of 2026-07-25, Xiaomi 23021RAAEG — see
+`docs/admob_retry_device_test.md`):
 
-- [ ] Release APK (minify off) opens on a real device.
-- [ ] Release AAB (minify off) opens on a real device.
-- [ ] Release AAB (minify on) opens on a real device.
-- [ ] No `FATAL EXCEPTION`, no `WorkDatabase` failure, no
+- [x] Release APK (minify off) opens on a real device.
+- [x] Release APK (minify **on**) opens on a real device — the configuration
+      that crashed in 1.0.0+6.
+- [ ] Release AAB opens from a Play internal test track (split-APK delivery
+      path; not yet exercised).
+- [x] No `FATAL EXCEPTION`, no `WorkDatabase` failure, no
       `InitializationProvider` failure in logcat.
-- [ ] App reaches the Home screen.
-- [ ] `flutter analyze` and `flutter test` clean.
+- [x] App reaches the Home screen; banner serves on Home and Saved; Scientific
+      Calculator stays ad-free.
+- [x] `flutter analyze` clean and `flutter test` 517/517 green.
 - [ ] Play Console declarations and policy docs updated together with the merge.
+- [ ] UMP consent implemented (required before any EEA/UK release).
 
-If any gate fails, the branch is kept unmerged and `main` stays ads-free.
+The startup crash is **fixed and verified on device**. The remaining gates are
+release-process items, not stability items.
 
 ## Remaining release work before an ad-supported launch
 

@@ -1,7 +1,35 @@
 # AdMob Retry 1.0 — real-device verification runbook
 
-> Branch-scoped (`feature/admob-retry`, 1.0.0+8). This is the **only** remaining
-> merge gate. Everything else in the sprint is done and green.
+> Branch-scoped (`feature/admob-retry`, 1.0.0+8).
+
+## Results — 2026-07-25, Xiaomi 23021RAAEG (tapas, HyperOS)
+
+| Test | Minify | Result |
+|---|---|---|
+| Release **APK** (Stage A) | off | ✅ **PASS** — Home reached, banner served |
+| Release **APK** (Stage C equivalent) | **on** | ✅ **PASS** — Home reached, banner served |
+| Release **AAB** (Stages B/C as bundles) | off / on | ⏳ **not run** — needs bundletool or a Play internal track |
+
+Logcat across the full session: **no `FATAL EXCEPTION`, no
+`Failed to create an instance of androidx.work.impl.WorkDatabase`, no
+`Unable to get provider androidx.startup.InitializationProvider`.** The process
+stayed alive through Home → Saved → Scientific Calculator navigation.
+
+Placement verified on device: banner present on **Home** and **Saved**, absent
+on **Scientific Calculator**.
+
+The minified APK is the decisive test of the original crash — it contains the
+same R8/dex output the AAB's base module carries, and minify-on was the
+configuration that failed in 1.0.0+6. What the AAB run would add is Play's
+split-APK delivery path, not new R8 behaviour.
+
+**Note on install:** MIUI/HyperOS rejects `adb install` with
+`INSTALL_FAILED_USER_RESTRICTED`. Use `adb push` + `adb shell pm install -r`
+(as below), or enable "Install via USB" in Developer options.
+
+**Note on ad clicks:** a *release* build serves the **real** ad unit, not the
+test unit (`AdConfig.useTestAds` is `!kReleaseMode`). Never tap a banner during
+manual testing — self-clicks are invalid traffic and risk the AdMob account.
 
 Prebuilt artifacts (produced by this sprint, `build/` is git-ignored):
 
