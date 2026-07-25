@@ -16,7 +16,7 @@ Google Play uses the IARC questionnaire and requires a rating for every publishe
 | Online interaction/chat | No | No account, chat, messaging, or multiplayer feature |
 | Location sharing | No | No location feature or permission |
 | Purchases | No, current release | No billing/IAP SDK |
-| Ads | No, current release | No AdMob/advertising SDK (AdMob rolled back in 1.0.0+7) |
+| Ads | Yes, current release | Google AdMob banner SDK (banner only; no interstitial/rewarded/native) |
 | Unrestricted web access | No | No browser/webview feature |
 | Educational/tools content | Yes | Academic calculator/workspace positioning |
 
