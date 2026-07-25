@@ -4,15 +4,18 @@ abstract final class AppMetadata {
   static const applicationId = 'com.aligundogan.calcademy';
   static const publisherName = 'Ali Gündoğan';
   static const versionName = '1.0.0';
-  static const buildNumber = 4;
+  static const buildNumber = 5;
   static const versionCode = buildNumber;
   static const tagline = 'Calculate. Visualize. Optimize. Learn.';
   static const shortDescription =
       'A local-first academic workspace for calculation and engineering study.';
 
   // Release metadata only. User-facing equivalents remain localized.
+  // The app stays local-first for user calculation data; the only third-party
+  // SDK is Google AdMob, which serves a banner and processes ad/device
+  // identifiers per its own policy. See docs/privacy_policy.md.
   static const privacyStatus = 'local-first';
-  static const adsStatus = 'not-included';
+  static const adsStatus = 'admob-banner';
   static const analyticsStatus = 'not-included';
   static const cloudSyncStatus = 'not-included';
 
@@ -22,7 +25,7 @@ abstract final class AppMetadata {
   static const String? repositoryUrl = null;
   static const String privacyPolicyUrl =
       'https://synnergndgn.github.io/Calcademy/privacy_policy';
-  static const privacyPolicyEffectiveDate = '2026-07-21';
+  static const privacyPolicyEffectiveDate = '2026-07-25';
 
   static Uri? get privacyPolicyUri => parsePublicHttpsUrl(privacyPolicyUrl);
 

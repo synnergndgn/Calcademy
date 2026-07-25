@@ -26,7 +26,9 @@ void main() {
     expect(find.text(_versionText), findsOneWidget);
     expect(find.text('Privacy & data handling'), findsOneWidget);
     expect(find.text('Local storage'), findsOneWidget);
-    expect(find.text('No ads'), findsOneWidget);
+    expect(find.text('No ads'), findsNothing);
+    expect(find.text('Ad-supported'), findsOneWidget);
+    expect(find.text('Ads by Google AdMob'), findsOneWidget);
     expect(find.text('No analytics'), findsOneWidget);
     expect(find.text('No cloud sync'), findsOneWidget);
     expect(find.text('No account'), findsOneWidget);
@@ -121,7 +123,8 @@ void main() {
     expect(copiedText, contains(_versionText));
     expect(copiedText, contains(AppMetadata.publisherName));
     expect(copiedText, contains(AppMetadata.applicationId));
-    expect(copiedText, contains('No ads'));
+    expect(copiedText, contains('Ad-supported'));
+    expect(copiedText, isNot(contains('No ads')));
     expect(find.text('App info copied.'), findsOneWidget);
   });
 
@@ -214,7 +217,9 @@ void main() {
       'privacyPolicyBody',
       'localStorage',
       'localStorageBody',
-      'noAds',
+      'adSupported',
+      'adsDisclosure',
+      'adsDisclosureBody',
       'noAnalytics',
       'noCloudSync',
       'noAccount',
@@ -247,7 +252,7 @@ void main() {
     expect(AppMetadata.applicationId, 'com.aligundogan.calcademy');
     expect(AppMetadata.publisherName, 'Ali Gündoğan');
     expect(AppMetadata.privacyStatus, 'local-first');
-    expect(AppMetadata.adsStatus, 'not-included');
+    expect(AppMetadata.adsStatus, 'admob-banner');
     expect(AppMetadata.analyticsStatus, 'not-included');
     expect(AppMetadata.cloudSyncStatus, 'not-included');
     expect(
@@ -271,7 +276,7 @@ void main() {
     );
     expect(AppMetadata.contactEmail, isNull);
     expect(AppMetadata.repositoryUrl, isNull);
-    expect(AppMetadata.privacyPolicyEffectiveDate, '2026-07-21');
+    expect(AppMetadata.privacyPolicyEffectiveDate, '2026-07-25');
   });
 
   test(

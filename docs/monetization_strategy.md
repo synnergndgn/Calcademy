@@ -1,12 +1,14 @@
-# Monetization Strategy — No SDK Included
+# Monetization Strategy — AdMob Banner Integrated
 
-This document is planning material. The current codebase contains no AdMob, advertising identifier, billing, analytics, consent, or monetization SDK.
+This document is planning material. **As of version 1.0.0+5 the codebase integrates the Google AdMob banner SDK** (banner only; no interstitial, rewarded, native, mediation, analytics, or billing SDK). The earlier "no ads" planning content below is retained as historical context and superseded by the AdMob Integration 1.0 sprint.
 
-## First-release decision
+## Current decision (AdMob Integration 1.0)
 
-**Accepted release-candidate strategy: no ads.** The initial internal, beta, and first public candidate should contain no AdMob SDK, analytics SDK, advertising identifier, or production network permission. This keeps the first release focused, improves trust, and makes the manifest, privacy review, and Data Safety declaration simpler. Monetization will be evaluated only after core release and device QA evidence is complete.
+**Ad-supported via a single AdMob banner on the Home and Saved screens.** Debug/profile builds serve Google's official test unit; release serves the real unit. Identifiers live only in `lib/app/ads/ad_config.dart`. A UMP consent scaffold (`lib/app/ads/consent_service.dart`) is wired for regulated regions; the console-side messages and `app-ads.txt` publisher line remain manual follow-ups (see `docs/app_ads_txt_setup.md`).
 
-This decision must be revalidated against the exact final AAB. It is a product/release choice, not a claim that future versions will always remain ad-free.
+## Historical first-release decision (superseded)
+
+The initial plan targeted an ad-free first candidate to simplify the manifest, privacy review, and Data Safety declaration. That decision has now been revisited: the app ships ad-supported. Any move back to ad-free, or forward to additional ad formats, must be revalidated against the exact final AAB.
 
 ## Options
 

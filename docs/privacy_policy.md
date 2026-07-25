@@ -1,10 +1,10 @@
 # Calcademy Privacy Policy — Draft
 
-**Status:** Public URL live on GitHub Pages; publisher metadata completed; final legal and store review pending
+**Status:** Updated for Google AdMob banner ads (version 1.0.0+5); public URL live on GitHub Pages; final legal and store review pending
 
 **Developer/publisher name:** `Ali Gündoğan`
 
-**Effective date:** `2003-01-15`
+**Effective date:** `2026-07-25`
 
 **Contact email:** `calcademyapp@gmail.com`
 
@@ -16,9 +16,9 @@ This document describes Calcademy's current release candidate. The policy is pub
 
 ## In-app access
 
-Calcademy includes a localized **About & Legal** screen with an on-device summary of current data handling, local storage, educational use, and the financial disclaimer. It is reachable from Home and Settings and provides an external-browser action for the verified public policy URL.
+Calcademy includes a localized **About & Legal** screen with an on-device summary of current data handling, local storage, the Google AdMob disclosure, educational use, and the financial disclaimer. It is reachable from Home and Settings and provides an external-browser action for the verified public policy URL.
 
-The local summary remains available alongside the public policy link. Opening the hosted page is a user-initiated external-browser action and does not require an Android INTERNET permission in Calcademy's main manifest.
+The local summary remains available alongside the public policy link. As of version 1.0.0+5 the main manifest requests the `INTERNET` and `ACCESS_NETWORK_STATE` permissions, which the Google AdMob SDK requires to fetch banner ads.
 
 ## Public URL status
 
@@ -42,13 +42,21 @@ Calcademy may store the following locally with Android application storage and S
 - saved graph, matrix, and optimization workspaces supported by the current application;
 - titles, notes, favorites, compact input/result summaries, and timestamps attached to saved items.
 
-This information is not uploaded by Calcademy. There is currently no account, login, backend, cloud synchronization, advertising SDK, analytics SDK, or crash-reporting SDK.
+This information is not uploaded to a Calcademy server. There is no account, login, Calcademy backend, cloud synchronization, analytics SDK, or crash-reporting SDK. The app does integrate the **Google AdMob** advertising SDK (see “Advertising” below).
 
-Calcademy does process user-entered expressions, values, matrices, models, notes, and result data locally to provide its calculation and saved-work features. “No developer collection” does not mean that the app performs no data processing on the device.
+Calcademy does process user-entered expressions, values, matrices, models, notes, and result data locally to provide its calculation and saved-work features. “No developer collection” does not mean that the app performs no data processing on the device, nor that Google AdMob performs no processing for advertising.
+
+## Advertising (Google AdMob)
+
+Calcademy displays banner advertisements through the **Google AdMob** SDK. To serve, measure, cap the frequency of, and prevent fraud in these ads, and to handle consent, Google and its ad partners may process data such as advertising and device identifiers, IP address, coarse/derived location, and general device information under [Google's own policies](https://policies.google.com/privacy). This processing is performed by Google/AdMob, not by a Calcademy server; Calcademy does not receive your calculations or saved work through it.
+
+Depending on your region (for example the EEA, UK, and Switzerland), a Google-provided consent or ad-choice mechanism may be presented. Personalized ads are not assumed until the applicable consent is obtained; where consent status is unknown, non-personalized-safe behavior is preferred.
+
+The third-party involved is **Google AdMob**. Calcademy does not add Firebase, Google Analytics, or any analytics/crash-reporting SDK.
 
 ## Network access and sharing
 
-The production Android manifest does not request the Internet permission. Debug/profile builds use it only for Flutter development tooling and are not store artifacts.
+The production Android manifest requests the `INTERNET` and `ACCESS_NETWORK_STATE` permissions. These are used by the Google AdMob SDK to fetch ads. Debug/profile builds also use `INTERNET` for Flutter development tooling and are not store artifacts.
 
 When a user explicitly chooses a system share action, Android may pass the selected text or generated graph image to an app chosen by the user. The receiving app's privacy policy then applies. Calcademy does not initiate that transfer without the user's action.
 
@@ -64,9 +72,9 @@ Calcademy is an academic tool and is not designed to collect personal or sensiti
 
 Financial tools are provided for education and general calculation only. They are not financial, investment, tax, or legal advice. Results depend on user inputs and numerical methods.
 
-## Future advertising or analytics
+## Future analytics or accounts
 
-Calcademy currently contains no ads or advertising identifiers. If advertising, analytics, cloud services, or accounts are added, this policy and the applicable store Data Safety disclosures must be updated before that version is released. Where required, consent controls must be implemented before collection begins.
+Calcademy contains banner advertising through Google AdMob (described above) but no analytics, crash-reporting, cloud, or account SDK. If analytics, cloud services, accounts, or additional ad technologies (mediation, interstitial, rewarded, native) are added, this policy and the applicable store Data Safety disclosures must be updated before that version is released. Where required, consent controls must be implemented before collection begins.
 
 ## Changes
 
@@ -91,4 +99,4 @@ This document is a factual product draft, not legal advice or a guarantee of com
 
 ## Türkçe özet
 
-Calcademy hesaplamaları cihazda yapar; ayarlar, geçmiş ve kaydedilen hesaplamalar yalnızca uygulamanın yerel depolamasında tutulur. Mevcut sürümde hesap, sunucu, bulut senkronizasyonu, reklam, analytics veya crash-reporting SDK’sı yoktur. Kullanıcı sistem paylaşımını açıkça seçerse seçilen içerik kullanıcının tercih ettiği uygulamaya aktarılabilir. Kayıtlar uygulama içinden silinebilir; tüm veriler Android ayarlarından uygulama verisi temizlenerek veya uygulama kaldırılarak silinebilir. Reklam veya veri toplayan bir servis eklenmeden önce bu politika ve mağaza beyanları güncellenmelidir.
+Calcademy hesaplamaları cihazda yapar; ayarlar, geçmiş ve kaydedilen hesaplamalar yalnızca uygulamanın yerel depolamasında tutulur. Mevcut sürümde hesap, Calcademy sunucusu, bulut senkronizasyonu, analytics veya crash-reporting SDK’sı yoktur. Ancak uygulama, **Google AdMob** SDK’sı aracılığıyla banner reklam gösterir; Google/AdMob, reklamların sunulması, ölçülmesi ve sahtekârlığın önlenmesi için reklam/cihaz tanımlayıcıları, IP adresi ve benzeri verileri kendi politikaları kapsamında işleyebilir. Bölgenize göre (ör. AEA, Birleşik Krallık, İsviçre) Google tarafından sağlanan bir onay/reklam tercihi mekanizması sunulabilir; onay alınana kadar kişiselleştirilmiş reklam varsayılmaz. Ana manifest, AdMob’un reklam getirmesi için `INTERNET` ve `ACCESS_NETWORK_STATE` izinlerini ister. Kullanıcı sistem paylaşımını açıkça seçerse seçilen içerik kullanıcının tercih ettiği uygulamaya aktarılabilir. Kayıtlar uygulama içinden silinebilir; tüm veriler Android ayarlarından uygulama verisi temizlenerek veya uygulama kaldırılarak silinebilir. Ek reklam teknolojileri veya veri toplayan başka bir servis eklenmeden önce bu politika ve mağaza beyanları güncellenmelidir.

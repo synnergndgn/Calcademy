@@ -1,3 +1,4 @@
+import 'package:calcademy/app/ads/ad_banner.dart';
 import 'package:calcademy/app/theme/app_breakpoints.dart';
 import 'package:calcademy/app/theme/app_colors.dart';
 import 'package:calcademy/app/theme/app_radius.dart';
@@ -53,6 +54,9 @@ class _HomePageState extends ConsumerState<HomePage> {
           SizedBox(width: AppSpacing.xs),
         ],
       ),
+      // Low-intrusion anchored banner below the module grid. Renders nothing
+      // until an ad loads, so it never affects layout in tests or offline.
+      bottomNavigationBar: const AdBanner(),
       body: LayoutBuilder(
         builder: (context, constraints) => CustomScrollView(
           key: const Key('home-scroll'),
