@@ -45,6 +45,6 @@ Safe current direction: “academic calculation workspace for students, educator
 - [ ] Privacy policy is available before completing target-audience settings.
 - [ ] App access and ads declarations are completed first where Play Console requires them.
 - [ ] Content rating and target-audience responses are mutually consistent.
-- [x] Revisited for the AdMob Integration 1.0 sprint: target audience is unchanged (adult/academic, not child-directed); the app is now ad-supported via a Google AdMob banner. Revisit again before any analytics/account sprint.
+- [ ] The decision is revisited before any AdMob/analytics/account sprint. (AdMob was trialled in 1.0.0+5/+6 and rolled back in 1.0.0+7; target audience unchanged — adult/academic, not child-directed.)
 
 This checklist is product/policy guidance, not legal advice or a guarantee of Families eligibility.

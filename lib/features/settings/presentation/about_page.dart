@@ -95,12 +95,6 @@ class AboutPage extends StatelessWidget {
                       title: context.l10n.t('localStorage'),
                       body: context.l10n.t('localStorageBody'),
                     ),
-                    const SizedBox(height: AppSpacing.md),
-                    _InformationRow(
-                      icon: Icons.ads_click_outlined,
-                      title: context.l10n.t('adsDisclosure'),
-                      body: context.l10n.t('adsDisclosureBody'),
-                    ),
                     if (AppMetadata.parsePublicHttpsUrl(privacyPolicyUrl)
                         case final Uri privacyPolicyUri) ...[
                       const SizedBox(height: AppSpacing.md),
@@ -128,8 +122,8 @@ class AboutPage extends StatelessWidget {
                           label: context.l10n.t('localFirst'),
                         ),
                         _PrivacyFlag(
-                          icon: Icons.ads_click_outlined,
-                          label: context.l10n.t('adSupported'),
+                          icon: Icons.block_rounded,
+                          label: context.l10n.t('noAds'),
                         ),
                         _PrivacyFlag(
                           icon: Icons.analytics_outlined,
@@ -203,7 +197,7 @@ class AboutPage extends StatelessWidget {
       '${l10n.t('applicationIdLabel')}: ${AppMetadata.applicationId}',
       l10n.t('tagline'),
       l10n.t('localFirst'),
-      l10n.t('adSupported'),
+      l10n.t('noAds'),
       l10n.t('noAnalytics'),
       l10n.t('noCloudSync'),
     ].join('\n');

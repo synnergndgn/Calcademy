@@ -1,4 +1,3 @@
-import 'package:calcademy/app/ads/ad_banner.dart';
 import 'package:calcademy/app/theme/app_spacing.dart';
 import 'package:calcademy/core/widgets/empty_state.dart';
 import 'package:calcademy/features/graph/data/graph_repository.dart';
@@ -55,9 +54,6 @@ class SavedPage extends StatelessWidget {
             _SavedOptimizationsTab(),
           ],
         ),
-        // Anchored banner below the tab content. Zero-height until an ad
-        // loads, so it never pushes or clips the saved lists.
-        bottomNavigationBar: const AdBanner(),
       ),
     );
   }

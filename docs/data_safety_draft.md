@@ -1,6 +1,6 @@
 # Google Play Data Safety Draft
 
-This worksheet reflects the current Calcademy build (version 1.0.0+5), which **integrates the Google AdMob banner SDK**. It has no account, Calcademy backend, cloud synchronization, analytics, or crash-reporting SDK, but the AdMob SDK requires the `INTERNET`/`ACCESS_NETWORK_STATE` permissions and collects/shares advertising and device data off the device. Re-audit the exact final AAB and all transitive SDKs (including the AdMob/Google Mobile Ads dependency chain and its own current Data Safety disclosure) before submitting the form.
+This worksheet reflects the current Calcademy build (version 1.0.0+7): no production Internet permission, account, backend, cloud synchronization, advertising, analytics, or crash-reporting SDK. (AdMob was integrated in 1.0.0+5/+6 and **rolled back in 1.0.0+7** after a native startup crash.) Re-audit the exact final AAB and all transitive SDKs before submitting the form.
 
 Google defines data collection for this form around data transmitted off the device. Data processed only on the device generally does not need to be disclosed as collected. Even apps declaring no collection must complete the form for applicable Play tracks and provide a privacy-policy link. See the [official Data Safety guidance](https://support.google.com/googleplay/android-developer/answer/10787469).
 
@@ -8,10 +8,10 @@ Google defines data collection for this form around data transmitted off the dev
 
 | Question area | Current draft | Evidence / caveat |
 | --- | --- | --- |
-| Does the app collect required user-data types? | Yes (via AdMob) | Calcademy's own features are on-device, but the Google AdMob SDK collects device/advertising identifiers and related data. Confirm the exact categories from AdMob's current disclosure |
-| Does the app share user data with third parties? | Yes | Ad/device identifiers are shared with Google/AdMob and its ad partners for advertising |
-| Is all transmitted data encrypted in transit? | Yes | AdMob traffic uses HTTPS; confirm against AdMob's current disclosure |
-| Does the app provide a deletion mechanism? | Local deletion is available | Delete/clear Saved Calculations, clear app storage, or uninstall. Ad identifiers are managed via device settings/consent |
+| Does the app collect required user-data types? | No | Inputs and saved calculations are processed/stored on device only |
+| Does the app share user data with third parties? | No | No automatic third-party transfer or SDK collection detected |
+| Is all transmitted data encrypted in transit? | Not applicable | Current production build has no network permission or developer-controlled transmission |
+| Does the app provide a deletion mechanism? | Local deletion is available | Delete/clear Saved Calculations, clear app storage, or uninstall |
 | Is account deletion offered? | Not applicable | No account creation or server-side account data |
 
 Do not present **Not applicable** as a substitute if Play Console asks a differently scoped mandatory yes/no question; follow the current form wording.
@@ -31,7 +31,7 @@ Do not present **Not applicable** as a substitute if Play Console asks a differe
 | App activity | No | No | No analytics or remote activity collection |
 | Web browsing | No | No | No embedded browsing/collection feature |
 | App info/performance | No | No | No crash reporting, diagnostics, or performance telemetry SDK |
-| Device identifiers | Yes (AdMob) | Yes | Google AdMob may collect/share advertising ID, device identifiers, and IP for ad serving, measurement, and fraud prevention. Confirm exact categories from AdMob's current Data Safety guidance |
+| Device identifiers | No | No | No ads/analytics SDK or identifier collection detected |
 
 ## On-device processing that still belongs in the privacy policy
 
@@ -57,15 +57,15 @@ Copy writes selected result text to the system clipboard. Share actions invoke a
 
 Do not claim a server deletion-request service: no server-side collection or account currently exists.
 
-## AdMob note (already integrated)
+## AdMob rollback note
 
-Google AdMob (banner only) is integrated as of 1.0.0+5. The answers above must be reconciled with Google's published [AdMob Data Safety guidance](https://support.google.com/admob/answer/9760862) and the plugin's declared data types before submission. Interstitial, rewarded, native ads, and mediation are **not** used and would each require a fresh re-evaluation.
+Google AdMob (banner) was integrated in 1.0.0+5/+6 and **rolled back in 1.0.0+7** after a native startup crash (AndroidX Startup / WorkManager provider pulled in by the ads dependency). The shipping build has no ads SDK, so the "No collection / No sharing" answers above apply again. Any future AdMob attempt must redo this worksheet against Google's [AdMob Data Safety guidance](https://support.google.com/admob/answer/9760862).
 
 ## Mandatory re-evaluation triggers
 
 Discard and redo this draft before releasing any version that adds:
 
-- additional ad technology beyond the current AdMob banner (mediation, interstitial, rewarded, native);
+- AdMob, mediation, advertising ID, or other ad technology;
 - analytics, crash reporting, performance monitoring, or remote configuration;
 - Firebase or another backend/cloud synchronization service;
 - account creation, authentication, subscriptions, billing, or user profiles;

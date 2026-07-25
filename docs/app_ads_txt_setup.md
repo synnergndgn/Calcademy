@@ -1,4 +1,10 @@
-# app-ads.txt Setup (Google AdMob)
+# app-ads.txt Setup (Google AdMob) — FUTURE ONLY, NOT ACTIVE
+
+> **Status: not active in the current build.** AdMob was rolled back in
+> 1.0.0+7 after a native startup crash, so the shipping app contains no ads SDK
+> and needs no `app-ads.txt`. This document is retained only as a reference for
+> a future, separately branched AdMob re-attempt. Do not act on it for the
+> current release.
 
 `app-ads.txt` lets Google verify that Calcademy's ad inventory is authorized to
 be sold through the publisher account. It is **not** shipped inside the app — it

@@ -1,14 +1,25 @@
-# Monetization Strategy — AdMob Banner Integrated
+# Monetization Strategy — AdMob Rolled Back (Ads-Free)
 
-This document is planning material. **As of version 1.0.0+5 the codebase integrates the Google AdMob banner SDK** (banner only; no interstitial, rewarded, native, mediation, analytics, or billing SDK). The earlier "no ads" planning content below is retained as historical context and superseded by the AdMob Integration 1.0 sprint.
+This document is planning material. **The shipping build (1.0.0+7) contains no ads SDK.** Google AdMob (banner) was integrated in 1.0.0+5/+6 but **rolled back in 1.0.0+7** — see the rollback note below.
 
-## Current decision (AdMob Integration 1.0)
+## AdMob rollback (1.0.0+7)
 
-**Ad-supported via a single AdMob banner on the Home and Saved screens.** Debug/profile builds serve Google's official test unit; release serves the real unit. Identifiers live only in `lib/app/ads/ad_config.dart`. A UMP consent scaffold (`lib/app/ads/consent_service.dart`) is wired for regulated regions; the console-side messages and `app-ads.txt` publisher line remain manual follow-ups (see `docs/app_ads_txt_setup.md`).
+The AdMob banner integration caused a **native startup crash on real devices / internal testing**, before Flutter/Dart ran, so runtime try/catch and feature flags could not prevent it:
 
-## Historical first-release decision (superseded)
+```
+FATAL EXCEPTION: main
+Unable to get provider androidx.startup.InitializationProvider
+Caused by: com.google.android.gms.internal.ads...
+Caused by: Failed to create an instance of androidx.work.impl.WorkDatabase
+```
 
-The initial plan targeted an ad-free first candidate to simplify the manifest, privacy review, and Data Safety declaration. That decision has now been revisited: the app ships ad-supported. Any move back to ad-free, or forward to additional ad formats, must be revalidated against the exact final AAB.
+Because the crash originated from an AndroidX Startup / WorkManager `ContentProvider` pulled in transitively by the ads dependency, the only reliable fix was to **remove the `google_mobile_ads` dependency entirely** (dependency, code, manifest App ID, network permissions, and proguard keeps). The app is ads-free and local-first again.
+
+Any future attempt must happen on a separate branch and prove startup stability on a real device / internal-testing artifact **before** merging (see "Proposed next sprint" below).
+
+## Historical first-release decision
+
+The initial plan targeted an ad-free first candidate to simplify the manifest, privacy review, and Data Safety declaration. After the AdMob rollback, that ad-free posture is once again the shipping reality.
 
 ## Options
 

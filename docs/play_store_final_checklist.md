@@ -61,7 +61,7 @@ The repository now contains legacy fallback plus adaptive foreground/background 
 - [ ] Public support email and website are available.
 - [x] Privacy policy is published through GitHub Pages at `https://synnergndgn.github.io/Calcademy/privacy_policy` and linked from About & Legal.
 - [ ] Data Safety, App Content, financial-features, content-rating, and target-audience answers were reviewed against the exact final AAB and every included SDK.
-- [ ] Ads declaration is **Yes** — the build contains a Google AdMob banner; update Data Safety and privacy policy accordingly and publish `app-ads.txt`.
+- [ ] Ads declaration is **No** for the current ad-free build (AdMob rolled back in 1.0.0+7).
 - [ ] No account-access or reviewer credentials are required.
 - [ ] Developer Program Policies were rechecked on upload day.
 

@@ -1,19 +1,8 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
-    <!-- Network access is required by the Google AdMob (Mobile Ads) SDK to
-         fetch banner ads. Added deliberately in the AdMob Integration 1.0
-         sprint; the app itself still stores all user calculation data locally. -->
-    <uses-permission android:name="android.permission.INTERNET"/>
-    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE"/>
     <application
         android:label="Calcademy"
         android:name="${applicationName}"
         android:icon="@mipmap/ic_launcher">
-        <!-- Google AdMob application id (AdMob Integration 1.0). A missing or
-             malformed value crashes the Mobile Ads SDK at init, so it is kept
-             in sync with lib/app/ads/ad_config.dart (AdConfig.androidAppId). -->
-        <meta-data
-            android:name="com.google.android.gms.ads.APPLICATION_ID"
-            android:value="ca-app-pub-5164539069315402~1162467024"/>
         <activity
             android:name=".MainActivity"
             android:exported="true"

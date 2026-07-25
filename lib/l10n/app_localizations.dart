@@ -1077,13 +1077,10 @@ class AppLocalizations {
       'localStorage': 'Local storage',
       'localStorageBody':
           'Saved Calculations and supported workspace data remain on this device until you delete them, clear app storage, or uninstall the app.',
-      'adSupported': 'Ad-supported',
+      'noAds': 'No ads',
       'noAnalytics': 'No analytics',
       'noCloudSync': 'No cloud sync',
       'noAccount': 'No account',
-      'adsDisclosure': 'Ads by Google AdMob',
-      'adsDisclosureBody':
-          'Calcademy shows banner ads through the Google AdMob SDK. To serve, measure, and prevent fraud in ads, Google may process advertising and device identifiers, IP address, and similar data under its own policies. Consent or ad-choice options may be offered based on your region. Your calculations and saved work are never sent to a Calcademy server.',
       'educationalUse': 'Educational use',
       'educationalUseBody':
           'Calcademy supports academic exploration and general calculation. Results depend on your inputs, numerical methods, and floating-point precision.',
@@ -2177,13 +2174,10 @@ class AppLocalizations {
       'localStorage': 'Yerel depolama',
       'localStorageBody':
           'Kaydedilen Hesaplamalar ve desteklenen çalışma alanı verileri; siz silene, uygulama verilerini temizleyene veya uygulamayı kaldırana kadar bu cihazda kalır.',
-      'adSupported': 'Reklam destekli',
+      'noAds': 'Reklam yok',
       'noAnalytics': 'Analiz yok',
       'noCloudSync': 'Bulut eşitleme yok',
       'noAccount': 'Hesap yok',
-      'adsDisclosure': 'Google AdMob reklamları',
-      'adsDisclosureBody':
-          'Calcademy, Google AdMob SDK aracılığıyla banner reklam gösterir. Reklamların sunulması, ölçülmesi ve sahtekârlığın önlenmesi için Google; reklam ve cihaz tanımlayıcılarını, IP adresini ve benzeri verileri kendi politikaları kapsamında işleyebilir. Bölgenize göre onay veya reklam tercihi seçenekleri sunulabilir. Hesaplamalarınız ve kayıtlı çalışmalarınız hiçbir zaman bir Calcademy sunucusuna gönderilmez.',
       'educationalUse': 'Eğitim amaçlı kullanım',
       'educationalUseBody':
           'Calcademy akademik inceleme ve genel hesaplamayı destekler. Sonuçlar girdilerinize, sayısal yöntemlere ve kayan nokta hassasiyetine bağlıdır.',
