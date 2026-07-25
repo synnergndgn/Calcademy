@@ -1,6 +1,7 @@
 import 'dart:io';
 
 import 'package:calcademy/app/ads/ad_config.dart';
+import 'package:calcademy/app/app_metadata.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 /// Guards the release paperwork so an ad-supported build can never ship with a
@@ -80,5 +81,44 @@ void main() {
     final listing = await File('docs/store_listing.md').readAsString();
     expect(listing.toLowerCase(), contains('ad-supported'));
     expect(listing, contains('AdMob'));
+  });
+
+  test('store listing scopes banners to Home and Saved', () async {
+    final listing = await File('docs/store_listing.md').readAsString();
+
+    // The placement promise made to users must match the code, which puts
+    // AdBanner only on Home and Saved.
+    expect(listing, contains('Home and Saved'));
+  });
+
+  test('app metadata declares the ad-supported posture', () {
+    expect(AppMetadata.adsStatus, 'admob-banner');
+    expect(AppMetadata.analyticsStatus, 'not-included');
+    expect(AppMetadata.cloudSyncStatus, 'not-included');
+  });
+
+  test('privacy policy does not claim consent is already active', () async {
+    final policy = await File('docs/privacy_policy.md').readAsString();
+
+    // UMP is out of scope for this sprint. Publishing a policy that implies a
+    // live consent flow would be a false statement to users and reviewers.
+    expect(policy, contains('Consent is not yet implemented in this build'));
+    expect(policy, contains('User Messaging Platform'));
+  });
+
+  test('data safety declares collection and sharing, not "no data"', () async {
+    final dataSafety = await File('docs/data_safety_draft.md').readAsString();
+
+    expect(dataSafety, contains('Yes (via AdMob)'));
+    expect(dataSafety.toLowerCase(), isNot(contains('no data collected')));
+  });
+
+  test('ad-related permissions are declared in the main manifest', () async {
+    final manifest = await File(
+      'android/app/src/main/AndroidManifest.xml',
+    ).readAsString();
+
+    expect(manifest, contains('android.permission.INTERNET'));
+    expect(manifest, contains('android.permission.ACCESS_NETWORK_STATE'));
   });
 }

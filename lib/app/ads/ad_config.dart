@@ -34,6 +34,35 @@ abstract final class AdConfig {
   /// ships. See `docs/app_ads_txt_setup.md`.
   static const String? appAdsTxtPublisherId = null;
 
+  /// Comma-separated AdMob test device ids, supplied at build time:
+  ///
+  /// ```
+  /// flutter build apk --release --dart-define=ADMOB_TEST_DEVICE_IDS=ABC123,DEF456
+  /// ```
+  ///
+  /// A *release* build serves the real ad unit, so manually testing one would
+  /// otherwise generate real impressions on the production unit — and any tap
+  /// would be invalid traffic against the AdMob account. Registering the test
+  /// device makes Google serve test ads from the real unit id instead, which is
+  /// safe to interact with.
+  ///
+  /// Deliberately an environment value rather than a source constant: a
+  /// personal device id can never be committed by accident, and omitting the
+  /// define leaves production behaviour byte-for-byte unchanged.
+  static const String _testDeviceIdsRaw = String.fromEnvironment(
+    'ADMOB_TEST_DEVICE_IDS',
+  );
+
+  /// Parsed [_testDeviceIdsRaw]; empty in every normal build.
+  static List<String> get testDeviceIds => _testDeviceIdsRaw
+      .split(',')
+      .map((id) => id.trim())
+      .where((id) => id.isNotEmpty)
+      .toList(growable: false);
+
+  /// Whether this build registers any AdMob test device.
+  static bool get hasTestDevices => testDeviceIds.isNotEmpty;
+
   /// Whether the Mobile Ads SDK may run at all. `false` on web, desktop, and
   /// every test — so ad code is inert there and can never crash or overflow.
   static bool get adsEnabled {

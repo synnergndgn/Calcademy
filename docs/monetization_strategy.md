@@ -95,7 +95,10 @@ This branch may merge to `main` only when all of the following hold
 - [x] Release APK (minify **on**) opens on a real device — the configuration
       that crashed in 1.0.0+6.
 - [ ] Release AAB opens from a Play internal test track (split-APK delivery
-      path; not yet exercised).
+      path; not yet exercised) — see `docs/play_internal_test_runbook.md`.
+      The signed 62.2 MB `app-release.aab` (versionCode 8) is built and
+      verified: `WorkDatabase_Impl` is kept unrenamed with its no-arg
+      constructor intact in this build's own R8 mapping.
 - [x] No `FATAL EXCEPTION`, no `WorkDatabase` failure, no
       `InitializationProvider` failure in logcat.
 - [x] App reaches the Home screen; banner serves on Home and Saved; Scientific

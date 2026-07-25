@@ -1,5 +1,6 @@
 import 'dart:io';
 
+import 'package:calcademy/app/ads/ad_config.dart';
 import 'package:calcademy/app/app_metadata.dart';
 import 'package:flutter_test/flutter_test.dart';
 
@@ -78,6 +79,23 @@ void main() {
       );
       expect(rules, contains('<init>()'));
       expect(rules, contains('androidx.startup.Initializer'));
+    });
+  });
+
+  group('test device configuration', () {
+    test('no test device is baked into a normal build', () {
+      // Test device ids arrive via --dart-define, never from source, so a
+      // personal device id cannot be committed and production behaviour is
+      // unchanged unless the define is passed explicitly.
+      expect(AdConfig.testDeviceIds, isEmpty);
+      expect(AdConfig.hasTestDevices, isFalse);
+    });
+
+    test('ad config source declares no literal device id', () async {
+      final source = await File('lib/app/ads/ad_config.dart').readAsString();
+
+      expect(source, contains('String.fromEnvironment'));
+      expect(source, contains('ADMOB_TEST_DEVICE_IDS'));
     });
   });
 

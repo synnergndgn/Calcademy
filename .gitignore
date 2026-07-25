@@ -43,3 +43,11 @@ app.*.map.json
 /android/app/debug
 /android/app/profile
 /android/app/release
+
+# Device logcat captures. These are large, machine-specific, and can contain
+# device/account identifiers, so they stay local. `crash_log.txt` predates this
+# rule and is kept deliberately as the 1.0.0+6 startup-crash evidence.
+*_crash_log.txt
+admob_retry_*.txt
+admob_internal_*.txt
+logcat_*.txt

@@ -43,6 +43,13 @@ abstract final class AdService {
 
   static Future<bool> _initialize() async {
     try {
+      // Opt-in only: without --dart-define=ADMOB_TEST_DEVICE_IDS this is a
+      // no-op and the SDK sees exactly the production configuration.
+      if (AdConfig.hasTestDevices) {
+        await MobileAds.instance.updateRequestConfiguration(
+          RequestConfiguration(testDeviceIds: AdConfig.testDeviceIds),
+        );
+      }
       await MobileAds.instance.initialize();
       _available = true;
     } on Object catch (error, stackTrace) {
