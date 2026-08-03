@@ -64,8 +64,12 @@ void main() {
     expect(find.text('Optimization & Operations Research'), findsWidgets);
     expect(find.text('Data & Statistics'), findsWidgets);
     expect(find.text('Finance'), findsWidgets);
-    expect(find.text('Workspace'), findsNothing);
+    expect(find.text('Workspace'), findsWidgets);
     expect(find.byKey(const Key('module-card-calculator')), findsOneWidget);
+    expect(
+      find.byKey(const Key('module-card-formula-library')),
+      findsOneWidget,
+    );
     expect(find.byIcon(Icons.schedule_rounded), findsWidgets);
   });
 

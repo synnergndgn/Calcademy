@@ -34,6 +34,15 @@ class AcademyModule {
 
 const academyModules = [
   AcademyModule(
+    id: 'formula-library',
+    titleKey: 'formulaLibraryTitle',
+    icon: Icons.menu_book_rounded,
+    category: AcademyModuleCategory.workspace,
+    route: '/formulas',
+    descriptionKey: 'formulaLibrarySubtitle',
+    available: true,
+  ),
+  AcademyModule(
     id: 'calculator',
     titleKey: 'calculator',
     icon: Icons.calculate_rounded,

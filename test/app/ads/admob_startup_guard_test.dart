@@ -100,12 +100,12 @@ void main() {
   });
 
   group('release identity', () {
-    test('this retry build is 1.0.0+8', () async {
+    test('current release is 1.1.0+9', () async {
       final pubspec = await File('pubspec.yaml').readAsString();
 
-      expect(pubspec, contains('version: 1.0.0+8'));
-      expect(AppMetadata.versionName, '1.0.0');
-      expect(AppMetadata.buildNumber, 8);
+      expect(pubspec, contains('version: 1.1.0+9'));
+      expect(AppMetadata.versionName, '1.1.0');
+      expect(AppMetadata.buildNumber, 9);
     });
   });
 
@@ -115,6 +115,7 @@ void main() {
       'calculus',
       'equation_solver',
       'financial_calculator',
+      'formula_library',
       'graph',
       'integer_programming',
       'linear_programming',

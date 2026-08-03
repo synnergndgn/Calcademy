@@ -13,6 +13,8 @@ import 'package:calcademy/features/equation_solver/presentation/equation_solver_
 import 'package:calcademy/features/calculus/presentation/calculus_page.dart';
 import 'package:calcademy/features/statistics/presentation/statistics_page.dart';
 import 'package:calcademy/features/financial_calculator/presentation/financial_calculator_page.dart';
+import 'package:calcademy/features/formula_library/presentation/formula_detail_page.dart';
+import 'package:calcademy/features/formula_library/presentation/formula_library_page.dart';
 import 'package:calcademy/features/saved/presentation/saved_page.dart';
 import 'package:calcademy/features/settings/presentation/about_page.dart';
 import 'package:calcademy/features/settings/presentation/settings_page.dart';
@@ -103,6 +105,17 @@ final appRouter = GoRouter(
     GoRoute(
       path: '/operations-research',
       builder: (context, state) => const OperationsResearchPage(),
+    ),
+    GoRoute(
+      path: '/formulas',
+      builder: (context, state) => const FormulaLibraryPage(),
+      routes: [
+        GoRoute(
+          path: ':formulaId',
+          builder: (context, state) =>
+              FormulaDetailPage(formulaId: state.pathParameters['formulaId']!),
+        ),
+      ],
     ),
     GoRoute(
       path: '/coming-soon/:moduleId',

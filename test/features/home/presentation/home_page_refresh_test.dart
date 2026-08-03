@@ -22,7 +22,7 @@ void main() {
     expect(find.byKey(const Key('home-category-optimization')), findsOneWidget);
     expect(find.byKey(const Key('home-category-data')), findsOneWidget);
     expect(find.byKey(const Key('home-category-finance')), findsOneWidget);
-    expect(find.byKey(const Key('home-category-workspace')), findsNothing);
+    expect(find.byKey(const Key('home-category-workspace')), findsOneWidget);
     expect(
       find.byKey(const Key('module-card-saved-calculations')),
       findsNothing,
@@ -45,6 +45,13 @@ void main() {
       find.descendant(
         of: find.byKey(const Key('home-category-finance')),
         matching: find.text('Financial Calculator'),
+      ),
+      findsOneWidget,
+    );
+    expect(
+      find.descendant(
+        of: find.byKey(const Key('home-category-workspace')),
+        matching: find.text('Formula Library'),
       ),
       findsOneWidget,
     );
