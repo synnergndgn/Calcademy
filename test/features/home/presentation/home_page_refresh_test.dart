@@ -22,7 +22,7 @@ void main() {
     expect(find.byKey(const Key('home-category-optimization')), findsOneWidget);
     expect(find.byKey(const Key('home-category-data')), findsOneWidget);
     expect(find.byKey(const Key('home-category-finance')), findsOneWidget);
-    expect(find.byKey(const Key('home-category-workspace')), findsNothing);
+    expect(find.byKey(const Key('home-category-workspace')), findsOneWidget);
     expect(
       find.byKey(const Key('module-card-saved-calculations')),
       findsNothing,
@@ -48,11 +48,28 @@ void main() {
       ),
       findsOneWidget,
     );
+    expect(
+      find.descendant(
+        of: find.byKey(const Key('home-category-workspace')),
+        matching: find.text('Formula Library'),
+      ),
+      findsOneWidget,
+    );
   });
 
-  testWidgets('search does not expose Saved Calculations as a home module', (
-    tester,
-  ) async {
+  testWidgets('quick access exposes Formula Library and Saved', (tester) async {
+    await _pumpHome(tester);
+
+    expect(find.byKey(const Key('home-quick-access')), findsOneWidget);
+    expect(
+      find.byKey(const Key('quick-access-formula-library')),
+      findsOneWidget,
+    );
+    expect(find.byKey(const Key('quick-access-saved')), findsOneWidget);
+    expect(find.text('Quick access'), findsOneWidget);
+  });
+
+  testWidgets('search exposes Saved as a home module', (tester) async {
     await _pumpHome(tester);
 
     await tester.enterText(
@@ -61,11 +78,60 @@ void main() {
     );
     await tester.pump();
 
-    expect(find.byKey(const Key('home-search-empty')), findsOneWidget);
+    expect(find.byKey(const Key('home-search-empty')), findsNothing);
+    expect(find.byKey(const Key('module-card-saved')), findsOneWidget);
+  });
+
+  testWidgets('search matches Turkish matrix and formula tags', (tester) async {
+    await _pumpHome(tester);
+
+    await tester.enterText(
+      find.byKey(const Key('home-module-search')),
+      'matris',
+    );
+    await tester.pump();
+    expect(find.byKey(const Key('module-card-matrices')), findsOneWidget);
     expect(
-      find.byKey(const Key('module-card-saved-calculations')),
+      find.byKey(const Key('module-card-financial-calculator')),
       findsNothing,
     );
+
+    await tester.enterText(
+      find.byKey(const Key('home-module-search')),
+      'formül',
+    );
+    await tester.pump();
+    expect(
+      find.byKey(const Key('module-card-formula-library')),
+      findsOneWidget,
+    );
+    expect(find.byKey(const Key('module-card-matrices')), findsNothing);
+  });
+
+  testWidgets('category chips narrow the compact tool grid', (tester) async {
+    await _pumpHome(tester);
+
+    expect(
+      find.byKey(const Key('home-tool-categories-header')),
+      findsOneWidget,
+    );
+    await tester.ensureVisible(find.byKey(const Key('home-category-filter')));
+    await tester.pumpAndSettle();
+    await tester.drag(
+      find.byKey(const Key('home-category-filter')),
+      const Offset(-900, 0),
+    );
+    await tester.pumpAndSettle();
+    await tester.tap(
+      find.byKey(const Key('home-category-filter-finance')).hitTestable(),
+    );
+    await tester.pump();
+
+    expect(
+      find.byKey(const Key('module-card-financial-calculator')),
+      findsOneWidget,
+    );
+    expect(find.byKey(const Key('module-card-calculator')), findsNothing);
   });
 
   testWidgets('search matches module metadata and hides empty categories', (

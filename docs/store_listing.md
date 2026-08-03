@@ -39,9 +39,9 @@ Supported workspaces include:
 - Transportation, Assignment, Goal Programming, and CPM/PERT tools
 - Saved Calculations with search, filters, favorites, copy, and local persistence
 
-Calculations and supported saved data stay on the device. Calcademy currently has no account, cloud sync, ads, or analytics. Light and dark themes, English and Turkish interfaces, responsive layouts, and accessibility-focused text scaling are included.
+Calculations and supported saved data stay on the device. Calcademy has no account, cloud sync, or analytics. It is ad-supported through a single Google AdMob banner on the Home and Saved screens; the ads require network access, while your calculations and saved work stay on the device. Light and dark themes, English and Turkish interfaces, responsive layouts, and accessibility-focused text scaling are included.
 
-The in-app About & Legal area explains local storage, current data handling, educational use, and the financial disclaimer in English and Turkish.
+The in-app About & Legal area explains local storage, the Google AdMob disclosure, current data handling, educational use, and the financial disclaimer in English and Turkish.
 
 Calcademy is intended for education and general academic calculation. Financial outputs are not investment, tax, or legal advice. Results depend on user inputs, floating-point arithmetic, and the numerical method used.
 
@@ -70,7 +70,7 @@ Matematik, optimizasyon, yöneylem araştırması, istatistik ve finans araçlar
 - Transportation, Assignment, Goal Programming ve CPM/PERT
 - Arama, filtre, favori, kopyalama ve cihaz içi kalıcılık sunan Saved Calculations
 
-Desteklenen hesaplamalar ve kayıtlar cihazda kalır. Mevcut sürümde hesap, bulut senkronizasyonu, reklam veya analytics yoktur. Açık/koyu tema, Türkçe/İngilizce arayüz ve responsive erişilebilir tasarım desteklenir.
+Desteklenen hesaplamalar ve kayıtlar cihazda kalır. Mevcut sürümde hesap, bulut senkronizasyonu veya analytics yoktur. Uygulama, Ana Sayfa ve Kayıtlı ekranlarında tek bir Google AdMob banner reklamıyla desteklenir; reklamlar ağ erişimi gerektirir, hesaplamalarınız ve kayıtlarınız ise cihazda kalır. Açık/koyu tema, Türkçe/İngilizce arayüz ve responsive erişilebilir tasarım desteklenir.
 
 Uygulama içindeki Hakkında ve Yasal Bilgiler alanı; yerel depolama, mevcut veri işleme yaklaşımı, eğitim amaçlı kullanım ve finansal uyarıyı Türkçe ve İngilizce açıklar.
 
@@ -128,7 +128,7 @@ Calcademy 1.0'a hoş geldiniz. Bilimsel hesaplama, grafik, matris, denklem, kalk
 
 - [ ] Title and descriptions fit current Play limits.
 - [ ] Every listed module exists in the uploaded build.
-- [ ] “Offline” remains accurate for the production artifact (no ads SDK ships in 1.0.0+7).
+- [ ] “Offline” wording stays scoped to calculations/saved work; the app is ad-supported and the AdMob banner needs network. No “ad-free/no ads” claim remains anywhere in the listing.
 - [ ] No “best,” “guaranteed,” “AI-powered,” ranking, award, or unlimited-accuracy claim appears.
 - [ ] Financial wording remains educational and does not imply advice or recommendation.
 - [ ] EN/TR descriptions communicate equivalent capabilities.

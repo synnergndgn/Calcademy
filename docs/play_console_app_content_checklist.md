@@ -1,6 +1,12 @@
 # Play Console App Content Checklist
 
-These are draft answers based on Calcademy's current offline, account-free, ad-free Android build (version 1.0.0+7; the AdMob banner trialled in 1.0.0+5/+6 was rolled back). The release owner must verify every answer against the exact final AAB, dependencies, store listing, and current Play Console wording. Recheck official Google documentation before submission.
+> **Branch-scoped draft (`feature/admob-retry`, 1.0.0+8).** The stable `main`
+> branch is 1.0.0+7 and ads-free, and its Play declaration must stay
+> "Contains ads: No". Do not change the live declaration until the AdMob branch
+> passes real-device release verification and is merged.
+> See `docs/monetization_strategy.md`.
+
+These are draft answers based on Calcademy's account-free Android build, which **contains ads** (Google AdMob banner) as of version 1.0.0+8. The release owner must verify every answer against the exact final AAB, dependencies, store listing, and current Play Console wording. Recheck official Google documentation before submission.
 
 ## Privacy policy
 
@@ -20,10 +26,12 @@ Reference: [Google Play User Data policy](https://support.google.com/googleplay/
 
 ## Ads
 
-- **Draft answer:** No — this app contains no ads (the AdMob banner trialled in 1.0.0+5/+6 was rolled back in 1.0.0+7).
-- [ ] Set the Play Console "Contains ads" declaration to **No**.
-- [ ] Reconfirm no advertising SDK, mediation adapter, ad metadata, or ad unit exists in the final dependency/manifest review.
-- [ ] If AdMob is re-added on a future branch, change this declaration before that artifact is submitted.
+- **Draft answer:** **Yes — this app contains ads** (Google AdMob banner only).
+- [ ] Set the Play Console "Contains ads" declaration to **Yes**.
+- [ ] Confirm only a banner is served; no interstitial, rewarded, native, or mediation adapter is present.
+- [ ] Update Data Safety (`docs/data_safety_draft.md`) for AdMob device/advertising identifiers.
+- [ ] Confirm the AdMob App ID in the merged manifest matches `AdConfig.androidAppId`.
+- [ ] Publish `app-ads.txt` at the developer domain (see `docs/app_ads_txt_setup.md`) before relying on inventory.
 
 ## Content rating
 

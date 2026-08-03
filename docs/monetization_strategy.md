@@ -1,10 +1,24 @@
-# Monetization Strategy — AdMob Rolled Back (Ads-Free)
+# Monetization Strategy — AdMob Retry 1.0 (branch: `feature/admob-retry`)
 
-This document is planning material. **The shipping build (1.0.0+7) contains no ads SDK.** Google AdMob (banner) was integrated in 1.0.0+5/+6 but **rolled back in 1.0.0+7** — see the rollback note below.
+> **Branch-scoped document.** Everything below describes the state of the
+> `feature/admob-retry` branch (1.0.0+8). The stable `main` branch is
+> **1.0.0+7 and ads-free**. Nothing here becomes the shipping posture until the
+> branch passes real-device release verification and is merged.
 
-## AdMob rollback (1.0.0+7)
+## Status
 
-The AdMob banner integration caused a **native startup crash on real devices / internal testing**, before Flutter/Dart ran, so runtime try/catch and feature flags could not prevent it:
+| | `main` (1.0.0+7) | `feature/admob-retry` (1.0.0+8) |
+|---|---|---|
+| Ads SDK | none | `google_mobile_ads` 9.0.0 |
+| Banner | none | Home + Saved only |
+| Consent (UMP) | n/a | **out of scope this sprint** |
+| Play "Contains ads" | No | Yes (draft only) |
+
+## Why 1.0.0+6 crashed
+
+The 1.0.0+5/+6 AdMob integration caused a **native startup crash on real
+devices**, before Flutter/Dart ran, so runtime try/catch, feature flags, and a
+runApp-first ordering could not prevent it:
 
 ```
 FATAL EXCEPTION: main
@@ -13,83 +27,123 @@ Caused by: com.google.android.gms.internal.ads...
 Caused by: Failed to create an instance of androidx.work.impl.WorkDatabase
 ```
 
-Because the crash originated from an AndroidX Startup / WorkManager `ContentProvider` pulled in transitively by the ads dependency, the only reliable fix was to **remove the `google_mobile_ads` dependency entirely** (dependency, code, manifest App ID, network permissions, and proguard keeps). The app is ads-free and local-first again.
+Root cause, established in the retry sprint by resolving the native dependency
+graph:
 
-Any future attempt must happen on a separate branch and prove startup stability on a real device / internal-testing artifact **before** merging (see "Proposed next sprint" below).
+- `google_mobile_ads` → `com.google.android.gms:play-services-ads:25.3.0`
+- → `play-services-ads-api:25.3.0` → **`androidx.work:work-runtime:2.7.0`** (2021)
+- → **`androidx.room:room-runtime:2.2.5`** (2020)
 
-## Historical first-release decision
+`androidx.work` registers `WorkManagerInitializer` with AndroidX Startup, so
+WorkManager builds a Room database inside `InitializationProvider.onCreate()` —
+during process start, before `main()`. Room resolves the generated
+`WorkDatabase_Impl` **and its no-arg constructor** reflectively. The message
+`Failed to create an instance of` (as opposed to `cannot find implementation
+for`) means the class survived R8 but the constructor did not: Room 2.2.5
+predates R8 full mode, which has been mandatory since AGP 8, and its consumer
+keep rules do not preserve the constructor under it. This project builds with
+AGP 9.0.1 / Gradle 9.1.0 and ships release artifacts with `isMinifyEnabled`.
 
-The initial plan targeted an ad-free first candidate to simplify the manifest, privacy review, and Data Safety declaration. After the AdMob rollback, that ad-free posture is once again the shipping reality.
+The 1.0.0+6 ProGuard rules kept `com.google.android.gms.ads.**` and
+`com.google.android.ump.**` — the ads SDK — but nothing for the
+`androidx.work`/Room classes that actually failed.
 
-## Options
+## The fix
 
-1. **Free and ad-free:** strongest academic experience and simplest privacy posture; requires another funding source.
-2. **Ad-supported:** banner, interstitial, or rewarded formats can generate revenue but add network, consent, policy, and UX costs.
-3. **Freemium:** core tools remain free while genuinely advanced workflows are premium; requires entitlement and restore-purchase design.
-4. **One-time paid app:** predictable user experience and no ad tracking; reduces discovery/conversion and needs pricing support.
-5. **Donation/support:** low product complexity, but revenue is uncertain and store-policy implementation must be checked.
+1. **Force current WorkManager** in `android/app/build.gradle.kts`:
+   `androidx.work:work-runtime:2.11.2`, which resolves Room `2.2.5 → 2.7.0`
+   and `androidx.sqlite → 2.5.0`.
+2. **Explicit R8 keep rules** for Room database constructors and AndroidX
+   Startup initializers, alongside the existing ads/UMP keeps.
+3. **No ads call before `runApp`.** `lib/main.dart` has no ads import at all;
+   `AdBanner` drives `AdService.ensureInitialized()` lazily after first frame,
+   so an SDK failure degrades to "no banner", never "no app".
 
-## Recommendation for Calcademy
+Rejected alternative: removing `androidx.work.WorkManagerInitializer` from the
+merged manifest with `tools:node="remove"`. The app itself does not use
+WorkManager, but **the ads SDK does**, so suppressing auto-initialization would
+leave `WorkManager.getInstance()` throwing `IllegalStateException` later — it
+relocates the crash from startup to ad-load rather than removing it. Kept as a
+documented fallback only if the dependency fix proves insufficient.
 
-- Launch the first public beta or release ad-free, or run a separate tightly controlled ad experiment only after stability and retention are understood.
-- Do not interrupt expression entry, solving, result inspection, graphs, or saved-work review with interstitial ads.
-- If banners are evaluated, limit them to non-critical areas such as Home and verify small-screen, keyboard, 200% text-scale, and offline behavior.
-- Rewarded ads do not naturally align with an academic calculator unless they unlock an optional, non-essential benefit without withholding core calculations.
-- Evaluate a transparent premium tier later for advanced productivity features rather than correctness, basic accessibility, or saved-data access.
+## Consent (UMP) — deliberately deferred
 
-## Technical work required for a future AdMob sprint
+`user-messaging-platform:4.0.0` ships as a native transitive dependency
+regardless, but **no Dart-side UMP call is made this sprint**. The goal is to
+isolate one variable: AdMob SDK startup stability. Consent must be implemented
+before any EEA/UK release, and before the Play data declarations below go live.
 
-- Add `google_mobile_ads` only in the dedicated sprint and pin/review the version.
-- Add the Android AdMob App ID through environment-specific configuration; never commit a real ad-unit secret into tests or examples.
-- Use Google's official test App ID/ad units for development. Never click or request live ads during automated/manual testing.
-- Introduce a small ad-service abstraction and an `adsEnabled` environment flag so tests and unsupported builds remain deterministic.
-- Define placement rules that prohibit ads during calculation input and result workflows unless an explicit product decision changes this.
-- Prepare and host `app-ads.txt` on the verified developer domain.
-- Re-audit Android permissions, merged manifests, SDK transitive dependencies, network behavior, and release size.
-- Update this privacy policy, Play Data Safety, store listing, and support material before release.
-- Evaluate Google User Messaging Platform and consent requirements for EEA/UK and other applicable regions; provide privacy-options access where required.
-- Test child-directed/content-rating settings and age-audience declarations with legal/policy review.
+## Placement guardrails
 
-## Pre-AdMob release-impact checklist
+- Banner on **Home** and **Saved** only.
+- **No** ads on Calculator, Graph, Matrix, Equation Solver, Calculus,
+  Statistics, Financial Calculator, or LP/IP/OR input screens.
+- No interstitials during expression entry, solving, result reading,
+  copy/save, or navigation back from a result.
+- Rewarded ads are not a natural fit and must never gate correctness,
+  accessibility, or saved data.
+- The banner reserves zero height until an ad loads, so it cannot push or clip
+  content offline, on small screens, or at 200% text scale.
 
-Do not reuse the current ad-free Play declarations after adding advertising. Before the first AdMob-enabled artifact:
+## Merge gate
 
-- [ ] Add and review the production `INTERNET` permission and final merged manifest.
-- [ ] Add the Google Mobile Ads SDK only from its official maintained package and audit transitive dependencies.
-- [ ] Configure the Android AdMob App ID metadata per environment.
-- [ ] Use only official test App ID/ad units during development and automated/manual testing.
-- [ ] Decide how production IDs are configured and reviewed; never treat IDs as passwords, but avoid accidental mixing of test and live configurations.
-- [ ] Update the privacy policy for advertising, SDK data practices, identifiers, partners, and consent.
-- [ ] Redo the entire Data Safety form using the exact SDK/version and mediation configuration.
-- [ ] Change the Play Ads declaration to **Yes**.
-- [ ] Publish and validate `app-ads.txt` on the verified developer domain.
-- [ ] Evaluate Google's User Messaging Platform and consent/privacy-options requirements for EEA/UK and other applicable regions.
-- [ ] Revisit target audience, child-directed treatment, Families eligibility, and maximum ad content rating.
-- [ ] Test offline/failure behavior, initialization latency, memory, battery, binary size, and accessibility.
-- [ ] Add placement-specific widget/integration tests with ads disabled by default.
+This branch may merge to `main` only when all of the following hold
+(status as of 2026-07-25, Xiaomi 23021RAAEG — see
+`docs/admob_retry_device_test.md`):
 
-## Placement guardrails for Calcademy
+- [x] Release APK (minify off) opens on a real device.
+- [x] Release APK (minify **on**) opens on a real device — the configuration
+      that crashed in 1.0.0+6.
+- [ ] Release AAB opens from a Play internal test track (split-APK delivery
+      path; not yet exercised) — see `docs/play_internal_test_runbook.md`.
+      The signed 62.2 MB `app-release.aab` (versionCode 8) is built and
+      verified: `WorkDatabase_Impl` is kept unrenamed with its no-arg
+      constructor intact in this build's own R8 mapping.
+- [x] No `FATAL EXCEPTION`, no `WorkDatabase` failure, no
+      `InitializationProvider` failure in logcat.
+- [x] App reaches the Home screen; banner serves on Home and Saved; Scientific
+      Calculator stays ad-free.
+- [x] `flutter analyze` clean and `flutter test` 517/517 green.
+- [ ] Play Console declarations and policy docs updated together with the merge.
+- [ ] UMP consent implemented (required before any EEA/UK release).
 
-- Prefer an ad-free first public/beta release while stability and retention are measured.
-- Do not place interstitial ads during expression entry, solving, calculation, result reading, copy/save, or navigation back from a result.
-- If banners are evaluated, start only on low-criticality surfaces such as Home or Saved, with explicit small-screen, keyboard, dark-mode, and 200% text-scale review.
-- Rewarded ads are not a natural fit for core academic calculations and must not gate correctness, accessibility, or saved data.
-- Consider a transparent premium or voluntary support model as alternatives; any digital purchase must be reviewed against current Google Play Billing requirements.
+The startup crash is **fixed and verified on device**. The remaining gates are
+release-process items, not stability items.
+
+## Remaining release work before an ad-supported launch
+
+- [ ] Implement UMP consent and a privacy-options entry point.
+- [ ] Publish and validate `app-ads.txt` on the verified developer domain
+      (`docs/app_ads_txt_setup.md`); the publisher id is still `null` in code.
+- [ ] Redo the Data Safety form against the exact SDK/version and mediation
+      configuration (`docs/data_safety_draft.md`).
+- [ ] Flip the Play Ads declaration to **Yes**
+      (`docs/play_console_app_content_checklist.md`).
+- [ ] Revisit target audience, child-directed treatment, Families eligibility,
+      and maximum ad content rating.
+- [ ] Review the auto-merged ad permissions: `AD_ID`,
+      `ACCESS_ADSERVICES_AD_ID`, `ACCESS_ADSERVICES_ATTRIBUTION`,
+      `ACCESS_ADSERVICES_TOPICS`, `WAKE_LOCK`, `FOREGROUND_SERVICE`.
+- [ ] Test offline/failure behavior, initialization latency, memory, battery,
+      binary size, and accessibility.
 
 ## Risks
 
 - Ads can reduce trust and retention in a focused academic workflow.
-- Poor placement can cause accidental clicks or obscure critical inputs/results.
-- Advertising SDKs increase binary size, network surface, review complexity, and Data Safety obligations.
-- Consent state, regional rules, mediation partners, and SDK behavior can change and require ongoing maintenance.
-- Monetization claims or gating must never imply that a numerical result becomes more accurate after payment.
+- Poor placement can cause accidental clicks or obscure critical inputs.
+- Advertising SDKs increase binary size, network surface, review complexity,
+  and Data Safety obligations.
+- Consent state, regional rules, mediation partners, and SDK behavior change
+  over time and require ongoing maintenance.
+- Monetization must never imply that a numerical result becomes more accurate
+  after payment.
 
-## Proposed next sprint: AdMob Integration 1.0
+## Alternatives still open
 
-1. Confirm product placement and audience decisions.
-2. Add test-only AdMob configuration and ad-service abstraction.
-3. Implement consent/privacy-options strategy before requesting production ads.
-4. Update policy, Data Safety worksheet, `app-ads.txt` checklist, and store disclosures.
-5. Add unit/widget tests with ads disabled by default.
-6. Verify debug, profile, release, offline, small-screen, dark-mode, and 200% text-scale behavior.
-7. Use production IDs only through protected release configuration after final approval.
+1. **Free and ad-free** — strongest academic experience, simplest privacy
+   posture; requires another funding source. This is what `main` ships today.
+2. **Freemium** — core tools free, genuinely advanced workflows premium;
+   requires entitlement and restore-purchase design.
+3. **One-time paid app** — predictable UX, no ad tracking; reduces discovery.
+4. **Donation/support** — low complexity, uncertain revenue; must be checked
+   against current Google Play Billing requirements.

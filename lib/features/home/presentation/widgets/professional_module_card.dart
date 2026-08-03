@@ -6,9 +6,14 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
 class ProfessionalModuleCard extends StatelessWidget {
-  const ProfessionalModuleCard({required this.module, super.key});
+  const ProfessionalModuleCard({
+    required this.module,
+    this.compact = false,
+    super.key,
+  });
 
   final AcademyModule module;
+  final bool compact;
 
   @override
   Widget build(BuildContext context) {
@@ -28,7 +33,7 @@ class ProfessionalModuleCard extends StatelessWidget {
               ? context.push(module.route!)
               : context.push('/coming-soon/${module.id}'),
           child: Padding(
-            padding: const EdgeInsets.all(AppSpacing.lg),
+            padding: EdgeInsets.all(compact ? AppSpacing.sm : AppSpacing.lg),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
@@ -36,8 +41,8 @@ class ProfessionalModuleCard extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Container(
-                      width: 48,
-                      height: 48,
+                      width: compact ? 40 : 48,
+                      height: compact ? 40 : 48,
                       decoration: BoxDecoration(
                         color: module.available
                             ? colors.primaryContainer
@@ -51,20 +56,31 @@ class ProfessionalModuleCard extends StatelessWidget {
                             : colors.onSurfaceVariant,
                       ),
                     ),
-                    const Spacer(),
-                    _CategoryBadge(label: category),
+                    if (!compact) ...[
+                      const Spacer(),
+                      _CategoryBadge(label: category),
+                    ],
                   ],
                 ),
-                const SizedBox(height: AppSpacing.md),
-                Text(title, style: theme.textTheme.titleMedium),
+                SizedBox(height: compact ? AppSpacing.xs : AppSpacing.md),
+                Text(
+                  title,
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
+                  style: compact
+                      ? theme.textTheme.titleSmall
+                      : theme.textTheme.titleMedium,
+                ),
                 const SizedBox(height: AppSpacing.xs),
                 Text(
                   context.l10n.t(module.descriptionKey),
+                  maxLines: compact ? 2 : null,
+                  overflow: compact ? TextOverflow.ellipsis : null,
                   style: theme.textTheme.bodyMedium?.copyWith(
                     color: colors.onSurfaceVariant,
                   ),
                 ),
-                const SizedBox(height: AppSpacing.md),
+                SizedBox(height: compact ? AppSpacing.xs : AppSpacing.md),
                 Row(
                   children: [
                     Icon(
