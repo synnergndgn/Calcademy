@@ -33,7 +33,27 @@ class AppLocalizations {
       'signIn': 'Sign in',
       'createAccount': 'Create account',
       'subscribe': 'Subscribe',
+      'restorePurchases': 'Restore purchases',
       'manageSubscription': 'Manage subscription',
+      'billingUnavailable': 'Billing unavailable',
+      'billingUnavailableDevice':
+          'Billing is not available on this device or build.',
+      'purchasePending': 'Purchase pending',
+      'purchaseReceived': 'Purchase received, validating entitlement',
+      'validatingPurchase': 'Validating purchase',
+      'purchaseValidationRequired':
+          'Purchase validation is required before Premium can be activated.',
+      'premiumSubscription': 'Premium subscription',
+      'monthlyPlan': 'Monthly plan',
+      'currentPlan': 'Current plan',
+      'noActiveSubscription': 'No active subscription',
+      'subscriptionManagedByGooglePlay': 'Subscription managed by Google Play.',
+      'cancelAnytimeGooglePlay': 'You can cancel anytime in Google Play.',
+      'purchasesProcessedGooglePlay':
+          'Purchases are processed securely by Google Play.',
+      'signInToSubscribe': 'Sign in to subscribe',
+      'billingComingSoon':
+          'Billing is coming soon on this platform. Internal test builds require installation from Google Play.',
       'removeAds': 'Remove ads',
       'premiumGeminiAssistant': 'Gemini-powered assistant',
       'cameraSolver': 'Camera Solver',
@@ -1302,7 +1322,29 @@ class AppLocalizations {
       'signIn': 'Giriş yap',
       'createAccount': 'Hesap oluştur',
       'subscribe': 'Abone ol',
+      'restorePurchases': 'Satın alımları geri yükle',
       'manageSubscription': 'Aboneliği yönet',
+      'billingUnavailable': 'Faturalandırma kullanılamıyor',
+      'billingUnavailableDevice':
+          'Faturalandırma bu cihazda veya derlemede kullanılamıyor.',
+      'purchasePending': 'Satın alma bekliyor',
+      'purchaseReceived': 'Satın alma alındı, hak doğrulanıyor',
+      'validatingPurchase': 'Satın alma doğrulanıyor',
+      'purchaseValidationRequired':
+          'Premium etkinleştirilmeden önce satın alma doğrulanmalıdır.',
+      'premiumSubscription': 'Premium abonelik',
+      'monthlyPlan': 'Aylık plan',
+      'currentPlan': 'Mevcut plan',
+      'noActiveSubscription': 'Etkin abonelik yok',
+      'subscriptionManagedByGooglePlay':
+          'Abonelik Google Play tarafından yönetilir.',
+      'cancelAnytimeGooglePlay':
+          'Google Play üzerinden istediğiniz zaman iptal edebilirsiniz.',
+      'purchasesProcessedGooglePlay':
+          'Satın alımlar Google Play tarafından güvenle işlenir.',
+      'signInToSubscribe': 'Abone olmak için giriş yapın',
+      'billingComingSoon':
+          'Faturalandırma bu platformda yakında. Dahili test derlemeleri Google Play üzerinden kurulmalıdır.',
       'removeAds': 'Reklamları kaldır',
       'premiumGeminiAssistant': 'Gemini destekli asistan',
       'cameraSolver': 'Kamera Çözücü',

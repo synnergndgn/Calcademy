@@ -1,5 +1,15 @@
 # Google Play Data Safety Draft
 
+> **1.6.0+16 Play Billing foundation note:** The Android build includes the
+> official Google Play Billing client and can run license-tester transactions.
+> Subscription purchases are processed by Google Play. The client models a
+> future authenticated entitlement-validation request, but the default service
+> is a non-networking stub: no purchase token is persisted and no durable
+> Premium entitlement is granted. Before production sales, reassess financial
+> information/purchase-history declarations against the exact Play transaction
+> and backend implementation. Gemini and camera/OCR remain inactive, and there
+> are no external payment links.
+
 > **1.5.0+14 staging Auth note:** When Supabase runtime configuration is present,
 > email address and Auth user ID are transmitted to Supabase for account
 > management and app functionality. Authenticated account deletion is available
@@ -52,7 +62,7 @@ Do not present **Not applicable** as a substitute if Play Console asks a differe
 | Data type | Collected by developer? | Shared? | Current behavior |
 | --- | --- | --- | --- |
 | Personal information | Conditional | Supabase as service provider when Auth is enabled | Email address, Auth user ID, and authentication/security metadata are transmitted only when runtime Auth configuration and account creation are enabled; absent config means no Auth transmission |
-| Financial information | No | No | Educational numeric inputs are processed locally; no bank/payment/account data is requested or transmitted |
+| Financial information | Recheck for 1.6/internal billing tests | Google Play processes subscription purchases | Calcademy does not collect card or bank details. Google Play handles payment. The future backend will receive a purchase token and verified subscription state, so final Data Safety classification must match that implementation |
 | Location | No | No | No location permission or feature |
 | Contacts | No | No | No contacts permission or access |
 | Messages | No | No | No messaging feature |

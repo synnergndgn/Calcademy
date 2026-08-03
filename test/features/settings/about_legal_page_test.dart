@@ -256,8 +256,8 @@ void main() {
     expect(AppMetadata.adsStatus, 'admob-banner');
     expect(AppMetadata.analyticsStatus, 'not-included');
     expect(AppMetadata.cloudSyncStatus, 'not-included');
-    expect(AppMetadata.versionName, '1.5.0');
-    expect(AppMetadata.buildNumber, 14);
+    expect(AppMetadata.versionName, '1.6.0');
+    expect(AppMetadata.buildNumber, 16);
     expect(
       AppMetadata.privacyPolicyUrl,
       'https://synnergndgn.github.io/Calcademy/privacy_policy',

@@ -1,101 +1,80 @@
-# Premium Architecture Foundation — 1.3.0+12
-
-> **1.5.0+14 staging Auth connection:** Supabase email auth is available only when
-> valid runtime configuration is supplied. Account, sign-in, create-account,
-> and authenticated deletion routes exist. Premium, Gemini teaser, and Camera
-> Solver gates offer real sign-in navigation. Core tools remain no-login and
-> signed-in users remain free until a future backend provides a verified
-> premium entitlement. The injected mock path remains for tests. Play Billing,
-> Gemini, and camera/OCR are still absent.
-
-## Product model
+# Premium architecture — 1.6.0+16
 
 Calcademy remains usable without login. Core calculators, Formula Library,
-local Saved data, and the local rule-based Assistant remain available on the
-free plan. The 1.3 foundation only models future premium access; it does not
-sell a product or create an account.
+local Saved data, and the local rule-based Assistant stay on the free plan.
+Accounts are required only for subscription actions and future durable Premium
+entitlements.
 
-Planned premium benefits are:
+## Product and feature model
 
-- Gemini-powered Assistant requests;
-- Camera Solver and OCR processing;
+The active product model contains the Google Play subscription
+`calcademy_premium_monthly`; `calcademy_premium_yearly` is reserved for a later
+release and is not queried. Planned benefits are:
+
 - removal of Home and Saved banner ads;
+- Gemini-powered Assistant;
+- Camera Solver and OCR;
 - higher daily Gemini and camera quotas.
 
-## Entitlements
+Gemini, camera access, OCR, external AI requests, and image upload remain
+inactive in 1.6.
 
-`PremiumEntitlement` contains a status, active feature set, optional expiry, and
-source. Sources are modeled as local mock, Play Billing, or backend, but only the
-local mock repository exists in this build. The safe default is free, with no
-premium feature active. Tests can inject a mock premium entitlement.
+## Billing boundary
 
-`PremiumFeatureGate` is the shared authorization decision. UI code must not
-infer premium access from a button, account state, or cached plan name.
+`BillingRepository` isolates product discovery, purchase launch, purchase
+updates, restoration, and completion. `PlayBillingRepository` wraps the
+official Flutter `in_app_purchase` plugin and is active only on Android. It
+returns a safe unavailable state on iOS, web, desktop, tests without an injected
+repository, and devices/builds where the store is unavailable.
 
-## Accounts and authentication
+`LocalBillingRepository` is an injectable, in-memory test double. It can model
+unavailable, pending, successful, canceled, error, and restored flows without a
+real transaction.
 
-`AuthRepository` now has local and Supabase implementations. Supabase is
-initialized only with valid runtime URL and anon/publishable configuration;
-otherwise the app safely uses the local signed-out implementation. Basic use
-never requires an account.
+`BillingController` owns transient UI state. Signed-out users cannot subscribe.
+Signed-in users can see a Play product and localized store price when available,
+launch Subscribe, restore purchases, and open Google Play subscription
+management. No external payment link exists.
 
-Account, sign-in, create-account, and deletion routes now exist. Real account
-deletion remains blocked until a secure Edge Function can delete associated
-server data and the Auth user. The public deletion URL must be published before
-production account creation is enabled.
+## Entitlement trust boundary
 
-## Billing
+A purchase update never grants durable Premium by itself. For a purchased or
+restored transaction, the controller:
 
-Google Play Billing is not included. Subscribe and manage-subscription controls
-remain disabled placeholders; sign-in and account actions now open the Auth
-routes. There are no billing
-product IDs, purchase tokens, external checkout links, purchase restoration,
-or server-side purchase validation in this build.
+1. displays purchase received / validating entitlement;
+2. passes the in-memory token to `EntitlementSyncService`;
+3. completes the plugin transaction when required;
+4. waits for a backend entitlement before enabling Premium.
 
-A production implementation must use Google Play Billing for Play-distributed
-digital subscriptions, validate purchases on a trusted backend, reconcile
-renewals/cancellations/refunds, and map verified purchases to entitlements.
+The 1.6 default sync service deliberately returns unsupported. The token is not
+logged, persisted to preferences, or treated as proof of access. The next
+backend implementation must validate with the Google Play Developer API from a
+Supabase Edge Function, update server-side subscription/entitlement tables, and
+let the client read that verified state.
 
-## Usage limits
+`PremiumFeatureGate` remains the only feature authorization decision. Its safe
+default is free. The explicit local mock seam remains for automated tests; it
+can hide ads and unlock modeled features without becoming a production purchase
+path.
 
-The local usage model is UI/architecture scaffolding, not a security boundary:
+## Ads and limits
 
-| Feature | Free placeholder | Premium placeholder |
-| --- | ---: | ---: |
-| Local Assistant | Unlimited | Unlimited |
-| Gemini Assistant | 0/day | 20/day |
-| Camera Solver | 0/day | 10/day |
+Free and signed-out users keep the existing banner behavior on Home and Saved.
+When a verified backend entitlement—or the explicit test mock—contains
+`removeAds`, the shared banner returns zero layout space and does not request an
+ad. Calculator, Formula Library, Assistant, Account, and other workspaces remain
+banner-free regardless of plan.
 
-`LocalUsageLimitService` keeps counters only in memory. Production AI/camera
-limits must be enforced atomically by the backend and must not trust device
-counters.
+Local usage counters are UI scaffolding, not a security boundary. Production
+Gemini/camera quotas must be enforced atomically by the backend.
 
-## Ads removal
+## Privacy and secrets
 
-Free and signed-out users keep the existing Home and Saved banner behavior.
-When a verified entitlement includes `removeAds`, the shared `AdBanner` returns
-zero layout space and does not request an ad. Calculator, Formula Library, AI
-Assistant, solver, graph, and other workspaces remain banner-free regardless of
-plan.
+Google Play processes subscription purchases. A future validation backend will
+associate an authenticated account with verified purchase/subscription state.
+Service-account material, Supabase service-role credentials, and Play Developer
+API credentials must remain server-side. Existing AdMob and optional Supabase
+Auth disclosures continue to apply.
 
-## Gemini and Camera Solver
-
-The local Assistant remains free and operational. Gemini is represented only by
-a locked/coming-soon premium card. Camera Solver is a route and explanatory
-placeholder only. This release adds no AI provider call, API key, camera
-permission, image picker, OCR/ML Kit dependency, or upload path.
-
-## Privacy and Data Safety
-
-The architecture foundation starts no new collection or sharing. There is no
-account data, purchase data, prompt transmission, image capture, OCR input,
-backend log, or cloud entitlement record. Existing AdMob disclosures remain in
-effect for free Home/Saved banners.
-
-Before enabling any future premium capability, re-evaluate:
-
-- account/profile and account-deletion data flows;
-- billing purchase history, identifiers, and backend validation;
-- Gemini prompt/response retention and safety controls;
-- camera/photo permissions, image processing location, retention, and upload;
-- privacy policy, Play Data Safety, consent, and store disclosures.
+See [Play Billing setup](play_billing_setup.md), [backend validation](play_billing_backend_validation.md),
+and the [manual test runbook](play_billing_manual_test_runbook.md).

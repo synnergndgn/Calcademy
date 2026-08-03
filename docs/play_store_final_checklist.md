@@ -1,5 +1,13 @@
 # Play Store Final Decision Checklist
 
+> **1.6.0+16 billing checkpoint:** The source now contains the Google Play
+> Billing client foundation. Before uploading build 16, create and activate
+> `calcademy_premium_monthly` with base plan `monthly`, add license testers, and
+> verify the flow from a Play-installed internal-test build. Production sales
+> remain blocked until server-side Developer API validation and entitlement sync
+> are deployed. There are no external payment links; Gemini and camera/OCR are
+> still inactive.
+
 This is the release-owner decision sheet for Calcademy's first Google Play upload. Do not create the Play Console app or upload an AAB until every **blocking** item is resolved. Google Play requirements change; recheck the linked official documentation immediately before upload.
 
 ## Current verified identity
@@ -8,8 +16,8 @@ This is the release-owner decision sheet for Calcademy's first Google Play uploa
 | --- | --- | --- |
 | Application ID | `com.aligundogan.calcademy` | Final owner-approved identity; applied before first upload |
 | App label | `Calcademy` | Candidate final value |
-| Version name | `1.0.0` | Candidate first public release |
-| Version code | `1` | First upload only |
+| Version name | `1.6.0` | Current billing-foundation candidate |
+| Version code | `16` | Current monotonically increasing upload code |
 | Minimum SDK | 24 | Supported by current Flutter configuration |
 | Target SDK | 36 | Meets the announced 31 August 2026 mobile requirement |
 | Compile SDK | 36 | Current verified build value |
@@ -42,7 +50,19 @@ The source now aligns Android `applicationId`, namespace, and MainActivity with 
 - [ ] Reserve a higher version code for every replacement upload; Play Console will not accept the same version code twice for the same app.
 - [ ] Ensure release notes, store listing, AAB metadata, and Git tag all agree.
 
-This sprint does not change `version: 1.0.0+1`.
+This sprint sets `version: 1.6.0+16`.
+
+## Subscription readiness — blocking for production sales
+
+- [ ] Create and activate `calcademy_premium_monthly` and base plan `monthly`.
+- [ ] Set owner-approved prices and regions in Play Console.
+- [ ] Add license testers and publish build 16 to the internal track.
+- [ ] Test Subscribe, pending purchase, restore, cancellation, and Google Play
+  management on a physical Play-installed device.
+- [ ] Deploy server-side Developer API validation and entitlement sync.
+- [ ] Verify refunds, revocations, expiry, account hold, and RTDN reconciliation.
+- [x] Keep service-account and service-role credentials out of the mobile app.
+- [x] Keep external payment links out of the Play-distributed app.
 
 ## Branding and assets — blocking
 

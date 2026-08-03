@@ -1,5 +1,14 @@
 # Calcademy Privacy Policy
 
+> **1.6.0+16 Play Billing foundation update (2026-08-03):** The Android app
+> includes Google Play Billing for the `calcademy_premium_monthly` subscription
+> and can be exercised in Play internal testing. Google Play securely processes
+> purchases and manages cancellation. Calcademy does not receive card or bank
+> details. Durable Premium access requires future server-side verification; the
+> current client does not persist purchase tokens or unlock Premium from a
+> client-only result. There are no external payment links. Gemini and
+> camera/OCR remain inactive.
+
 > **1.5.0+14 staging Auth update (2026-08-03):** Calcademy supports optional
 > Supabase email/password accounts when runtime configuration is supplied. Core
 > tools remain available without an account. Auth account deletion is handled
@@ -24,6 +33,7 @@ The publisher, contact, effective-date, and jurisdiction details must be reverif
 
 | Version | Distribution | Advertising |
 |---|---|---|
+| 1.6.0 (build 16) | Play Billing foundation / internal testing | Google AdMob banner on Home and Saved; optional Supabase email auth; Google Play subscription testing with backend entitlement validation still pending |
 | 1.5.0 (build 14) | Staging Auth / pre-production | Google AdMob banner on Home and Saved; optional Supabase email auth and authenticated account deletion when configured |
 | 1.4.0 (build 13) | Auth foundation / pre-production | Google AdMob banner on Home and Saved; optional Supabase email auth only when configured |
 | 1.0.0 (build 8) | Play internal testing | Google AdMob banner on Home and Saved |
@@ -83,6 +93,22 @@ Calcademy displays banner advertisements through the **Google AdMob** SDK, on th
 
 The third-party involved is **Google AdMob**. Calcademy does not add Firebase, Google Analytics, or any analytics/crash-reporting SDK.
 
+## Subscriptions and Google Play Billing
+
+On supported Android builds, signed-in users may start or restore a Calcademy
+Premium subscription through Google Play. Google Play displays the localized
+price, processes the payment, and provides subscription-management and
+cancellation controls. Calcademy does not provide an external checkout and does
+not ask for or receive card or bank-account details.
+
+Google Play returns a purchase token to the app. The intended production design
+sends it to a secure backend solely to validate the purchase and maintain the
+account's subscription entitlement. The 1.6 foundation has no active validation
+backend: the token is not logged or persistently stored by the app, and a
+client-side purchase result does not durably enable Premium. This policy and the
+Play Data Safety form must be reviewed again before backend validation or
+production subscription sales are enabled.
+
 ## Network access and sharing
 
 The production Android manifest requests the `INTERNET` and `ACCESS_NETWORK_STATE` permissions. These are used by the Google AdMob SDK to fetch ads. Debug/profile builds also use `INTERNET` for Flutter development tooling and are not store artifacts.
@@ -122,9 +148,10 @@ Financial tools are provided for education and general calculation only. They ar
 For 1.5.0+14, the optional Supabase Auth client described above supersedes the
 legacy “no account SDK” statement in the historical paragraph below.
 
-Calcademy contains banner advertising through Google AdMob and optional account
-authentication through Supabase, but no analytics, crash-reporting, cloud Saved
-sync, Play Billing, Gemini, or camera/OCR integration. If those services or
+Calcademy contains banner advertising through Google AdMob, optional account
+authentication through Supabase, and the Google Play Billing foundation, but no
+analytics, crash-reporting, cloud Saved sync, Gemini, or camera/OCR integration.
+If those services or
 additional ad technologies (mediation, interstitial, rewarded, native) are
 added, this policy and the applicable store Data Safety disclosures must be
 updated before release. Where required, consent controls must be implemented
