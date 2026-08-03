@@ -44,3 +44,29 @@ Steps:
 Also verify that free users still see banners only on Home and Saved, while the
 explicit local mock Premium entitlement hides those banners. Gemini API calls,
 camera permission, OCR, and external payment paths must remain absent.
+
+## 2026-08-04 sandbox sprint execution record
+
+| Check | Result |
+| --- | --- |
+| Source branch | PR #8 merged; `main` at `7f4b845` |
+| Play subscription | **Blocked** before creation: the developer account has no Google Payments merchant account |
+| Product / base plan | Planned `calcademy_premium_monthly` / `monthly`; neither exists or is active yet |
+| Offer | None |
+| License testing | `RESPOND_NORMALLY`; no email list is selected as a license tester list |
+| Internal testers | `Calcademy Tester List` is selected for the internal track (21 accounts) |
+| Internal release | Build 16 (`1.6.0`) is active and available to internal testers |
+| Supabase config | Build 16's local upload artifact had no staging config; build 17 AAB was rebuilt with the staging URL and publishable key and verified in all packaged ABIs |
+| Build 17 upload | Pending: Chrome must allow the ChatGPT extension access to file URLs before the browser can upload the AAB |
+| Device sign-in / Premium UI | Not run; requires Play installation of build 17 and a Calcademy test account |
+| Product title / price | Not available because the subscription cannot be created before merchant setup |
+| Purchase sheet / completion | Not run |
+| Pending validation / Premium unlock | Automated tests pass; physical Play purchase confirmation is pending |
+| Restore / manage subscription | Automated controller/UI tests pass; physical Play confirmation is pending |
+| Negative tests | Signed-out, unavailable-product, pending-validation, restore, and cancellation-safe paths pass automated tests; device checks remain pending |
+
+Build 17 is `1.6.0+17`. Its release AAB is at
+`build/app/outputs/bundle/release/app-release.aab`. Do not report the sandbox
+purchase sprint as complete until the merchant account is created, the product
+and base plan are active, a license tester list is saved, and the physical
+Play-installed checks in section B pass.

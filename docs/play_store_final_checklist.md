@@ -1,7 +1,8 @@
 # Play Store Final Decision Checklist
 
-> **1.6.0+16 billing checkpoint:** The source now contains the Google Play
-> Billing client foundation. Before uploading build 16, create and activate
+> **1.6.0+17 billing checkpoint:** The source contains the Google Play Billing
+> client foundation, and build 16 is active on the internal track. Before
+> publishing build 17, create and activate
 > `calcademy_premium_monthly` with base plan `monthly`, add license testers, and
 > verify the flow from a Play-installed internal-test build. Production sales
 > remain blocked until server-side Developer API validation and entitlement sync
@@ -17,7 +18,7 @@ This is the release-owner decision sheet for Calcademy's first Google Play uploa
 | Application ID | `com.aligundogan.calcademy` | Final owner-approved identity; applied before first upload |
 | App label | `Calcademy` | Candidate final value |
 | Version name | `1.6.0` | Current billing-foundation candidate |
-| Version code | `16` | Current monotonically increasing upload code |
+| Version code | `17` | Current monotonically increasing upload code; build 16 already exists on Play |
 | Minimum SDK | 24 | Supported by current Flutter configuration |
 | Target SDK | 36 | Meets the announced 31 August 2026 mobile requirement |
 | Compile SDK | 36 | Current verified build value |
@@ -50,19 +51,30 @@ The source now aligns Android `applicationId`, namespace, and MainActivity with 
 - [ ] Reserve a higher version code for every replacement upload; Play Console will not accept the same version code twice for the same app.
 - [ ] Ensure release notes, store listing, AAB metadata, and Git tag all agree.
 
-This sprint sets `version: 1.6.0+16`.
+This sprint sets `version: 1.6.0+17` because Play Console already contains
+build 16 and the Supabase-configured replacement requires a higher code.
 
 ## Subscription readiness — blocking for production sales
 
+- [x] Merge the Play Billing foundation into `main`.
+- [x] Keep client purchase results from enabling durable Premium or removing ads.
+- [x] Publish build 16 to the internal track.
+- [ ] Create the required Google Payments merchant account. This currently
+  blocks the Subscriptions page.
 - [ ] Create and activate `calcademy_premium_monthly` and base plan `monthly`.
 - [ ] Set owner-approved prices and regions in Play Console.
-- [ ] Add license testers and publish build 16 to the internal track.
+- [ ] Select and save the intended account/list under License testing.
+- [ ] Upload the Supabase-configured build 17 to the internal track.
 - [ ] Test Subscribe, pending purchase, restore, cancellation, and Google Play
   management on a physical Play-installed device.
 - [ ] Deploy server-side Developer API validation and entitlement sync.
 - [ ] Verify refunds, revocations, expiry, account hold, and RTDN reconciliation.
 - [x] Keep service-account and service-role credentials out of the mobile app.
 - [x] Keep external payment links out of the Play-distributed app.
+
+Production Premium unlock remains disabled until backend purchase validation
+and entitlement synchronization are deployed. Build 17 only enables the
+signed-in sandbox test surface; it does not change this security boundary.
 
 ## Branding and assets — blocking
 
