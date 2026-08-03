@@ -1,5 +1,12 @@
 # Google Play Data Safety Draft
 
+> **1.4.0+13 Supabase Auth Foundation note:** The app now contains optional
+> email/password Auth client code and account UI. With no `--dart-define`
+> configuration, Auth is inactive and no account data is transmitted. Before
+> production account creation is enabled, this draft must change to declare
+> email address/user ID collection as applicable, and secure in-app plus public
+> web deletion must be live and verified.
+
 > **1.3.0+12 Premium Architecture note:** This build adds architecture and
 > coming-soon UI only. It has no real account creation, purchase flow, Gemini
 > API, camera/OCR, image upload, or new data collection. Mock entitlement and
@@ -10,13 +17,17 @@
 > feature adds no camera/OCR access, backend, account, analytics, or persistent
 > chat history. Existing AdMob data handling remains unchanged.
 
-> **Branch-scoped draft (`feature/premium-architecture-foundation`,
-> 1.3.0+12).** Recheck
+> **Branch-scoped draft (`feature/supabase-auth-foundation`,
+> 1.4.0+13).** Recheck
 > the final AAB and current Google/AdMob disclosures immediately before Play
 > Console submission.
 > See `docs/monetization_strategy.md`.
 
-This worksheet reflects 1.3.0+12, which **integrates the Google AdMob banner SDK**. It has no real account, purchase flow, Calcademy backend, cloud synchronization, analytics, crash-reporting SDK, external AI provider, or camera/OCR processing, but the AdMob SDK requires the `INTERNET`/`ACCESS_NETWORK_STATE` permissions and collects/shares advertising and device data off the device. Re-audit the exact final AAB and all transitive SDKs (including the AdMob/Google Mobile Ads dependency chain and its own current Data Safety disclosure) before submitting the form.
+This worksheet reflects 1.4.0+13 with the **Google AdMob banner SDK** and a
+config-gated Supabase Auth client. Classify the release based on whether Auth
+runtime configuration and account creation are enabled in the exact AAB. Play
+Billing, cloud Saved sync, analytics, crash reporting, Gemini, and camera/OCR
+remain absent.
 
 Google defines data collection for this form around data transmitted off the device. Data processed only on the device generally does not need to be disclosed as collected. Even apps declaring no collection must complete the form for applicable Play tracks and provide a privacy-policy link. See the [official Data Safety guidance](https://support.google.com/googleplay/android-developer/answer/10787469).
 
@@ -28,7 +39,7 @@ Google defines data collection for this form around data transmitted off the dev
 | Does the app share user data with third parties? | Yes | Ad/device identifiers are shared with Google/AdMob and its ad partners for advertising |
 | Is all transmitted data encrypted in transit? | Yes | AdMob traffic uses HTTPS; confirm against AdMob's current disclosure |
 | Does the app provide a deletion mechanism? | Local deletion is available | Delete/clear Saved Calculations, clear app storage, or uninstall. Ad identifiers are managed via device settings/consent |
-| Is account deletion offered? | Not applicable | No account creation or server-side account data |
+| Is account deletion offered? | Foundation only; not production-ready | In-app route and web-page draft exist, but account creation must remain disabled until the backend and public URL work end to end |
 
 Do not present **Not applicable** as a substitute if Play Console asks a differently scoped mandatory yes/no question; follow the current form wording.
 
@@ -36,7 +47,7 @@ Do not present **Not applicable** as a substitute if Play Console asks a differe
 
 | Data type | Collected by developer? | Shared? | Current behavior |
 | --- | --- | --- | --- |
-| Personal information | No | No | No name, email, address, user ID, or account system |
+| Personal information | Conditional | Supabase as service provider when Auth is enabled | Email address, Auth user ID, and authentication/security metadata are transmitted only when runtime Auth configuration and account creation are enabled; absent config means no Auth transmission |
 | Financial information | No | No | Educational numeric inputs are processed locally; no bank/payment/account data is requested or transmitted |
 | Location | No | No | No location permission or feature |
 | Contacts | No | No | No contacts permission or access |
@@ -71,7 +82,9 @@ Copy writes selected result text to the system clipboard. Share actions invoke a
 - Android Settings → Apps → Calcademy → Storage → Clear storage removes application-local data.
 - Uninstalling removes application-local data, subject to Android backup/restore settings outside Calcademy's own backend because Calcademy has no backend copy.
 
-Do not claim a server deletion-request service: no server-side collection or account currently exists.
+Do not claim that server deletion is operational in 1.4.0+13. The in-app route
+and public-page draft are foundations only; production account creation remains
+blocked until secure backend deletion is deployed and verified.
 
 ## AdMob note (already integrated)
 

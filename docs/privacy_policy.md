@@ -1,5 +1,12 @@
 # Calcademy Privacy Policy
 
+> **1.4.0+13 Auth Foundation update (2026-08-03):** Calcademy now contains an
+> optional Supabase email-auth client and account UI. Auth is inactive when
+> runtime configuration is absent. Production account creation must remain
+> disabled until secure backend deletion and the public deletion-request page
+> are live. The older internal-test status below remains release history; this
+> update controls the 1.4 foundation behavior.
+
 **Status:** Current for Calcademy **1.0.0 (build 8)**, the build distributed through Google Play **internal testing**. This build displays banner advertisements through the Google AdMob SDK. Consent (Google UMP) is **not** implemented in this build; see “Advertising (Google AdMob)” below.
 
 **Developer/publisher name:** `Ali Gündoğan`
@@ -18,6 +25,7 @@ The publisher, contact, effective-date, and jurisdiction details must be reverif
 
 | Version | Distribution | Advertising |
 |---|---|---|
+| 1.4.0 (build 13) | Auth foundation / pre-production | Google AdMob banner on Home and Saved; optional Supabase email auth only when configured |
 | 1.0.0 (build 8) | Play internal testing | Google AdMob banner on Home and Saved |
 | Earlier builds | not publicly distributed | no ads SDK |
 
@@ -46,6 +54,22 @@ This information is not uploaded to a Calcademy server. There is no account, log
 
 Calcademy does process user-entered expressions, values, matrices, models, notes, and result data locally to provide its calculation and saved-work features. “No developer collection” does not mean that the app performs no data processing on the device, nor that Google AdMob performs no processing for advertising.
 
+## Optional account authentication
+
+This section supersedes the legacy “no account or login” release-history
+sentence above for 1.4.0+13.
+
+Calcademy 1.4 includes a config-gated Supabase Auth client. When configuration
+is absent, no account request is sent and auth controls display a disabled
+state. If account creation is later enabled, Supabase will process the email
+address, Auth user ID, password-authentication data, session tokens, and related
+security metadata needed to provide the account. Calcademy does not store the
+password as readable text. The Auth Foundation does not upload calculation or
+local Saved content and does not enable cloud synchronization.
+
+Only a public client key may be present in the mobile app. Privileged server
+credentials remain backend-only.
+
 ## Advertising (Google AdMob)
 
 Calcademy displays banner advertisements through the **Google AdMob** SDK, on the Home and Saved screens only. To serve, measure, cap the frequency of, and prevent fraud in these ads, Google and its ad partners may process data such as advertising and device identifiers, IP address, coarse/derived location, and general device information under [Google's own policies](https://policies.google.com/privacy). This processing is performed by Google/AdMob, not by a Calcademy server; Calcademy does not receive your calculations or saved work through it.
@@ -66,6 +90,17 @@ Users can delete individual history/saved items and can use the available clear-
 
 Advertising identifiers are controlled through Android system settings rather than through Calcademy.
 
+## Account deletion
+
+The app includes **Settings → Account → Delete account**. In 1.4.0+13 this is a
+foundation screen: the request action is disabled until a secure backend
+deletion function exists. Before production account creation is enabled, that
+backend must delete the Auth user and associated server data, and the public
+[Calcademy account deletion page](account_deletion_request.md) must be published
+and verified. Merely freezing the account is not sufficient. Limited legal,
+security, fraud-prevention, or transaction records may be retained for a
+documented period when necessary.
+
 ## Children and sensitive data
 
 Calcademy is an academic tool and is not designed to collect personal or sensitive information. Users should not place personal, confidential, financial-account, or health information in titles, notes, expressions, or saved calculation fields.
@@ -75,6 +110,9 @@ Calcademy is an academic tool and is not designed to collect personal or sensiti
 Financial tools are provided for education and general calculation only. They are not financial, investment, tax, or legal advice. Results depend on user inputs and numerical methods.
 
 ## Future analytics or accounts
+
+For 1.4.0+13, the optional Supabase Auth client described above supersedes the
+legacy “no account SDK” statement in the historical paragraph below.
 
 Calcademy contains banner advertising through Google AdMob (described above) but no analytics, crash-reporting, cloud, or account SDK. If analytics, cloud services, accounts, or additional ad technologies (mediation, interstitial, rewarded, native) are added, this policy and the applicable store Data Safety disclosures must be updated before that version is released. Where required, consent controls must be implemented before collection begins.
 

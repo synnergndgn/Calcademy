@@ -100,12 +100,12 @@ void main() {
   });
 
   group('release identity', () {
-    test('current release is 1.3.0+12', () async {
+    test('current release is 1.4.0+13', () async {
       final pubspec = await File('pubspec.yaml').readAsString();
 
-      expect(pubspec, contains('version: 1.3.0+12'));
-      expect(AppMetadata.versionName, '1.3.0');
-      expect(AppMetadata.buildNumber, 12);
+      expect(pubspec, contains('version: 1.4.0+13'));
+      expect(AppMetadata.versionName, '1.4.0');
+      expect(AppMetadata.buildNumber, 13);
     });
   });
 

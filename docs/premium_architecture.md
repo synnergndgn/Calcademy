@@ -1,5 +1,12 @@
 # Premium Architecture Foundation — 1.3.0+12
 
+> **1.4.0+13 Auth connection:** Supabase email auth is now available only when
+> valid runtime configuration is supplied. Account, sign-in, create-account,
+> and deletion routes exist. Core tools remain no-login. Signed-in users remain
+> free until a future backend provides a verified premium entitlement. The
+> injected mock premium path is retained for tests. Play Billing, Gemini, and
+> camera/OCR are still absent.
+
 ## Product model
 
 Calcademy remains usable without login. Core calculators, Formula Library,
@@ -26,20 +33,21 @@ infer premium access from a button, account state, or cached plan name.
 
 ## Accounts and authentication
 
-`AuthRepository` and the local signed-out implementation reserve the boundary
-for a future Supabase Auth integration. There is no sign-in, sign-up, session,
-email collection, or remote user record in 1.3.0+12. Basic use never requires an
-account.
+`AuthRepository` now has local and Supabase implementations. Supabase is
+initialized only with valid runtime URL and anon/publishable configuration;
+otherwise the app safely uses the local signed-out implementation. Basic use
+never requires an account.
 
-When account creation is enabled in a later release, Calcademy must provide an
-account-deletion flow that satisfies the current Google Play policy and removes
-or disassociates applicable server-side user data. The current UI describes this
-as future behavior only.
+Account, sign-in, create-account, and deletion routes now exist. Real account
+deletion remains blocked until a secure Edge Function can delete associated
+server data and the Auth user. The public deletion URL must be published before
+production account creation is enabled.
 
 ## Billing
 
-Google Play Billing is not included. Subscribe, sign-in, account creation, and
-manage-subscription controls are disabled placeholders. There are no billing
+Google Play Billing is not included. Subscribe and manage-subscription controls
+remain disabled placeholders; sign-in and account actions now open the Auth
+routes. There are no billing
 product IDs, purchase tokens, external checkout links, purchase restoration,
 or server-side purchase validation in this build.
 

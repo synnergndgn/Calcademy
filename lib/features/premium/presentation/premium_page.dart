@@ -8,6 +8,7 @@ import 'package:calcademy/app/theme/app_spacing.dart';
 import 'package:calcademy/l10n/app_localizations.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 
 class PremiumPage extends ConsumerWidget {
   const PremiumPage({super.key});
@@ -100,14 +101,25 @@ class PremiumPage extends ConsumerWidget {
                     children: [
                       OutlinedButton(
                         key: const Key('premium-sign-in-button'),
-                        onPressed: null,
-                        child: Text(context.l10n.t('signIn')),
+                        onPressed: () => context.push(
+                          auth.status == AuthStatus.signedOut
+                              ? '/sign-in'
+                              : '/account',
+                        ),
+                        child: Text(
+                          context.l10n.t(
+                            auth.status == AuthStatus.signedOut
+                                ? 'signIn'
+                                : 'account',
+                          ),
+                        ),
                       ),
-                      OutlinedButton(
-                        key: const Key('premium-create-account-button'),
-                        onPressed: null,
-                        child: Text(context.l10n.t('createAccount')),
-                      ),
+                      if (auth.status == AuthStatus.signedOut)
+                        OutlinedButton(
+                          key: const Key('premium-create-account-button'),
+                          onPressed: () => context.push('/create-account'),
+                          child: Text(context.l10n.t('createAccount')),
+                        ),
                       FilledButton(
                         key: const Key('premium-subscribe-button'),
                         onPressed: null,

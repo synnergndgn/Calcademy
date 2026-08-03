@@ -115,6 +115,14 @@ class SettingsPage extends ConsumerWidget {
             child: Column(
               children: [
                 ListTile(
+                  key: const Key('settings-account-tile'),
+                  leading: const Icon(Icons.account_circle_outlined),
+                  title: Text(context.l10n.t('account')),
+                  subtitle: Text(context.l10n.t('coreToolsNoAccount')),
+                  trailing: const Icon(Icons.chevron_right_rounded),
+                  onTap: () => context.push('/account'),
+                ),
+                ListTile(
                   key: const Key('settings-premium-tile'),
                   leading: const Icon(Icons.workspace_premium_outlined),
                   title: Text(context.l10n.t('calcademyPremium')),

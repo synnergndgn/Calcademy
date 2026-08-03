@@ -1,5 +1,7 @@
 import 'package:calcademy/app/theme/app_theme.dart';
 import 'package:calcademy/core/services/preferences.dart';
+import 'package:calcademy/features/account/presentation/account_page.dart';
+import 'package:calcademy/features/account/presentation/sign_in_page.dart';
 import 'package:calcademy/features/home/presentation/home_page.dart';
 import 'package:calcademy/features/premium/presentation/premium_page.dart';
 import 'package:calcademy/features/settings/presentation/settings_page.dart';
@@ -50,6 +52,37 @@ void main() {
 
     expect(find.byType(PremiumPage), findsOneWidget);
   });
+
+  testWidgets('Settings opens the Account page', (tester) async {
+    final router = _router('/settings');
+    addTearDown(router.dispose);
+    await _pump(tester, router);
+
+    final tile = find.byKey(const Key('settings-account-tile'));
+    for (var attempt = 0; attempt < 8 && tile.evaluate().isEmpty; attempt++) {
+      await tester.drag(find.byType(ListView), const Offset(0, -260));
+      await tester.pumpAndSettle();
+    }
+    await tester.ensureVisible(tile);
+    await tester.tap(tile.hitTestable());
+    await tester.pumpAndSettle();
+
+    expect(find.byType(AccountPage), findsOneWidget);
+  });
+
+  testWidgets('Premium sign in action opens the sign in page', (tester) async {
+    final router = _router('/premium');
+    addTearDown(router.dispose);
+    await _pump(tester, router);
+
+    await _scrollUntilVisible(tester, const Key('premium-sign-in-button'));
+    await tester.tap(
+      find.byKey(const Key('premium-sign-in-button')).hitTestable(),
+    );
+    await tester.pumpAndSettle();
+
+    expect(find.byType(SignInPage), findsOneWidget);
+  });
 }
 
 GoRouter _router(String initialLocation) => GoRouter(
@@ -58,8 +91,26 @@ GoRouter _router(String initialLocation) => GoRouter(
     GoRoute(path: '/home', builder: (_, _) => const HomePage()),
     GoRoute(path: '/settings', builder: (_, _) => const SettingsPage()),
     GoRoute(path: '/premium', builder: (_, _) => const PremiumPage()),
+    GoRoute(path: '/account', builder: (_, _) => const AccountPage()),
+    GoRoute(path: '/sign-in', builder: (_, _) => const SignInPage()),
   ],
 );
+
+Future<void> _scrollUntilVisible(WidgetTester tester, Key key) async {
+  for (var attempt = 0; attempt < 12; attempt++) {
+    final target = find.byKey(key);
+    if (target.evaluate().isNotEmpty) {
+      await tester.ensureVisible(target);
+      await tester.pumpAndSettle();
+      return;
+    }
+    await tester.drag(
+      find.byKey(const Key('premium-scroll')),
+      const Offset(0, -280),
+    );
+    await tester.pumpAndSettle();
+  }
+}
 
 Future<void> _pump(WidgetTester tester, GoRouter router) async {
   final preferences = await SharedPreferences.getInstance();
