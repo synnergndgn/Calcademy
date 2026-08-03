@@ -20,6 +20,7 @@ class AcademyModule {
     required this.category,
     this.route,
     this.descriptionKey = 'plannedFeature',
+    this.searchTerms = const [],
     this.available = false,
   });
 
@@ -29,10 +30,39 @@ class AcademyModule {
   final AcademyModuleCategory category;
   final String? route;
   final String descriptionKey;
+  final List<String> searchTerms;
   final bool available;
 }
 
 const academyModules = [
+  AcademyModule(
+    id: 'formula-library',
+    titleKey: 'formulaLibraryTitle',
+    icon: Icons.menu_book_rounded,
+    category: AcademyModuleCategory.workspace,
+    route: '/formulas',
+    descriptionKey: 'formulaLibrarySubtitle',
+    searchTerms: ['formula', 'formül', 'library', 'kütüphane', 'npv', 'nbd'],
+    available: true,
+  ),
+  AcademyModule(
+    id: 'saved',
+    titleKey: 'saved',
+    icon: Icons.bookmarks_rounded,
+    category: AcademyModuleCategory.workspace,
+    route: '/saved',
+    descriptionKey: 'savedCalculationsDescription',
+    searchTerms: [
+      'saved',
+      'save',
+      'saved calculations',
+      'kaydedilenler',
+      'kaydedilen hesaplamalar',
+      'kayıtlı',
+      'favori',
+    ],
+    available: true,
+  ),
   AcademyModule(
     id: 'calculator',
     titleKey: 'calculator',
@@ -40,6 +70,7 @@ const academyModules = [
     category: AcademyModuleCategory.mathematics,
     route: '/calculator',
     descriptionKey: 'calculatorDescription',
+    searchTerms: ['calculator', 'hesap makinesi', 'scientific', 'bilimsel'],
     available: true,
   ),
   AcademyModule(
@@ -49,6 +80,7 @@ const academyModules = [
     category: AcademyModuleCategory.mathematics,
     route: '/graph',
     descriptionKey: 'graphDescription',
+    searchTerms: ['graph', 'grafik', 'plot', 'çizim'],
     available: true,
   ),
   AcademyModule(
@@ -58,6 +90,7 @@ const academyModules = [
     category: AcademyModuleCategory.mathematics,
     route: '/matrix',
     descriptionKey: 'matrixDescription',
+    searchTerms: ['matrix', 'matris', 'linear algebra', 'lineer cebir'],
     available: true,
   ),
   AcademyModule(
@@ -67,6 +100,14 @@ const academyModules = [
     category: AcademyModuleCategory.mathematics,
     route: '/equation-solver',
     descriptionKey: 'equationSolverDescription',
+    searchTerms: [
+      'equation',
+      'denklem',
+      'solver',
+      'çözücü',
+      'algebra',
+      'cebir',
+    ],
     available: true,
   ),
   AcademyModule(
@@ -76,6 +117,7 @@ const academyModules = [
     category: AcademyModuleCategory.mathematics,
     route: '/calculus',
     descriptionKey: 'calculusDescription',
+    searchTerms: ['calculus', 'kalkülüs', 'derivative', 'türev', 'integral'],
     available: true,
   ),
   AcademyModule(
@@ -85,6 +127,7 @@ const academyModules = [
     category: AcademyModuleCategory.data,
     route: '/statistics',
     descriptionKey: 'statisticsDescription',
+    searchTerms: ['statistics', 'istatistik', 'probability', 'olasılık'],
     available: true,
   ),
   AcademyModule(
@@ -94,6 +137,7 @@ const academyModules = [
     category: AcademyModuleCategory.finance,
     route: '/financial-calculator',
     descriptionKey: 'financialCalculatorDescription',
+    searchTerms: ['finance', 'finans', 'npv', 'nbd', 'irr', 'faiz'],
     available: true,
   ),
   AcademyModule(
@@ -103,6 +147,13 @@ const academyModules = [
     category: AcademyModuleCategory.optimization,
     route: '/linear-programming',
     descriptionKey: 'linearProgrammingDescription',
+    searchTerms: [
+      'lp',
+      'linear programming',
+      'doğrusal programlama',
+      'optimization',
+      'optimizasyon',
+    ],
     available: true,
   ),
   AcademyModule(
@@ -112,6 +163,7 @@ const academyModules = [
     category: AcademyModuleCategory.optimization,
     route: '/integer-programming',
     descriptionKey: 'integerProgrammingDescription',
+    searchTerms: ['ip', 'integer programming', 'tam sayılı programlama', 'mip'],
     available: true,
   ),
   AcademyModule(
@@ -121,6 +173,13 @@ const academyModules = [
     category: AcademyModuleCategory.optimization,
     route: '/operations-research',
     descriptionKey: 'operationsResearchDescription',
+    searchTerms: [
+      'operations research',
+      'yöneylem araştırması',
+      'or',
+      'cpm',
+      'pert',
+    ],
     available: true,
   ),
   AcademyModule(
@@ -128,17 +187,29 @@ const academyModules = [
     titleKey: 'nonlinearOptimization',
     icon: Icons.hub_rounded,
     category: AcademyModuleCategory.optimization,
+    searchTerms: ['nonlinear', 'nonlineer', 'optimization', 'optimizasyon'],
   ),
   AcademyModule(
     id: 'dynamic-programming',
     titleKey: 'dynamicProgramming',
     icon: Icons.account_tree_rounded,
     category: AcademyModuleCategory.optimization,
+    searchTerms: ['dynamic programming', 'dinamik programlama'],
   ),
   AcademyModule(
     id: 'numerical-methods',
     titleKey: 'numericalMethods',
     icon: Icons.timeline_rounded,
     category: AcademyModuleCategory.mathematics,
+    searchTerms: ['numerical methods', 'sayısal yöntemler'],
   ),
+];
+
+const quickAccessModuleIds = [
+  'calculator',
+  'graphing',
+  'matrices',
+  'equations',
+  'formula-library',
+  'saved',
 ];

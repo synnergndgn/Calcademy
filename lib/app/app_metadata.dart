@@ -3,8 +3,8 @@ abstract final class AppMetadata {
   static const name = appName;
   static const applicationId = 'com.aligundogan.calcademy';
   static const publisherName = 'Ali Gündoğan';
-  static const versionName = '1.0.0';
-  static const buildNumber = 8;
+  static const versionName = '1.1.0';
+  static const buildNumber = 10;
   static const versionCode = buildNumber;
   static const tagline = 'Calculate. Visualize. Optimize. Learn.';
   static const shortDescription =
@@ -12,8 +12,8 @@ abstract final class AppMetadata {
 
   // Release metadata only. User-facing equivalents remain localized.
   // AdMob was integrated in 1.0.0+5/+6, rolled back in 1.0.0+7 after a native
-  // startup crash, and re-attempted in 1.0.0+8 on the feature/admob-retry
-  // branch. The crash was an outdated androidx.work/Room pulled in by
+  // startup crash, and re-attempted successfully in 1.0.0+8. The crash was
+  // an outdated androidx.work/Room pulled in by
   // play-services-ads, not the ads SDK itself; see
   // docs/monetization_strategy.md.
   //

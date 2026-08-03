@@ -64,8 +64,12 @@ void main() {
     expect(find.text('Optimization & Operations Research'), findsWidgets);
     expect(find.text('Data & Statistics'), findsWidgets);
     expect(find.text('Finance'), findsWidgets);
-    expect(find.text('Workspace'), findsNothing);
+    expect(find.text('Workspace'), findsWidgets);
     expect(find.byKey(const Key('module-card-calculator')), findsOneWidget);
+    expect(
+      find.byKey(const Key('module-card-formula-library')),
+      findsOneWidget,
+    );
     expect(find.byIcon(Icons.schedule_rounded), findsWidgets);
   });
 
@@ -104,7 +108,7 @@ void main() {
     addTearDown(tester.view.resetDevicePixelRatio);
 
     await _pumpWithPreferences(tester, const HomePage());
-    expect(find.text('Graphing'), findsOneWidget);
+    expect(find.text('Graphing'), findsWidgets);
     await tester.fling(
       find.byType(CustomScrollView),
       const Offset(0, -1200),
@@ -112,7 +116,7 @@ void main() {
     );
     await tester.pumpAndSettle();
 
-    expect(find.text('Equation Solver'), findsOneWidget);
+    expect(find.text('Equation Solver'), findsWidgets);
     expect(tester.takeException(), isNull);
   });
 
