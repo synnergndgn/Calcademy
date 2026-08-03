@@ -34,6 +34,7 @@ void main() {
     expect(find.text('No account'), findsOneWidget);
     expect(find.text('Local-first'), findsOneWidget);
     expect(find.text('Financial disclaimer'), findsOneWidget);
+    expect(find.byKey(const Key('about-ai-assistant-section')), findsOneWidget);
     expect(find.byKey(const Key('copy-app-info-action')), findsOneWidget);
     expect(find.byKey(const Key('open-privacy-policy-action')), findsOneWidget);
     expect(find.text('Open Privacy Policy'), findsOneWidget);
@@ -255,6 +256,8 @@ void main() {
     expect(AppMetadata.adsStatus, 'admob-banner');
     expect(AppMetadata.analyticsStatus, 'not-included');
     expect(AppMetadata.cloudSyncStatus, 'not-included');
+    expect(AppMetadata.versionName, '1.2.0');
+    expect(AppMetadata.buildNumber, 11);
     expect(
       AppMetadata.privacyPolicyUrl,
       'https://synnergndgn.github.io/Calcademy/privacy_policy',

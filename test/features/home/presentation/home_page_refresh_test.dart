@@ -66,7 +66,30 @@ void main() {
       findsOneWidget,
     );
     expect(find.byKey(const Key('quick-access-saved')), findsOneWidget);
+    expect(find.byKey(const Key('quick-access-ai-assistant')), findsOneWidget);
     expect(find.text('Quick access'), findsOneWidget);
+  });
+
+  testWidgets('search finds AI Assistant with Turkish help terms', (
+    tester,
+  ) async {
+    await _pumpHome(tester);
+
+    for (final query in [
+      'ai',
+      'assistant',
+      'asistan',
+      'yardım',
+      'çözüm',
+      'problem',
+    ]) {
+      await tester.enterText(
+        find.byKey(const Key('home-module-search')),
+        query,
+      );
+      await tester.pump();
+      expect(find.byKey(const Key('module-card-ai-assistant')), findsOneWidget);
+    }
   });
 
   testWidgets('search exposes Saved as a home module', (tester) async {

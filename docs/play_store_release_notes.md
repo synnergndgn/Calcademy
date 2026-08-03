@@ -1,22 +1,20 @@
-# Calcademy 1.1.0 (10)
+# Calcademy 1.2.0 (11)
 
 ## English
 
-- Added an offline Formula Library with 51 formulas across nine categories.
-- Added English and Turkish explanations, variable guides, and worked examples.
-- Added local formula favorites, formula copy, search, filters, and links to
-  related Calcademy tools.
-- Added a dedicated favorites view and refreshed Home with compact quick access
-  and bilingual tool search.
+- Added the Calcademy Assistant foundation with local tool and formula
+  suggestions.
+- Added bilingual, educational solution plans and clear out-of-scope behavior.
+- Added Assistant quick access and search integration while preserving the
+  Formula Library.
+- No prompt is sent to an external AI API in this release.
 
 ## Türkçe
 
-- Dokuz kategoride 51 formül içeren çevrimdışı Formül Kütüphanesi eklendi.
-- İngilizce ve Türkçe açıklamalar, değişken rehberleri ve çözümlü örnekler eklendi.
-- Yerel formül favorileri, formül kopyalama, arama, filtreleme ve ilgili
-  Calcademy araçlarına geçiş eklendi.
-- Favoriler görünümü ve daha kompakt hızlı erişim ile iki dilli araç araması
-  içeren yenilenmiş Home ekranı eklendi.
+- Yerel araç ve formül önerileri sunan Calcademy Asistanı temeli eklendi.
+- İki dilli eğitim amaçlı çözüm planları ve net kapsam dışı davranışı eklendi.
+- Formül Kütüphanesi korunarak Home hızlı erişim ve arama entegrasyonu eklendi.
+- Bu sürümde hiçbir soru harici bir AI API'sine gönderilmez.
 
-This release adds no account, backend, camera, OCR, or assistant service.
+This release adds no account, backend, camera, OCR, or external AI service.
 Existing AdMob disclosures and Data Safety declarations remain applicable.

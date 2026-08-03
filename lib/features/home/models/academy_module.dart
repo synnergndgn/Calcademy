@@ -36,6 +36,16 @@ class AcademyModule {
 
 const academyModules = [
   AcademyModule(
+    id: 'ai-assistant',
+    titleKey: 'aiAssistantTitle',
+    icon: Icons.auto_awesome_rounded,
+    category: AcademyModuleCategory.workspace,
+    route: '/assistant',
+    descriptionKey: 'aiAssistantSubtitle',
+    searchTerms: ['ai', 'assistant', 'asistan', 'yardım', 'çözüm', 'problem'],
+    available: true,
+  ),
+  AcademyModule(
     id: 'formula-library',
     titleKey: 'formulaLibraryTitle',
     icon: Icons.menu_book_rounded,
@@ -206,6 +216,7 @@ const academyModules = [
 ];
 
 const quickAccessModuleIds = [
+  'ai-assistant',
   'calculator',
   'graphing',
   'matrices',
