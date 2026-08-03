@@ -1,5 +1,6 @@
 import 'package:calcademy/app/ads/ad_banner.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {
@@ -7,9 +8,7 @@ void main() {
     tester,
   ) async {
     await tester.pumpWidget(
-      const MaterialApp(
-        home: Scaffold(bottomNavigationBar: AdBanner(enabled: false)),
-      ),
+      _app(home: Scaffold(bottomNavigationBar: AdBanner(enabled: false))),
     );
     await tester.pumpAndSettle();
 
@@ -23,7 +22,7 @@ void main() {
     tester,
   ) async {
     await tester.pumpWidget(
-      const MaterialApp(home: Scaffold(bottomNavigationBar: AdBanner())),
+      _app(home: const Scaffold(bottomNavigationBar: AdBanner())),
     );
     await tester.pumpAndSettle();
 
@@ -42,7 +41,7 @@ void main() {
     addTearDown(tester.platformDispatcher.clearTextScaleFactorTestValue);
 
     await tester.pumpWidget(
-      const MaterialApp(
+      _app(
         home: Scaffold(
           body: Center(child: Text('content')),
           bottomNavigationBar: AdBanner(enabled: false),
@@ -61,9 +60,7 @@ void main() {
     // Even when explicitly enabled, the SDK-init gate keeps the banner inert
     // on the test host, so no plugin call is made and nothing crashes.
     await tester.pumpWidget(
-      const MaterialApp(
-        home: Scaffold(bottomNavigationBar: AdBanner(enabled: true)),
-      ),
+      _app(home: Scaffold(bottomNavigationBar: AdBanner(enabled: true))),
     );
     await tester.pumpAndSettle();
 
@@ -73,7 +70,7 @@ void main() {
 
   testWidgets('builds without error in dark theme', (tester) async {
     await tester.pumpWidget(
-      MaterialApp(
+      _app(
         theme: ThemeData.dark(),
         home: const Scaffold(bottomNavigationBar: AdBanner(enabled: false)),
       ),
@@ -83,3 +80,7 @@ void main() {
     expect(tester.takeException(), isNull);
   });
 }
+
+Widget _app({required Widget home, ThemeData? theme}) => ProviderScope(
+  child: MaterialApp(theme: theme, home: home),
+);

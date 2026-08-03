@@ -2,7 +2,10 @@ import 'dart:async';
 
 import 'package:calcademy/app/ads/ad_config.dart';
 import 'package:calcademy/app/ads/ad_service.dart';
+import 'package:calcademy/app/premium/premium_feature.dart';
+import 'package:calcademy/app/premium/premium_gate_controller.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
 
 /// A low-intrusion anchored banner that reserves **no** layout space until an
@@ -20,7 +23,7 @@ import 'package:google_mobile_ads/google_mobile_ads.dart';
 ///
 /// UMP/consent is intentionally out of scope for the AdMob Retry 1.0 sprint;
 /// see `docs/monetization_strategy.md`.
-class AdBanner extends StatefulWidget {
+class AdBanner extends ConsumerStatefulWidget {
   const AdBanner({super.key, this.enabled});
 
   /// Test seam. When `null`, gating falls back to [AdConfig.adsEnabled] (which
@@ -28,20 +31,15 @@ class AdBanner extends StatefulWidget {
   final bool? enabled;
 
   @override
-  State<AdBanner> createState() => _AdBannerState();
+  ConsumerState<AdBanner> createState() => _AdBannerState();
 }
 
-class _AdBannerState extends State<AdBanner> {
+class _AdBannerState extends ConsumerState<AdBanner> {
   BannerAd? _ad;
   bool _loaded = false;
+  bool _requested = false;
 
   bool get _enabled => widget.enabled ?? AdConfig.adsEnabled;
-
-  @override
-  void initState() {
-    super.initState();
-    if (_enabled) unawaited(_prepareAndLoad());
-  }
 
   /// Fully guarded: SDK init and ad load can each fail without ever throwing
   /// out of here or affecting the widget tree beyond staying hidden.
@@ -91,8 +89,22 @@ class _AdBannerState extends State<AdBanner> {
 
   @override
   Widget build(BuildContext context) {
+    final removesAds = ref.watch(
+      premiumGateControllerProvider.select(
+        (entitlement) => entitlement.canUse(PremiumFeature.removeAds),
+      ),
+    );
+    if (removesAds) {
+      return const SizedBox.shrink(key: Key('ad-banner-premium-hidden'));
+    }
+    if (_enabled && !_requested) {
+      _requested = true;
+      unawaited(_prepareAndLoad());
+    }
     final ad = _ad;
-    if (!_enabled || !_loaded || ad == null) return const SizedBox.shrink();
+    if (!_enabled || !_loaded || ad == null) {
+      return const SizedBox.shrink(key: Key('ad-banner-not-loaded'));
+    }
     return SafeArea(
       top: false,
       child: SizedBox(

@@ -1,6 +1,8 @@
 import 'package:calcademy/app/theme/app_breakpoints.dart';
 import 'package:calcademy/app/theme/app_spacing.dart';
 import 'package:calcademy/app/tools/calcademy_tool_registry.dart';
+import 'package:calcademy/app/premium/premium_feature.dart';
+import 'package:calcademy/app/premium/widgets/premium_gate_card.dart';
 import 'package:calcademy/features/ai_assistant/application/ai_assistant_controller.dart';
 import 'package:calcademy/features/ai_assistant/domain/ai_assistant_message.dart';
 import 'package:calcademy/features/ai_assistant/presentation/widgets/ai_disclaimer_card.dart';
@@ -83,6 +85,16 @@ class _AiAssistantPageState extends ConsumerState<AiAssistantPage> {
                         ),
                         const SizedBox(height: AppSpacing.sm),
                         const AiScopeNoticeCard(),
+                        const SizedBox(height: AppSpacing.sm),
+                        PremiumGateCard(
+                          feature: PremiumFeature.geminiAssistant,
+                          title: context.l10n.t('premiumGeminiTeaser'),
+                          benefits: [
+                            context.l10n.t('premiumGeminiAssistant'),
+                            context.l10n.t('higherDailyLimits'),
+                          ],
+                          compact: true,
+                        ),
                         const SizedBox(height: AppSpacing.sm),
                         Text(
                           context.l10n.t('aiAssistantExamples'),

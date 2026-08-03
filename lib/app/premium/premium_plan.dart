@@ -1,0 +1,1 @@
+enum PremiumPlan { free, premium }
