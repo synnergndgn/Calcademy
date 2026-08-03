@@ -1,0 +1,15 @@
+enum AiProblemIntent {
+  scientificCalculation,
+  graphing,
+  matrix,
+  equationSolving,
+  calculus,
+  statistics,
+  finance,
+  linearProgramming,
+  integerProgramming,
+  operationsResearch,
+  formulaLookup,
+  unsupported,
+  outOfScope,
+}

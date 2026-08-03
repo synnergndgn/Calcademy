@@ -81,6 +81,18 @@ class AboutPage extends StatelessWidget {
                 ),
                 const SizedBox(height: AppSpacing.xl),
                 _AboutSection(
+                  sectionKey: const Key('about-ai-assistant-section'),
+                  title: context.l10n.t('aiAssistantTitle'),
+                  icon: Icons.auto_awesome_outlined,
+                  children: [
+                    Text(
+                      context.l10n.t('aiAssistantAboutNotice'),
+                      style: Theme.of(context).textTheme.bodyLarge,
+                    ),
+                  ],
+                ),
+                const SizedBox(height: AppSpacing.xl),
+                _AboutSection(
                   sectionKey: const Key('about-privacy-section'),
                   title: context.l10n.t('dataHandling'),
                   icon: Icons.privacy_tip_outlined,

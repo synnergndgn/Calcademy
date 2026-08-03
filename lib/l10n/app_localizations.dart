@@ -22,6 +22,34 @@ class AppLocalizations {
       'history': 'History',
       'saved': 'Saved',
       'settings': 'Settings',
+      'aiAssistantTitle': 'Ask Calcademy',
+      'aiAssistantSubtitle':
+          'Find the right Calcademy tool, formula, and learning path for your problem.',
+      'aiAssistantScopeNotice':
+          'Uses Calcademy tools and formulas. Camera and Gemini integration coming later.',
+      'aiAssistantInputHint':
+          'Ask about a calculation, formula, or supported tool',
+      'aiAssistantSend': 'Send',
+      'aiAssistantUnsupported':
+          'This request is not supported by the local assistant yet.',
+      'aiAssistantOutOfScope':
+          'This assistant is designed to help only with Calcademy calculation, formula, and learning tools.',
+      'aiAssistantOpenTool': 'Open Tool',
+      'aiAssistantOpenFormula': 'Open Formula',
+      'aiAssistantSuggestedTool': 'Suggested tool',
+      'aiAssistantSuggestedFormula': 'Suggested formula',
+      'aiAssistantLocalModeNotice':
+          'This early version uses local rules. No prompt is sent to an external AI provider.',
+      'aiAssistantFinancialDisclaimer':
+          'Financial calculations are for informational and educational purposes only and are not financial advice.',
+      'aiAssistantEmptyInput': 'Enter a question before sending.',
+      'aiAssistantCharacterLimit':
+          'Questions can contain at most 1000 characters.',
+      'aiAssistantExamples': 'Try an example',
+      'aiAssistantComingSoonCamera': 'Camera and OCR are coming later.',
+      'aiAssistantComingSoonGemini': 'Gemini integration is coming later.',
+      'aiAssistantAboutNotice':
+          'Calcademy Assistant currently uses local rules to suggest supported Calcademy tools and formulas. Real AI API integration will be added in a future version.',
       'formulaLibraryTitle': 'Formula Library',
       'formulaLibrarySubtitle':
           'Browse key formulas and open related Calcademy tools.',
@@ -1137,6 +1165,34 @@ class AppLocalizations {
       'older': 'Earlier',
     },
     'tr': {
+      'aiAssistantTitle': 'Calcademy Asistanı',
+      'aiAssistantSubtitle':
+          'Probleminiz için doğru Calcademy aracını, formülünü ve öğrenme yolunu bulun.',
+      'aiAssistantScopeNotice':
+          'Calcademy araçlarını ve formüllerini kullanır. Kamera ve Gemini entegrasyonu daha sonra eklenecektir.',
+      'aiAssistantInputHint':
+          'Bir hesaplama, formül veya desteklenen araç sorun',
+      'aiAssistantSend': 'Gönder',
+      'aiAssistantUnsupported':
+          'Bu istek henüz yerel asistan tarafından desteklenmiyor.',
+      'aiAssistantOutOfScope':
+          'Bu asistan yalnızca Calcademy içindeki hesaplama, formül ve öğrenme araçlarıyla yardımcı olmak için tasarlanmıştır.',
+      'aiAssistantOpenTool': 'Aracı Aç',
+      'aiAssistantOpenFormula': 'Formülü Aç',
+      'aiAssistantSuggestedTool': 'Önerilen araç',
+      'aiAssistantSuggestedFormula': 'Önerilen formül',
+      'aiAssistantLocalModeNotice':
+          'Bu erken sürüm yerel kurallar kullanır. Hiçbir soru harici bir AI sağlayıcısına gönderilmez.',
+      'aiAssistantFinancialDisclaimer':
+          'Finansal hesaplamalar yalnızca bilgilendirme ve eğitim amaçlıdır; finansal tavsiye değildir.',
+      'aiAssistantEmptyInput': 'Göndermeden önce bir soru girin.',
+      'aiAssistantCharacterLimit': 'Sorular en fazla 1000 karakter olabilir.',
+      'aiAssistantExamples': 'Bir örnek deneyin',
+      'aiAssistantComingSoonCamera': 'Kamera ve OCR daha sonra eklenecektir.',
+      'aiAssistantComingSoonGemini':
+          'Gemini entegrasyonu daha sonra eklenecektir.',
+      'aiAssistantAboutNotice':
+          'Calcademy Asistanı şu anda desteklenen Calcademy araçlarını ve formüllerini önermek için yerel kurallar kullanır. Gerçek AI API entegrasyonu sonraki sürümde eklenecektir.',
       'appName': 'Calcademy',
       'logoSemantics': 'Calcademy logosu',
       'tagline': 'Hesapla. Görselleştir. Optimize et. Öğren.',

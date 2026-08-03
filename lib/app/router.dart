@@ -1,5 +1,6 @@
 import 'package:calcademy/app/navigation_shell.dart';
 import 'package:calcademy/features/calculator/presentation/calculator_page.dart';
+import 'package:calcademy/features/ai_assistant/presentation/ai_assistant_page.dart';
 import 'package:calcademy/features/history/presentation/history_page.dart';
 import 'package:calcademy/features/graph/presentation/graph_page.dart';
 import 'package:calcademy/features/home/presentation/coming_soon_page.dart';
@@ -42,6 +43,10 @@ final appRouter = GoRouter(
           builder: (context, state) => const SettingsPage(),
         ),
       ],
+    ),
+    GoRoute(
+      path: '/assistant',
+      builder: (context, state) => const AiAssistantPage(),
     ),
     GoRoute(
       path: '/calculator',
