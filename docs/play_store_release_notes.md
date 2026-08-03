@@ -6,6 +6,8 @@
 - Added English and Turkish explanations, variable guides, and worked examples.
 - Added local formula favorites, formula copy, search, filters, and links to
   related Calcademy tools.
+- Added a dedicated favorites view and refreshed Home with compact quick access
+  and bilingual tool search.
 
 ## Türkçe
 
@@ -13,6 +15,8 @@
 - İngilizce ve Türkçe açıklamalar, değişken rehberleri ve çözümlü örnekler eklendi.
 - Yerel formül favorileri, formül kopyalama, arama, filtreleme ve ilgili
   Calcademy araçlarına geçiş eklendi.
+- Favoriler görünümü ve daha kompakt hızlı erişim ile iki dilli araç araması
+  içeren yenilenmiş Home ekranı eklendi.
 
 This release adds no account, backend, camera, OCR, or assistant service.
 Existing AdMob disclosures and Data Safety declarations remain applicable.

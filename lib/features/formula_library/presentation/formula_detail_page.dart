@@ -38,78 +38,88 @@ class FormulaDetailPage extends ConsumerWidget {
           ),
         ],
       ),
-      body: LayoutBuilder(
-        builder: (context, constraints) => Center(
-          child: ConstrainedBox(
-            constraints: const BoxConstraints(
-              maxWidth: AppBreakpoints.maxContentWidth,
-            ),
-            child: SingleChildScrollView(
-              key: const Key('formula-detail-scroll'),
-              padding: AppBreakpoints.pagePadding(constraints.maxWidth),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                children: [
-                  Text(
-                    formula.category.localized(language),
-                    style: Theme.of(context).textTheme.labelLarge?.copyWith(
-                      color: Theme.of(context).colorScheme.primary,
-                    ),
-                  ),
-                  const SizedBox(height: 8),
-                  Text(
-                    formula.title(language),
-                    style: Theme.of(context).textTheme.headlineMedium,
-                  ),
-                  const SizedBox(height: 12),
-                  Card(
-                    color: Theme.of(context).colorScheme.primaryContainer,
-                    child: Padding(
-                      padding: const EdgeInsets.all(20),
-                      child: SelectableText(
-                        formula.formulaText,
-                        key: const Key('formula-detail-expression'),
-                        style: Theme.of(context).textTheme.headlineSmall
-                            ?.copyWith(fontFamily: 'monospace'),
+      body: SafeArea(
+        key: const Key('formula-detail-safe-area'),
+        top: false,
+        minimum: const EdgeInsets.only(bottom: 8),
+        child: LayoutBuilder(
+          builder: (context, constraints) => Center(
+            child: ConstrainedBox(
+              constraints: const BoxConstraints(
+                maxWidth: AppBreakpoints.maxContentWidth,
+              ),
+              child: SingleChildScrollView(
+                key: const Key('formula-detail-scroll'),
+                padding: AppBreakpoints.pagePadding(constraints.maxWidth),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    Text(
+                      formula.category.localized(language),
+                      style: Theme.of(context).textTheme.labelLarge?.copyWith(
+                        color: Theme.of(context).colorScheme.primary,
                       ),
                     ),
-                  ),
-                  const SizedBox(height: 12),
-                  Text(formula.description(language)),
-                  const SizedBox(height: 20),
-                  _Heading(context.l10n.t('variables')),
-                  FormulaVariableTable(variables: formula.variables),
-                  const SizedBox(height: 20),
-                  _Heading(context.l10n.t('examples')),
-                  FormulaExampleSection(examples: formula.examples),
-                  const SizedBox(height: 12),
-                  Wrap(
-                    spacing: 8,
-                    runSpacing: 8,
-                    children: [
-                      OutlinedButton.icon(
-                        key: const Key('copy-formula-button'),
-                        onPressed: () async {
-                          await Clipboard.setData(
-                            ClipboardData(text: formula.plainTextFormula),
-                          );
-                          if (context.mounted) {
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              SnackBar(
-                                content: Text(context.l10n.t('formulaCopied')),
-                              ),
+                    const SizedBox(height: 8),
+                    Text(
+                      formula.title(language),
+                      style: Theme.of(context).textTheme.headlineMedium,
+                    ),
+                    const SizedBox(height: 12),
+                    Card(
+                      color: Theme.of(context).colorScheme.primaryContainer,
+                      child: Padding(
+                        padding: const EdgeInsets.all(20),
+                        child: SelectableText(
+                          formula.formulaText,
+                          key: const Key('formula-detail-expression'),
+                          style: Theme.of(context).textTheme.headlineSmall
+                              ?.copyWith(fontFamily: 'monospace'),
+                        ),
+                      ),
+                    ),
+                    const SizedBox(height: 12),
+                    Text(formula.description(language)),
+                    const SizedBox(height: 20),
+                    _Heading(context.l10n.t('variables')),
+                    FormulaVariableTable(variables: formula.variables),
+                    const SizedBox(height: 20),
+                    _Heading(context.l10n.t('examples')),
+                    FormulaExampleSection(examples: formula.examples),
+                    const SizedBox(height: 12),
+                    Wrap(
+                      spacing: 8,
+                      runSpacing: 8,
+                      children: [
+                        OutlinedButton.icon(
+                          key: const Key('copy-formula-button'),
+                          onPressed: () async {
+                            await Clipboard.setData(
+                              ClipboardData(text: formula.plainTextFormula),
                             );
-                          }
-                        },
-                        icon: const Icon(Icons.copy_rounded),
-                        label: Text(context.l10n.t('copyFormula')),
-                      ),
-                      for (final link in formula.relatedTools)
-                        FormulaToolActionButton(link: link),
-                    ],
-                  ),
-                  const SizedBox(height: 24),
-                ],
+                            if (context.mounted) {
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                SnackBar(
+                                  content: Text(
+                                    context.l10n.t('formulaCopied'),
+                                  ),
+                                ),
+                              );
+                            }
+                          },
+                          icon: const Icon(Icons.copy_rounded),
+                          label: Text(context.l10n.t('copyFormula')),
+                        ),
+                        for (final link in formula.relatedTools)
+                          FormulaToolActionButton(link: link),
+                      ],
+                    ),
+                    const SizedBox(
+                      key: Key('formula-detail-bottom-spacer'),
+                      height: 32,
+                    ),
+                  ],
+                ),
               ),
             ),
           ),

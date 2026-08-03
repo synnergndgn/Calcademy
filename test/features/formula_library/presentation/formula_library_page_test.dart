@@ -54,6 +54,132 @@ void main() {
       prefs.getStringList(FormulaFavoritesController.storageKey),
       contains('quadratic-formula'),
     );
+
+    await tester.tap(find.byKey(const Key('formula-detail-favorite')));
+    await tester.pump();
+    expect(container.read(formulaFavoritesProvider), isEmpty);
+    expect(prefs.getStringList(FormulaFavoritesController.storageKey), isEmpty);
+  });
+
+  testWidgets('favorites view shows its empty state', (tester) async {
+    await _pump(tester, const FormulaLibraryPage());
+
+    await tester.tap(find.byKey(const Key('formula-view-favorites')));
+    await tester.pump();
+
+    expect(find.byKey(const Key('formula-favorites-empty')), findsOneWidget);
+    expect(find.text('No favorite formulas yet.'), findsOneWidget);
+  });
+
+  testWidgets('favorites filter shows only favorite formulas', (tester) async {
+    SharedPreferences.setMockInitialValues({
+      FormulaFavoritesController.storageKey: ['quadratic-formula'],
+    });
+    await _pump(tester, const FormulaLibraryPage());
+
+    await tester.tap(find.byKey(const Key('formula-view-favorites')));
+    await tester.pump();
+
+    expect(
+      find.byKey(const Key('formula-card-quadratic-formula')),
+      findsOneWidget,
+    );
+    expect(
+      find.byKey(const Key('formula-card-distance-formula')),
+      findsNothing,
+    );
+  });
+
+  testWidgets('search and category filters work inside favorites', (
+    tester,
+  ) async {
+    SharedPreferences.setMockInitialValues({
+      FormulaFavoritesController.storageKey: [
+        'quadratic-formula',
+        'net-present-value',
+      ],
+    });
+    await _pump(tester, const FormulaLibraryPage());
+    await tester.tap(find.byKey(const Key('formula-view-favorites')));
+    await tester.enterText(
+      find.byKey(const Key('formula-search-field')),
+      'NPV',
+    );
+    await tester.pump();
+
+    expect(
+      find.byKey(const Key('formula-card-net-present-value')),
+      findsOneWidget,
+    );
+    expect(
+      find.byKey(const Key('formula-card-quadratic-formula')),
+      findsNothing,
+    );
+  });
+
+  testWidgets('formula screens preserve bottom system-safe content', (
+    tester,
+  ) async {
+    await _pump(tester, const FormulaLibraryPage());
+    expect(find.byKey(const Key('formula-library-safe-area')), findsOneWidget);
+    await tester.enterText(
+      find.byKey(const Key('formula-search-field')),
+      'Quadratic',
+    );
+    await tester.pump();
+    expect(
+      find.byKey(const Key('formula-library-bottom-spacer')),
+      findsOneWidget,
+    );
+
+    await _pump(
+      tester,
+      const FormulaDetailPage(formulaId: 'net-present-value'),
+    );
+    expect(find.byKey(const Key('formula-detail-safe-area')), findsOneWidget);
+    expect(
+      find.byKey(const Key('formula-detail-bottom-spacer')),
+      findsOneWidget,
+    );
+    expect(
+      find.byKey(const Key('formula-tool-financial_calculator')),
+      findsOneWidget,
+    );
+  });
+
+  testWidgets('formula library stays bounded at 320px and 200 percent text', (
+    tester,
+  ) async {
+    tester.view.physicalSize = const Size(320, 690);
+    tester.view.devicePixelRatio = 1;
+    tester.platformDispatcher.textScaleFactorTestValue = 2;
+    addTearDown(tester.view.resetPhysicalSize);
+    addTearDown(tester.view.resetDevicePixelRatio);
+    addTearDown(tester.platformDispatcher.clearTextScaleFactorTestValue);
+
+    await _pump(tester, const FormulaLibraryPage());
+    expect(tester.takeException(), isNull);
+    expect(find.byKey(const Key('formula-library-safe-area')), findsOneWidget);
+  });
+
+  test('favorite state is restored by a new provider container', () async {
+    final preferences = await SharedPreferences.getInstance();
+    final first = ProviderContainer(
+      overrides: [sharedPreferencesProvider.overrideWithValue(preferences)],
+    );
+    await first
+        .read(formulaFavoritesProvider.notifier)
+        .toggle('quadratic-formula');
+    first.dispose();
+
+    final reopened = ProviderContainer(
+      overrides: [sharedPreferencesProvider.overrideWithValue(preferences)],
+    );
+    addTearDown(reopened.dispose);
+    expect(
+      reopened.read(formulaFavoritesProvider),
+      contains('quadratic-formula'),
+    );
   });
 
   testWidgets('detail renders formula, variables, examples, and tool action', (

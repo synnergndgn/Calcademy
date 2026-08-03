@@ -48,4 +48,14 @@ validation while preserving current deep links. Current navigation intentionally
 opens the relevant tool without injecting inputs.
 
 Formula favorites use a dedicated SharedPreferences string-list key. They do
-not alter Saved Calculations schema in this foundation sprint.
+not alter Saved Calculations schema in this foundation sprint. The library's
+All/Favorites selector composes with search and category filters, and exposes a
+dedicated empty state when no formulas have been favorited.
+
+Both formula routes keep scroll content inside a bottom `SafeArea` and retain a
+final content spacer so copy and related-tool actions remain above Android
+gesture and three-button navigation areas.
+
+Home provides a compact six-item Quick Access grid, bilingual search aliases,
+category chips, and denser responsive tool cards. Formula Library and Saved are
+available in Quick Access without changing AdMob placement.

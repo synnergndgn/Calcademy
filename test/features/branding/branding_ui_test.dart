@@ -108,7 +108,7 @@ void main() {
     addTearDown(tester.view.resetDevicePixelRatio);
 
     await _pumpWithPreferences(tester, const HomePage());
-    expect(find.text('Graphing'), findsOneWidget);
+    expect(find.text('Graphing'), findsWidgets);
     await tester.fling(
       find.byType(CustomScrollView),
       const Offset(0, -1200),
@@ -116,7 +116,7 @@ void main() {
     );
     await tester.pumpAndSettle();
 
-    expect(find.text('Equation Solver'), findsOneWidget);
+    expect(find.text('Equation Solver'), findsWidgets);
     expect(tester.takeException(), isNull);
   });
 
