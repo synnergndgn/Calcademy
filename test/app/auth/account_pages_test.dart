@@ -110,7 +110,7 @@ void main() {
     expect(find.text('Passwords do not match.'), findsOneWidget);
   });
 
-  testWidgets('/account/delete explains secure backend requirement', (
+  testWidgets('/account/delete requires sign in and confirmation', (
     tester,
   ) async {
     final router = _router('/account/delete');
@@ -120,7 +120,7 @@ void main() {
     expect(find.byType(DeleteAccountPage), findsOneWidget);
     expect(find.text('This action cannot be undone'), findsOneWidget);
     expect(
-      find.byKey(const Key('account-deletion-backend-notice')),
+      find.byKey(const Key('account-deletion-local-data-notice')),
       findsOneWidget,
     );
     expect(
@@ -131,6 +131,67 @@ void main() {
           .onPressed,
       isNull,
     );
+  });
+
+  testWidgets('confirmed account deletion signs out and returns to account', (
+    tester,
+  ) async {
+    final router = _router('/account/delete');
+    addTearDown(router.dispose);
+    final repository = LocalAuthRepository(
+      initialStatus: AuthStatus.signedIn,
+      initialUser: const AppUser(
+        id: 'student-id',
+        email: 'student@example.com',
+      ),
+      supportsAccountDeletion: true,
+    );
+    addTearDown(repository.dispose);
+    await _pump(tester, router, repository: repository, configured: true);
+
+    expect(
+      tester
+          .widget<FilledButton>(
+            find.byKey(const Key('request-account-deletion-button')),
+          )
+          .onPressed,
+      isNull,
+    );
+    await tester.tap(find.byKey(const Key('delete-account-confirmation')));
+    await tester.pump();
+    await tester.tap(find.byKey(const Key('request-account-deletion-button')));
+    await tester.pumpAndSettle();
+
+    expect(repository.status, AuthStatus.signedOut);
+    expect(find.byType(AccountPage), findsOneWidget);
+    expect(find.text('Continue without account'), findsOneWidget);
+  });
+
+  testWidgets('account deletion function error is shown', (tester) async {
+    final router = _router('/account/delete');
+    addTearDown(router.dispose);
+    final repository = LocalAuthRepository(
+      initialStatus: AuthStatus.signedIn,
+      initialUser: const AppUser(
+        id: 'student-id',
+        email: 'student@example.com',
+      ),
+      supportsAccountDeletion: true,
+      accountDeletionFailure: const AuthFailure('accountDeletionFailed'),
+    );
+    addTearDown(repository.dispose);
+    await _pump(tester, router, repository: repository, configured: true);
+
+    await tester.tap(find.byKey(const Key('delete-account-confirmation')));
+    await tester.pump();
+    await tester.tap(find.byKey(const Key('request-account-deletion-button')));
+    await tester.pumpAndSettle();
+
+    expect(
+      find.text('Your account could not be deleted. Please try again.'),
+      findsOneWidget,
+    );
+    expect(repository.status, AuthStatus.signedIn);
   });
 
   testWidgets('signed-in mock user renders account controls', (tester) async {
@@ -178,6 +239,10 @@ void main() {
       'manageSubscription',
       'signedInAs',
       'signedOut',
+      'accountDeletionFailed',
+      'localDataDeletionNotice',
+      'invalidCredentials',
+      'emailNotConfirmed',
     ];
     for (final key in keys) {
       expect(english.t(key), isNot(key), reason: 'English missing $key');

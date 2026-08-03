@@ -55,7 +55,7 @@ class AppLocalizations {
       'signOut': 'Sign out',
       'accountDeletion': 'Account deletion',
       'deleteAccount': 'Delete account',
-      'requestAccountDeletion': 'Request account deletion',
+      'requestAccountDeletion': 'Delete account permanently',
       'thisActionCannotBeUndone': 'This action cannot be undone',
       'authNotConfigured': 'Auth is not configured yet',
       'supabaseNotConfigured': 'Supabase connection is not configured.',
@@ -67,6 +67,11 @@ class AppLocalizations {
       'passwordTooShort': 'Password must contain at least 8 characters.',
       'passwordsDoNotMatch': 'Passwords do not match.',
       'authenticationFailed': 'Authentication could not be completed.',
+      'invalidCredentials': 'Email or password is incorrect.',
+      'emailNotConfirmed': 'Confirm your email before signing in.',
+      'accountAlreadyExists': 'An account already exists for this email.',
+      'weakPassword': 'Choose a stronger password and try again.',
+      'tooManyRequests': 'Too many attempts. Please wait and try again.',
       'passwordResetSent': 'Password reset instructions were sent.',
       'signedInSuccessfully': 'Signed in successfully.',
       'accountCreatedNotice':
@@ -79,7 +84,12 @@ class AppLocalizations {
           'Account deletion will be handled by a secure backend function before account creation is enabled in production.',
       'confirmAccountDeletion':
           'I understand that my account and associated data will be deleted.',
-      'accountDeletionRequested': 'Account deletion request received.',
+      'accountDeletionRequested': 'Your account was deleted.',
+      'accountDeletionFailed':
+          'Your account could not be deleted. Please try again.',
+      'localDataNotDeletedTitle': 'Local data stays on this device',
+      'localDataDeletionNotice':
+          'Remove local-only saved data by clearing Calcademy app data or uninstalling the app. Cloud data will be deleted when cloud sync is introduced.',
       'premiumOperatingCostNotice':
           'This feature uses services such as Gemini AI, camera processing, or ad-free access that create operating costs. It will be available with Premium.',
       'premiumBenefits': 'Premium benefits',
@@ -1247,7 +1257,7 @@ class AppLocalizations {
       'signOut': 'Çıkış yap',
       'accountDeletion': 'Hesap silme',
       'deleteAccount': 'Hesabı sil',
-      'requestAccountDeletion': 'Hesap silme talebi gönder',
+      'requestAccountDeletion': 'Hesabı kalıcı olarak sil',
       'thisActionCannotBeUndone': 'Bu işlem geri alınamaz',
       'authNotConfigured': 'Kimlik doğrulama henüz yapılandırılmadı',
       'supabaseNotConfigured': 'Supabase bağlantısı yapılandırılmadı.',
@@ -1259,6 +1269,11 @@ class AppLocalizations {
       'passwordTooShort': 'Şifre en az 8 karakter içermelidir.',
       'passwordsDoNotMatch': 'Şifreler eşleşmiyor.',
       'authenticationFailed': 'Kimlik doğrulama tamamlanamadı.',
+      'invalidCredentials': 'E-posta veya şifre hatalı.',
+      'emailNotConfirmed': 'Giriş yapmadan önce e-postanızı onaylayın.',
+      'accountAlreadyExists': 'Bu e-posta için zaten bir hesap var.',
+      'weakPassword': 'Daha güçlü bir şifre seçip tekrar deneyin.',
+      'tooManyRequests': 'Çok fazla deneme yapıldı. Bekleyip tekrar deneyin.',
       'passwordResetSent': 'Şifre sıfırlama talimatları gönderildi.',
       'signedInSuccessfully': 'Giriş başarıyla tamamlandı.',
       'accountCreatedNotice':
@@ -1271,7 +1286,11 @@ class AppLocalizations {
           'Üretimde hesap oluşturma etkinleştirilmeden önce hesap silme güvenli bir backend fonksiyonuyla gerçekleştirilecektir.',
       'confirmAccountDeletion':
           'Hesabımın ve ilişkili verilerimin silineceğini anlıyorum.',
-      'accountDeletionRequested': 'Hesap silme talebi alındı.',
+      'accountDeletionRequested': 'Hesabınız silindi.',
+      'accountDeletionFailed': 'Hesabınız silinemedi. Lütfen tekrar deneyin.',
+      'localDataNotDeletedTitle': 'Yerel veriler bu cihazda kalır',
+      'localDataDeletionNotice':
+          'Yalnızca cihazda saklanan verileri kaldırmak için Calcademy uygulama verisini temizleyin veya uygulamayı kaldırın. Bulut eşitleme eklendiğinde bulut verileri hesapla birlikte silinecektir.',
       'premium': 'Premium',
       'calcademyPremium': 'Calcademy Premium',
       'premiumPageSubtitle':

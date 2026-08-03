@@ -115,7 +115,9 @@ class _SignInPageState extends ConsumerState<SignInPage> {
     if (success) {
       context.go('/account');
     } else {
-      _showFeedback('authenticationFailed');
+      _showFeedback(
+        ref.read(authControllerProvider).errorKey ?? 'authenticationFailed',
+      );
     }
   }
 
@@ -128,7 +130,11 @@ class _SignInPageState extends ConsumerState<SignInPage> {
         .read(authControllerProvider.notifier)
         .sendPasswordResetEmail(_emailController.text);
     if (!mounted) return;
-    _showFeedback(success ? 'passwordResetSent' : 'authenticationFailed');
+    _showFeedback(
+      success
+          ? 'passwordResetSent'
+          : ref.read(authControllerProvider).errorKey ?? 'authenticationFailed',
+    );
   }
 
   void _showFeedback(String key) {

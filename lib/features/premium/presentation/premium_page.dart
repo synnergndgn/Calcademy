@@ -64,6 +64,10 @@ class PremiumPage extends ConsumerWidget {
                             ),
                             key: const Key('premium-current-status'),
                           ),
+                          if (auth.user?.email case final email?) ...[
+                            const SizedBox(height: AppSpacing.xs),
+                            Text(email, key: const Key('premium-user-email')),
+                          ],
                           const SizedBox(height: AppSpacing.xs),
                           Text(context.l10n.t('basicToolsNoAccount')),
                         ],

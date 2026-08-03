@@ -1,5 +1,10 @@
 import 'dart:io';
 
+import 'package:calcademy/app/auth/app_user.dart';
+import 'package:calcademy/app/auth/auth_providers.dart';
+import 'package:calcademy/app/auth/auth_repository.dart';
+import 'package:calcademy/app/auth/auth_status.dart';
+import 'package:calcademy/app/auth/local_auth_repository.dart';
 import 'package:calcademy/app/premium/entitlement_repository.dart';
 import 'package:calcademy/app/premium/local_entitlement_repository.dart';
 import 'package:calcademy/app/premium/premium_entitlement.dart';
@@ -41,6 +46,29 @@ void main() {
       expect(find.byKey(const Key('premium-coming-soon')), findsOneWidget);
     },
   );
+
+  testWidgets('signed-in premium page shows account email', (tester) async {
+    final router = GoRouter(
+      initialLocation: '/premium',
+      routes: [
+        GoRoute(path: '/premium', builder: (_, _) => const PremiumPage()),
+      ],
+    );
+    addTearDown(router.dispose);
+    final authRepository = LocalAuthRepository(
+      initialStatus: AuthStatus.signedIn,
+      initialUser: const AppUser(
+        id: 'premium-user',
+        email: 'student@example.com',
+      ),
+    );
+    addTearDown(authRepository.dispose);
+
+    await _pump(tester, router, authRepository: authRepository);
+
+    expect(find.byKey(const Key('premium-user-email')), findsOneWidget);
+    expect(find.text('student@example.com'), findsOneWidget);
+  });
 
   testWidgets(
     'mock premium status is visible without enabling a purchase flow',
@@ -212,12 +240,17 @@ Future<void> _pump(
   WidgetTester tester,
   GoRouter router, {
   EntitlementRepository? repository,
+  AuthRepository? authRepository,
 }) async {
   await tester.pumpWidget(
     ProviderScope(
       overrides: [
         if (repository != null)
           entitlementRepositoryProvider.overrideWithValue(repository),
+        if (authRepository != null)
+          authRepositoryProvider.overrideWithValue(authRepository),
+        if (authRepository != null)
+          isAuthConfiguredProvider.overrideWithValue(true),
       ],
       child: MaterialApp.router(
         theme: AppTheme.light(),

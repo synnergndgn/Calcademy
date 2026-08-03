@@ -1,11 +1,15 @@
 # Google Play Data Safety Draft
 
-> **1.4.0+13 Supabase Auth Foundation note:** The app now contains optional
-> email/password Auth client code and account UI. With no `--dart-define`
-> configuration, Auth is inactive and no account data is transmitted. Before
-> production account creation is enabled, this draft must change to declare
-> email address/user ID collection as applicable, and secure in-app plus public
-> web deletion must be live and verified.
+> **1.5.0+14 staging Auth note:** When Supabase runtime configuration is present,
+> email address and Auth user ID are transmitted to Supabase for account
+> management and app functionality. Authenticated account deletion is available
+> through a server-side Edge Function. Core tools remain usable without an
+> account. Play Billing, Gemini, camera/OCR, cloud Saved sync, analytics, and
+> crash reporting remain absent.
+
+> **1.4.0+13 historical foundation note:** That build contained config-gated
+> email/password Auth client code and account UI, but its deletion backend was
+> not operational. The 1.5 note above supersedes that behavior.
 
 > **1.3.0+12 Premium Architecture note:** This build adds architecture and
 > coming-soon UI only. It has no real account creation, purchase flow, Gemini
@@ -17,17 +21,17 @@
 > feature adds no camera/OCR access, backend, account, analytics, or persistent
 > chat history. Existing AdMob data handling remains unchanged.
 
-> **Branch-scoped draft (`feature/supabase-auth-foundation`,
-> 1.4.0+13).** Recheck
+> **Branch-scoped draft (`feature/supabase-staging-auth-deletion`,
+> 1.5.0+14).** Recheck
 > the final AAB and current Google/AdMob disclosures immediately before Play
 > Console submission.
 > See `docs/monetization_strategy.md`.
 
-This worksheet reflects 1.4.0+13 with the **Google AdMob banner SDK** and a
-config-gated Supabase Auth client. Classify the release based on whether Auth
-runtime configuration and account creation are enabled in the exact AAB. Play
-Billing, cloud Saved sync, analytics, crash reporting, Gemini, and camera/OCR
-remain absent.
+This worksheet reflects 1.5.0+14 with the **Google AdMob banner SDK**, a
+config-gated Supabase Auth client, and an account-deletion Edge Function client.
+Classify the release based on whether Auth runtime configuration is enabled in
+the exact AAB. Play Billing, cloud Saved sync, analytics, crash reporting,
+Gemini, and camera/OCR remain absent.
 
 Google defines data collection for this form around data transmitted off the device. Data processed only on the device generally does not need to be disclosed as collected. Even apps declaring no collection must complete the form for applicable Play tracks and provide a privacy-policy link. See the [official Data Safety guidance](https://support.google.com/googleplay/android-developer/answer/10787469).
 
@@ -38,8 +42,8 @@ Google defines data collection for this form around data transmitted off the dev
 | Does the app collect required user-data types? | Yes (via AdMob) | Calcademy's own features are on-device, but the Google AdMob SDK collects device/advertising identifiers and related data. Confirm the exact categories from AdMob's current disclosure |
 | Does the app share user data with third parties? | Yes | Ad/device identifiers are shared with Google/AdMob and its ad partners for advertising |
 | Is all transmitted data encrypted in transit? | Yes | AdMob traffic uses HTTPS; confirm against AdMob's current disclosure |
-| Does the app provide a deletion mechanism? | Local deletion is available | Delete/clear Saved Calculations, clear app storage, or uninstall. Ad identifiers are managed via device settings/consent |
-| Is account deletion offered? | Foundation only; not production-ready | In-app route and web-page draft exist, but account creation must remain disabled until the backend and public URL work end to end |
+| Does the app provide a deletion mechanism? | Yes | In-app authenticated account deletion; email request path; local Saved deletion/clear app storage/uninstall; ad identifiers remain device-managed |
+| Is account deletion offered? | Yes when Auth is configured and the Edge Function is deployed | In-app confirmation invokes server-side Auth deletion; public page must be published and verified before Play submission |
 
 Do not present **Not applicable** as a substitute if Play Console asks a differently scoped mandatory yes/no question; follow the current form wording.
 
@@ -82,9 +86,9 @@ Copy writes selected result text to the system clipboard. Share actions invoke a
 - Android Settings → Apps → Calcademy → Storage → Clear storage removes application-local data.
 - Uninstalling removes application-local data, subject to Android backup/restore settings outside Calcademy's own backend because Calcademy has no backend copy.
 
-Do not claim that server deletion is operational in 1.4.0+13. The in-app route
-and public-page draft are foundations only; production account creation remains
-blocked until secure backend deletion is deployed and verified.
+The 1.5 client and Edge Function source implement server deletion, but the exact
+staging/production deployment and public GitHub Pages URL must still be verified
+before Play submission. Local-only Saved data remains device-managed.
 
 ## AdMob note (already integrated)
 

@@ -8,11 +8,16 @@ class LocalAuthRepository implements AuthRepository {
   LocalAuthRepository({
     AuthStatus initialStatus = AuthStatus.signedOut,
     AppUser? initialUser,
+    this.supportsAccountDeletion = false,
+    this.accountDeletionFailure,
   }) : _status = initialStatus,
        _currentUser = initialUser;
 
   AuthStatus _status;
   AppUser? _currentUser;
+  @override
+  final bool supportsAccountDeletion;
+  final AuthFailure? accountDeletionFailure;
   final _changes = StreamController<AppUser?>.broadcast();
 
   @override
@@ -23,9 +28,6 @@ class LocalAuthRepository implements AuthRepository {
 
   @override
   Stream<AppUser?> get authStateChanges => _changes.stream;
-
-  @override
-  bool get supportsAccountDeletion => false;
 
   @override
   Future<AppUser?> signInWithEmailPassword(
@@ -51,13 +53,20 @@ class LocalAuthRepository implements AuthRepository {
 
   @override
   Future<void> requestAccountDeletion() async {
-    throw UnsupportedError('Secure account deletion backend is not available.');
+    if (!supportsAccountDeletion) {
+      throw UnsupportedError(
+        'Secure account deletion backend is not available.',
+      );
+    }
+    if (_currentUser == null) {
+      throw const AuthFailure('signInRequired');
+    }
+    if (accountDeletionFailure case final failure?) throw failure;
+    setSession(status: AuthStatus.signedOut);
   }
 
   @override
-  Future<void> deleteAccount() async {
-    throw UnsupportedError('Secure account deletion backend is not available.');
-  }
+  Future<void> deleteAccount() => requestAccountDeletion();
 
   void setSession({required AuthStatus status, AppUser? user}) {
     _status = status;

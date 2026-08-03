@@ -137,7 +137,14 @@ class _CreateAccountPageState extends ConsumerState<CreateAccountPage> {
       context.go('/account');
     } else {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(context.l10n.t('authenticationFailed'))),
+        SnackBar(
+          content: Text(
+            context.l10n.t(
+              ref.read(authControllerProvider).errorKey ??
+                  'authenticationFailed',
+            ),
+          ),
+        ),
       );
     }
   }

@@ -3,8 +3,8 @@ abstract final class AppMetadata {
   static const name = appName;
   static const applicationId = 'com.aligundogan.calcademy';
   static const publisherName = 'Ali Gündoğan';
-  static const versionName = '1.4.0';
-  static const buildNumber = 13;
+  static const versionName = '1.5.0';
+  static const buildNumber = 14;
   static const versionCode = buildNumber;
   static const tagline = 'Calculate. Visualize. Optimize. Learn.';
   static const shortDescription =
@@ -31,7 +31,7 @@ abstract final class AppMetadata {
   static const String? repositoryUrl = null;
   static const String privacyPolicyUrl =
       'https://synnergndgn.github.io/Calcademy/privacy_policy';
-  static const privacyPolicyEffectiveDate = '2026-07-25';
+  static const privacyPolicyEffectiveDate = '2026-08-03';
 
   static Uri? get privacyPolicyUri => parsePublicHttpsUrl(privacyPolicyUrl);
 

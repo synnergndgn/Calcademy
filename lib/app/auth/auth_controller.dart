@@ -89,8 +89,11 @@ class AuthController extends Notifier<AuthState> {
         noticeKey: 'signedOut',
       );
       return true;
+    } on AuthFailure catch (failure) {
+      _setFailure(failure.messageKey);
+      return false;
     } catch (_) {
-      _setFailure();
+      _setFailure('authenticationFailed');
       return false;
     }
   }
@@ -109,8 +112,11 @@ class AuthController extends Notifier<AuthState> {
         noticeKey: 'passwordResetSent',
       );
       return true;
+    } on AuthFailure catch (failure) {
+      _setFailure(failure.messageKey);
+      return false;
     } catch (_) {
-      _setFailure();
+      _setFailure('authenticationFailed');
       return false;
     }
   }
@@ -125,12 +131,16 @@ class AuthController extends Notifier<AuthState> {
     try {
       await _repository.requestAccountDeletion();
       state = state.copyWith(
-        status: _repository.status,
+        status: AuthStatus.signedOut,
+        clearUser: true,
         noticeKey: 'accountDeletionRequested',
       );
       return true;
+    } on AuthFailure catch (failure) {
+      _setFailure(failure.messageKey);
+      return false;
     } catch (_) {
-      _setFailure();
+      _setFailure('accountDeletionFailed');
       return false;
     }
   }
@@ -172,8 +182,11 @@ class AuthController extends Notifier<AuthState> {
         noticeKey: noticeKey,
       );
       return true;
+    } on AuthFailure catch (failure) {
+      _setFailure(failure.messageKey);
+      return false;
     } catch (_) {
-      _setFailure();
+      _setFailure('authenticationFailed');
       return false;
     }
   }
@@ -187,12 +200,12 @@ class AuthController extends Notifier<AuthState> {
     );
   }
 
-  void _setFailure() {
+  void _setFailure(String errorKey) {
     state = state.copyWith(
       status: _repository.status,
       user: _repository.currentUser,
       clearUser: _repository.currentUser == null,
-      errorKey: 'authenticationFailed',
+      errorKey: errorKey,
     );
   }
 }
