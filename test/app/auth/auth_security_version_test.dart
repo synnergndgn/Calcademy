@@ -4,11 +4,11 @@ import 'package:calcademy/app/app_metadata.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {
-  test('version is 1.5.0+14 everywhere', () async {
+  test('version is 1.6.0+16 everywhere', () async {
     final pubspec = await File('pubspec.yaml').readAsString();
-    expect(pubspec, contains('version: 1.5.0+14'));
-    expect(AppMetadata.versionName, '1.5.0');
-    expect(AppMetadata.buildNumber, 14);
+    expect(pubspec, contains('version: 1.6.0+16'));
+    expect(AppMetadata.versionName, '1.6.0');
+    expect(AppMetadata.buildNumber, 16);
   });
 
   test(
