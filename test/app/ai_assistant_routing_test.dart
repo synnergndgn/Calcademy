@@ -2,6 +2,7 @@ import 'package:calcademy/app/router.dart';
 import 'package:calcademy/app/theme/app_theme.dart';
 import 'package:calcademy/core/services/preferences.dart';
 import 'package:calcademy/features/ai_assistant/presentation/ai_assistant_page.dart';
+import 'package:calcademy/features/account/presentation/sign_in_page.dart';
 import 'package:calcademy/l10n/app_localizations.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
@@ -35,6 +36,12 @@ void main() {
     await tester.pumpAndSettle();
     expect(find.byType(AiAssistantPage), findsOneWidget);
     expect(find.byKey(const Key('ai-assistant-input')), findsOneWidget);
+
+    await tester.tap(
+      find.byKey(const Key('premium-sign-in-placeholder')).hitTestable(),
+    );
+    await tester.pumpAndSettle();
+    expect(find.byType(SignInPage), findsOneWidget);
   });
 
   test('Assistant localization keys have English and Turkish parity', () {

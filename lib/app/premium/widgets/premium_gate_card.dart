@@ -6,6 +6,7 @@ import 'package:calcademy/app/premium/widgets/premium_badge.dart';
 import 'package:calcademy/l10n/app_localizations.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 
 class PremiumGateCard extends ConsumerWidget {
   const PremiumGateCard({
@@ -90,8 +91,14 @@ class PremiumGateCard extends ConsumerWidget {
                 if (auth.status == AuthStatus.signedOut)
                   OutlinedButton(
                     key: const Key('premium-sign-in-placeholder'),
-                    onPressed: null,
+                    onPressed: () => context.push('/sign-in'),
                     child: Text(context.l10n.t('signIn')),
+                  )
+                else
+                  OutlinedButton(
+                    key: const Key('premium-account-button'),
+                    onPressed: () => context.push('/account'),
+                    child: Text(context.l10n.t('account')),
                   ),
                 Chip(label: Text(context.l10n.t('comingSoon'))),
               ],

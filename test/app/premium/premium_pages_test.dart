@@ -173,22 +173,25 @@ void main() {
     }
   });
 
-  test('foundation contains no real provider or billing integration', () async {
-    final pubspec = await File('pubspec.yaml').readAsString();
-    final premiumPage = await File(
-      'lib/features/premium/presentation/premium_page.dart',
-    ).readAsString();
-    final authRepository = await File(
-      'lib/app/auth/local_auth_repository.dart',
-    ).readAsString();
+  test(
+    'auth foundation adds Supabase without billing or AI providers',
+    () async {
+      final pubspec = await File('pubspec.yaml').readAsString();
+      final premiumPage = await File(
+        'lib/features/premium/presentation/premium_page.dart',
+      ).readAsString();
+      final authRepository = await File(
+        'lib/app/auth/local_auth_repository.dart',
+      ).readAsString();
 
-    expect(pubspec.toLowerCase(), isNot(contains('supabase')));
-    expect(pubspec.toLowerCase(), isNot(contains('in_app_purchase')));
-    expect(pubspec.toLowerCase(), isNot(contains('google_generative_ai')));
-    expect(premiumPage, isNot(contains('productId')));
-    expect(premiumPage, isNot(contains('launchUrl')));
-    expect(authRepository, isNot(contains('http')));
-  });
+      expect(pubspec, contains('supabase_flutter: 2.16.0'));
+      expect(pubspec.toLowerCase(), isNot(contains('in_app_purchase')));
+      expect(pubspec.toLowerCase(), isNot(contains('google_generative_ai')));
+      expect(premiumPage, isNot(contains('productId')));
+      expect(premiumPage, isNot(contains('launchUrl')));
+      expect(authRepository, isNot(contains('http')));
+    },
+  );
 }
 
 Future<void> _scrollUntilBuilt(WidgetTester tester, Key key) async {
