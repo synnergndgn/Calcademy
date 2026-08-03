@@ -1,6 +1,12 @@
 import 'package:calcademy/app/auth/app_user.dart';
 import 'package:calcademy/app/auth/auth_status.dart';
 
+class AuthFailure implements Exception {
+  const AuthFailure(this.messageKey);
+
+  final String messageKey;
+}
+
 abstract interface class AuthRepository {
   AuthStatus get status;
   AppUser? get currentUser;

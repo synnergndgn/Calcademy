@@ -1,57 +1,50 @@
-# Calcademy Account Deletion Foundation
+# Account Deletion — 1.5.0+14
 
-## Current 1.4.0+13 behavior
+## Behavior
 
-The in-app route `/account/delete` exists and explains that deletion is
-irreversible. A signed-in user can review the scope and confirm intent. The
-request button remains disabled because the secure backend function is not yet
-deployed. Production account creation must remain disabled until both the
-backend deletion flow and the public web request page are operational.
+- With no Supabase runtime config, account controls remain disabled and the app
+  continues to open normally.
+- A signed-out user is directed to sign in.
+- A signed-in user must explicitly select the confirmation checkbox.
+- The Flutter client invokes `delete-account` with `POST`; Supabase attaches the
+  current session token.
+- On `{ "success": true }`, the client clears its local session, returns to the
+  Account page, and shows a completion message.
+- Safe, localized errors are shown without server or credential details.
 
-Local calculations and local Saved data are not uploaded by this foundation.
-Users can delete those records in the app, clear app storage, or uninstall the
-app independently of account deletion.
+## Security boundary
 
-## Required production deletion transaction
+`supabase/functions/delete-account/index.ts` rejects non-POST calls and missing
+Bearer credentials. It validates the token through Supabase Auth, derives the
+caller ID from the verified user, and passes only that ID to the Auth Admin
+delete API. No user ID supplied by the client is accepted.
 
-The future authenticated Edge Function must:
+The privileged `SUPABASE_SERVICE_ROLE_KEY` is read only from the hosted function
+environment. It is never compiled into Flutter. Supabase documents this legacy
+variable as automatically provided to hosted functions; custom secret names
+cannot use the reserved `SUPABASE_` prefix.
 
-1. verify a fresh authenticated session and protect the endpoint with rate
-   limits and abuse controls;
-2. resolve the user ID only from the verified session, never from a caller
-   supplied ID;
-3. delete or anonymize all user-owned profile, entitlement, quota, and sync
-   records covered by the request;
-4. remove user-owned Storage objects before deleting the Auth user;
-5. delete the Supabase Auth user with server-only privileges;
-6. prevent new sessions and account for the remaining lifetime of already
-   issued access tokens;
-7. return a generic success response and avoid exposing internal identifiers.
+Auth user deletion does not retroactively invalidate a previously issued JWT.
+The client removes its session after success, and staging should use an
+appropriately short JWT expiry. Any future security-sensitive cloud API should
+also validate the JWT `session_id` against active Auth sessions.
 
-The privileged server credential must be stored only as a backend secret. It
-must not be shipped in the Flutter application.
+## Related data
 
-## Data expected to be deleted
+No Calcademy cloud data tables exist in 1.5. Before cloud sync or remote premium
+services launch, deletion must cover `profiles`, `subscriptions`,
+`usage_limits`, `ai_requests`, and `saved_cloud_items` using owner-scoped
+deletes or tested `ON DELETE CASCADE` relationships. The function contains a
+guard comment at the exact insertion point; shipping any of these tables without
+implementing cleanup is blocked.
 
-When those data types exist, deletion must cover:
+Local Saved content remains on the device and can be removed by clearing app
+data or uninstalling Calcademy.
 
-- Auth identity, email address, sessions, and refresh tokens;
-- profile/display-name records;
-- server-side premium entitlement and usage-quota records;
-- synced Saved/calculation data and user-owned uploads;
-- other records whose purpose depends on the deleted account.
+## Play web link
 
-Limited security, fraud-prevention, transaction, tax, or legal records may be
-retained only where necessary, for a documented period, with access controls
-and data minimization. Retention must not be used as a substitute for deleting
-the account.
+Publish and verify:
 
-## Release prerequisites
+`https://synnergndgn.github.io/Calcademy/account_deletion_request`
 
-- Deploy and test the deletion Edge Function against a non-production project.
-- Test partial-failure recovery and idempotent retries.
-- Publish and verify the public account-deletion URL.
-- Link the exact URL in Play Console and the privacy policy.
-- Update Data Safety for email, user ID, and any synced data.
-- Verify deletion removes associated user data, not merely account access.
-- Recheck current Google Play User Data and account-deletion requirements.
+Source: [account_deletion_request.md](account_deletion_request.md).

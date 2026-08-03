@@ -4,11 +4,11 @@ import 'package:calcademy/app/app_metadata.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {
-  test('version is 1.4.0+13 everywhere', () async {
+  test('version is 1.5.0+14 everywhere', () async {
     final pubspec = await File('pubspec.yaml').readAsString();
-    expect(pubspec, contains('version: 1.4.0+13'));
-    expect(AppMetadata.versionName, '1.4.0');
-    expect(AppMetadata.buildNumber, 13);
+    expect(pubspec, contains('version: 1.5.0+14'));
+    expect(AppMetadata.versionName, '1.5.0');
+    expect(AppMetadata.buildNumber, 14);
   });
 
   test(
@@ -36,11 +36,11 @@ void main() {
         expect(path.endsWith('/google-services.json'), isFalse, reason: path);
       }
 
-      const forbiddenText = [
+      const clientForbiddenText = [
         'SERVICE'
             '_ROLE_KEY',
-        'SUPABASE'
-            '_SERVICE_ROLE',
+        'service'
+            '_role',
         'GEMINI'
             '_API_KEY',
         'OPENAI'
@@ -48,9 +48,13 @@ void main() {
         'ANTHROPIC'
             '_API_KEY',
       ];
-      for (final path in tracked.where(_isTextSource)) {
+      for (final path in tracked.where(
+        (path) =>
+            path.replaceAll('\\', '/').startsWith('lib/') &&
+            _isTextSource(path),
+      )) {
         final contents = await File(path).readAsString();
-        for (final pattern in forbiddenText) {
+        for (final pattern in clientForbiddenText) {
           expect(
             contents,
             isNot(contains(pattern)),
@@ -70,6 +74,29 @@ void main() {
     expect(main, contains('if (AppConfig.isSupabaseConfigured)'));
     expect(main, contains('supabaseClientProvider.overrideWithValue'));
   });
+
+  test(
+    'service role is referenced only by the server function environment',
+    () async {
+      final result = await Process.run('git', ['ls-files']);
+      expect(result.exitCode, 0, reason: result.stderr.toString());
+      final tracked = (result.stdout as String)
+          .split(RegExp(r'\r?\n'))
+          .where((path) => path.endsWith('.dart') || path.endsWith('.ts'));
+      final matches = <String>[];
+      const pattern =
+          'SUPABASE'
+          '_SERVICE_ROLE_KEY';
+      for (final path in tracked) {
+        final contents = await File(path).readAsString();
+        if (contents.contains(pattern)) matches.add(path.replaceAll('\\', '/'));
+      }
+      expect(
+        matches,
+        everyElement(startsWith('supabase/functions/delete-account/')),
+      );
+    },
+  );
 }
 
 bool _isTextSource(String path) {

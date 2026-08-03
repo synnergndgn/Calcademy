@@ -1,11 +1,12 @@
 # Premium Architecture Foundation — 1.3.0+12
 
-> **1.4.0+13 Auth connection:** Supabase email auth is now available only when
+> **1.5.0+14 staging Auth connection:** Supabase email auth is available only when
 > valid runtime configuration is supplied. Account, sign-in, create-account,
-> and deletion routes exist. Core tools remain no-login. Signed-in users remain
-> free until a future backend provides a verified premium entitlement. The
-> injected mock premium path is retained for tests. Play Billing, Gemini, and
-> camera/OCR are still absent.
+> and authenticated deletion routes exist. Premium, Gemini teaser, and Camera
+> Solver gates offer real sign-in navigation. Core tools remain no-login and
+> signed-in users remain free until a future backend provides a verified
+> premium entitlement. The injected mock path remains for tests. Play Billing,
+> Gemini, and camera/OCR are still absent.
 
 ## Product model
 

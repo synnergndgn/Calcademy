@@ -1,75 +1,43 @@
-# Supabase Auth Foundation — 1.4.0+13
+# Supabase Auth and Staging Foundation — 1.5.0+14
 
-## Scope
+Calcademy supports optional Supabase email/password Auth while remaining usable
+without an account. Runtime configuration comes only from `SUPABASE_URL` and
+`SUPABASE_ANON_KEY` dart defines. Missing or invalid configuration skips
+initialization, leaves auth actions disabled, and does not crash the app.
 
-Calcademy 1.4 adds an optional Supabase Flutter Auth client boundary. Core
-calculators, Formula Library, the local Assistant, and local Saved data remain
-available without an account. The app has no global authentication redirect.
+## Implemented flows
 
-This release does not add Play Billing, Gemini, camera/OCR, cloud saved-data
-sync, or a production account-deletion backend.
+- sign-up with loading, validation, safe errors, and email-confirmation notice;
+- sign-in with invalid-credential and unconfirmed-email feedback;
+- password-reset email request with safe success/error feedback;
+- sign-out and persisted-session restoration through `supabase_flutter`;
+- signed-in email on Account and Premium;
+- authenticated account deletion through the `delete-account` Edge Function.
 
-## Runtime configuration
+Email confirmation is handled correctly: a successful sign-up response without
+a Session remains signed out until confirmation and a later sign-in.
 
-The client reads only these compile-time values:
+## Security model
 
-```text
-SUPABASE_URL
-SUPABASE_ANON_KEY
-```
+- The mobile app receives only a publishable/legacy anon public key.
+- The service-role credential exists only in the hosted function environment.
+- Account deletion accepts no client-provided user ID; Auth resolves it from the
+  Bearer token.
+- User-editable metadata is not used for authorization.
+- No `.env`, real URL/key, project ref, signing key, or local configuration is
+  committed.
+- `supabase_flutter` and the Edge Function SDK are pinned; lock/config files are
+  committed where the installed runtimes permit them.
 
-Example development launch:
+No exposed data tables are added in this sprint. Future public-schema tables
+must have explicit grants, RLS, owner-scoped policies, and deletion coverage.
 
-```sh
-flutter run --dart-define=SUPABASE_URL=https://project-ref.supabase.co \
-  --dart-define=SUPABASE_ANON_KEY=your-publishable-client-key
-```
+## Operations
 
-No `.env` file is required or committed. If either value is absent, the URL is
-not public HTTPS, or initialization fails, Calcademy starts normally with the
-local signed-out repository. Auth screens then show **Auth is not configured
-yet** and disable network auth actions.
+- Setup: [supabase_staging_setup.md](supabase_staging_setup.md)
+- Manual validation: [auth_manual_test_runbook.md](auth_manual_test_runbook.md)
+- Deletion design: [account_deletion.md](account_deletion.md)
+- Public deletion page: [account_deletion_request.md](account_deletion_request.md)
 
-Only a public anon/publishable client key belongs in a mobile build. A Supabase
-service role key is a privileged server credential and must never be embedded
-in Calcademy.
-
-## Architecture
-
-- `AppConfig` validates the two `--dart-define` values.
-- `main.dart` initializes Supabase only when the configuration is valid.
-- `AuthRepository` defines session, email/password, reset, sign-out, and
-  deletion boundaries.
-- `SupabaseAuthRepository` maps Supabase users and auth-state events to app
-  domain types.
-- `LocalAuthRepository` is the config-missing and test fallback.
-- `AuthController` exposes immutable Riverpod state to account and premium UI.
-- `/account`, `/sign-in`, `/create-account`, and `/account/delete` are optional
-  routes and do not gate core routes.
-
-Email/password is the only remote auth method in this foundation. OAuth, magic
-links, profile sync, and deep-link recovery handling are future work.
-
-## Account deletion boundary
-
-Supabase Auth user deletion is an administrative operation. The mobile client
-does not call it. Both repositories report deletion as unsupported until an
-authenticated, rate-limited Edge Function can delete related user data, remove
-the Auth user, record only legally required audit evidence, and return a safe
-result. See [account_deletion.md](account_deletion.md).
-
-## Premium connection
-
-Signed-out and newly signed-in users receive the free runtime entitlement.
-There is no backend entitlement sync yet. The existing injected mock premium
-entitlement remains available to automated tests, while production defaults to
-free. Premium and AI gate sign-in actions now open the auth routes.
-
-## Security checklist
-
-- No privileged Supabase credential in client code or documentation examples.
-- No real endpoint or client key committed.
-- No direct administrative user-deletion call from Flutter.
-- No Play purchase token storage.
-- No Gemini or other AI provider key.
-- Dependency version is pinned and `pubspec.lock` is committed.
+Play Billing, real premium entitlement, Gemini, camera/OCR, cloud Saved sync,
+and global login gating remain intentionally absent.

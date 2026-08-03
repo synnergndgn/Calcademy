@@ -1,17 +1,16 @@
 # Calcademy Privacy Policy
 
-> **1.4.0+13 Auth Foundation update (2026-08-03):** Calcademy now contains an
-> optional Supabase email-auth client and account UI. Auth is inactive when
-> runtime configuration is absent. Production account creation must remain
-> disabled until secure backend deletion and the public deletion-request page
-> are live. The older internal-test status below remains release history; this
-> update controls the 1.4 foundation behavior.
+> **1.5.0+14 staging Auth update (2026-08-03):** Calcademy supports optional
+> Supabase email/password accounts when runtime configuration is supplied. Core
+> tools remain available without an account. Auth account deletion is handled
+> by a server-side Edge Function, and the public deletion page source is in
+> `docs/`. The older internal-test status below remains release history.
 
 **Status:** Current for Calcademy **1.0.0 (build 8)**, the build distributed through Google Play **internal testing**. This build displays banner advertisements through the Google AdMob SDK. Consent (Google UMP) is **not** implemented in this build; see “Advertising (Google AdMob)” below.
 
 **Developer/publisher name:** `Ali Gündoğan`
 
-**Effective date:** `2026-07-25`
+**Effective date:** `2026-08-03`
 
 **Contact email:** `calcademyapp@gmail.com`
 
@@ -25,6 +24,7 @@ The publisher, contact, effective-date, and jurisdiction details must be reverif
 
 | Version | Distribution | Advertising |
 |---|---|---|
+| 1.5.0 (build 14) | Staging Auth / pre-production | Google AdMob banner on Home and Saved; optional Supabase email auth and authenticated account deletion when configured |
 | 1.4.0 (build 13) | Auth foundation / pre-production | Google AdMob banner on Home and Saved; optional Supabase email auth only when configured |
 | 1.0.0 (build 8) | Play internal testing | Google AdMob banner on Home and Saved |
 | Earlier builds | not publicly distributed | no ads SDK |
@@ -50,16 +50,19 @@ Calcademy may store the following locally with Android application storage and S
 - saved graph, matrix, and optimization workspaces supported by the current application;
 - titles, notes, favorites, compact input/result summaries, and timestamps attached to saved items.
 
-This information is not uploaded to a Calcademy server. There is no account, login, Calcademy backend, cloud synchronization, analytics SDK, or crash-reporting SDK. The app does integrate the **Google AdMob** advertising SDK (see “Advertising” below).
+This local calculation and Saved information is not uploaded to a Calcademy
+server. Calcademy has no cloud synchronization, analytics SDK, or crash-reporting
+SDK. Version 1.5 can use optional Supabase Auth for account management, and the
+app integrates the **Google AdMob** advertising SDK (see “Advertising” below).
 
 Calcademy does process user-entered expressions, values, matrices, models, notes, and result data locally to provide its calculation and saved-work features. “No developer collection” does not mean that the app performs no data processing on the device, nor that Google AdMob performs no processing for advertising.
 
 ## Optional account authentication
 
-This section supersedes the legacy “no account or login” release-history
-sentence above for 1.4.0+13.
+This section supersedes legacy “no account or login” release-history statements
+for 1.5.0+14.
 
-Calcademy 1.4 includes a config-gated Supabase Auth client. When configuration
+Calcademy 1.5 includes a config-gated Supabase Auth client. When configuration
 is absent, no account request is sent and auth controls display a disabled
 state. If account creation is later enabled, Supabase will process the email
 address, Auth user ID, password-authentication data, session tokens, and related
@@ -68,7 +71,9 @@ password as readable text. The Auth Foundation does not upload calculation or
 local Saved content and does not enable cloud synchronization.
 
 Only a public client key may be present in the mobile app. Privileged server
-credentials remain backend-only.
+credentials remain backend-only. Accounts are optional: Calculator, Formula
+Library, local AI Assistant, Saved, and the other core tools do not require
+sign-in.
 
 ## Advertising (Google AdMob)
 
@@ -92,14 +97,17 @@ Advertising identifiers are controlled through Android system settings rather th
 
 ## Account deletion
 
-The app includes **Settings → Account → Delete account**. In 1.4.0+13 this is a
-foundation screen: the request action is disabled until a secure backend
-deletion function exists. Before production account creation is enabled, that
-backend must delete the Auth user and associated server data, and the public
-[Calcademy account deletion page](account_deletion_request.md) must be published
-and verified. Merely freezing the account is not sufficient. Limited legal,
-security, fraud-prevention, or transaction records may be retained for a
-documented period when necessary.
+The app includes **Settings → Account → Delete account**. When Supabase is
+configured and the user is signed in, explicit confirmation invokes a secure
+Edge Function that derives the user ID from the verified session and deletes the
+Auth user. The privileged key is not present in the mobile app. The public
+[Calcademy account deletion page](account_deletion_request.md) also documents an
+email request path. Limited legal, security, fraud-prevention, or transaction
+records may be retained for a documented period when necessary.
+
+Local-only Saved content is not available to the deletion server. It can be
+removed by clearing Calcademy app data or uninstalling the app. No cloud Saved
+sync exists in 1.5.
 
 ## Children and sensitive data
 
@@ -111,10 +119,16 @@ Financial tools are provided for education and general calculation only. They ar
 
 ## Future analytics or accounts
 
-For 1.4.0+13, the optional Supabase Auth client described above supersedes the
+For 1.5.0+14, the optional Supabase Auth client described above supersedes the
 legacy “no account SDK” statement in the historical paragraph below.
 
-Calcademy contains banner advertising through Google AdMob (described above) but no analytics, crash-reporting, cloud, or account SDK. If analytics, cloud services, accounts, or additional ad technologies (mediation, interstitial, rewarded, native) are added, this policy and the applicable store Data Safety disclosures must be updated before that version is released. Where required, consent controls must be implemented before collection begins.
+Calcademy contains banner advertising through Google AdMob and optional account
+authentication through Supabase, but no analytics, crash-reporting, cloud Saved
+sync, Play Billing, Gemini, or camera/OCR integration. If those services or
+additional ad technologies (mediation, interstitial, rewarded, native) are
+added, this policy and the applicable store Data Safety disclosures must be
+updated before release. Where required, consent controls must be implemented
+before collection begins.
 
 ## Changes
 
@@ -141,7 +155,12 @@ This document is a factual product description, not legal advice or a guarantee 
 
 ## Türkçe özet
 
-Calcademy hesaplamaları cihazda yapar; ayarlar, geçmiş ve kaydedilen hesaplamalar yalnızca uygulamanın yerel depolamasında tutulur. Hesap, Calcademy sunucusu, bulut senkronizasyonu, analytics veya crash-reporting SDK’sı yoktur.
+Calcademy hesaplamaları cihazda yapar; ayarlar, geçmiş ve kaydedilen hesaplamalar
+yalnızca uygulamanın yerel depolamasında tutulur. 1.5 sürümünde runtime config
+verilmişse isteğe bağlı Supabase e-posta hesabı kullanılabilir; temel araçlar
+hesap olmadan çalışır. Hesap silme, ayrıcalıklı anahtarı mobil uygulamaya
+koymadan güvenli Edge Function üzerinden yapılır. Bulut Saved eşitleme,
+analytics, crash-reporting, Play Billing, Gemini ve kamera/OCR yoktur.
 
 Google Play dahili testine dağıtılan **1.0.0 (sürüm 8)** yapısı, **Google AdMob** SDK’sı aracılığıyla yalnızca Ana Sayfa ve Kayıtlı ekranlarında banner reklam gösterir. Hesaplama, grafik, matris ve optimizasyon ekranlarında reklam yoktur. Google/AdMob; reklamların sunulması, ölçülmesi ve sahtekârlığın önlenmesi için reklam/cihaz tanımlayıcıları, IP adresi ve benzeri verileri kendi politikaları kapsamında işleyebilir.
 

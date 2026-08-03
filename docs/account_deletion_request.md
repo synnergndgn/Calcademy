@@ -1,42 +1,74 @@
-# Calcademy account deletion
+---
+title: Calcademy Account Deletion
+permalink: /account_deletion_request
+---
+
+# Calcademy Account Deletion
+
+**App:** Calcademy
 
 **Developer:** Ali Gündoğan
 
 **Contact:** [calcademyapp@gmail.com](mailto:calcademyapp@gmail.com)
 
-> Publication draft for Calcademy 1.4. This page must be published at a stable
-> public HTTPS URL and its end-to-end request process must be verified before
-> account creation is enabled in production.
+**Last updated:** 2026-08-03
 
-## Request deletion
+## Delete your account in Calcademy
 
-When account creation is enabled, use either method:
+1. Open **Calcademy → Settings → Account → Delete account**.
+2. Sign in to the account you want to delete.
+3. Read the warning and select the confirmation checkbox.
+4. Select **Delete account** and wait for the success message.
 
-1. In Calcademy, open **Settings → Account → Delete account**, review the
-   explanation, confirm the request, and submit it.
-2. If you cannot access the app, email
-   [calcademyapp@gmail.com](mailto:calcademyapp@gmail.com) from the address used
-   for the Calcademy account with the subject **Calcademy account deletion**.
-   Support may request limited verification to prevent unauthorized deletion.
+The authenticated deletion request is sent to Calcademy's Supabase Edge
+Function. The function derives the user ID from the verified session token; the
+mobile app cannot select or delete another user's account.
 
-Never send a password, purchase token, API key, or identity document by email.
+## Request deletion by email
 
-## Data deleted
+If you cannot use the in-app flow, email
+[calcademyapp@gmail.com](mailto:calcademyapp@gmail.com) with the subject
+**Calcademy account deletion request**. Send the request from the email address
+used for your Calcademy account and include only:
 
-Deletion will remove the Calcademy Auth account and associated server-side data
-that exists for that user, such as profile details, premium entitlement and
-usage records, synced Saved data, and user-owned uploads. Local calculations
-and Saved data can be removed separately by clearing them in the app, clearing
-application storage, or uninstalling Calcademy.
+- the account email address;
+- a short statement that you want the Calcademy account deleted;
+- whether you can still access the app.
 
-## What may remain
+Do not send a password, session token, API key, identity document, calculation,
+or payment information. Additional verification may be requested to protect the
+account from an unauthorized deletion request.
 
-Calcademy may retain a minimized record for a limited period when required for
-legal compliance, tax/accounting, security, fraud prevention, dispute handling,
-or transaction integrity. Any such retention will be purpose-limited and
-access-controlled. Aggregated or irreversibly anonymized information that can
-no longer identify the account may also remain.
+## Data deleted with the account
 
-Freezing, disabling, or signing out an account is not a substitute for account
-deletion. The production process must delete the Auth account and associated
-user data covered by the request.
+- the Supabase Auth account identifier and email address;
+- server-side profile data, if introduced;
+- subscription entitlement records, except records that must be retained for a
+  legal, tax, fraud-prevention, or financial obligation;
+- AI or camera usage logs, if those services are introduced later;
+- future cloud-saved items and other user-owned cloud records.
+
+Calcademy 1.5 does not yet provide cloud sync, Play Billing, Gemini, camera/OCR,
+or remote AI/camera logs. This list also states the deletion contract those
+future services must follow before launch.
+
+## Local data and retention
+
+Saved calculations and settings that exist only on the device are not reachable
+by the deletion server. Remove them by clearing Calcademy app data in Android
+Settings or by uninstalling the app.
+
+Limited security, legal, fraud-prevention, or financial records may be retained
+for the minimum period required by applicable obligations. Retained data is
+restricted to that purpose and is not used to restore the deleted account.
+
+## Public link checklist
+
+This repository publishes its privacy policy from `docs/` through GitHub Pages,
+so this page uses the same source and a stable permalink:
+
+`https://synnergndgn.github.io/Calcademy/account_deletion_request`
+
+Before Play production submission, verify that the URL is public without a
+login, record the same URL in Play Console, and re-test both the in-app and email
+paths.

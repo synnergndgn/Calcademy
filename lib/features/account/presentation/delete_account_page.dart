@@ -2,6 +2,7 @@ import 'package:calcademy/app/auth/auth_providers.dart';
 import 'package:calcademy/app/auth/auth_status.dart';
 import 'package:calcademy/app/theme/app_breakpoints.dart';
 import 'package:calcademy/app/theme/app_spacing.dart';
+import 'package:calcademy/features/account/presentation/widgets/auth_configuration_notice.dart';
 import 'package:calcademy/l10n/app_localizations.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -38,12 +39,21 @@ class _DeleteAccountPageState extends ConsumerState<DeleteAccountPage> {
           child: ListView(
             padding: const EdgeInsets.all(AppSpacing.md),
             children: [
+              if (!auth.isConfigured) const AuthConfigurationNotice(),
               Card(
                 color: Theme.of(context).colorScheme.errorContainer,
                 child: ListTile(
                   leading: const Icon(Icons.warning_amber_rounded),
                   title: Text(context.l10n.t('thisActionCannotBeUndone')),
                   subtitle: Text(context.l10n.t('accountDeletionExplanation')),
+                ),
+              ),
+              Card(
+                key: const Key('account-deletion-local-data-notice'),
+                child: ListTile(
+                  leading: const Icon(Icons.phone_android_rounded),
+                  title: Text(context.l10n.t('localDataNotDeletedTitle')),
+                  subtitle: Text(context.l10n.t('localDataDeletionNotice')),
                 ),
               ),
               if (!signedIn)
@@ -57,7 +67,7 @@ class _DeleteAccountPageState extends ConsumerState<DeleteAccountPage> {
                     ),
                   ),
                 ),
-              if (!auth.supportsAccountDeletion)
+              if (auth.isConfigured && !auth.supportsAccountDeletion)
                 Card(
                   key: const Key('account-deletion-backend-notice'),
                   child: ListTile(
@@ -95,9 +105,12 @@ class _DeleteAccountPageState extends ConsumerState<DeleteAccountPage> {
         .read(authControllerProvider.notifier)
         .requestAccountDeletion();
     if (!mounted) return;
-    final key = success ? 'accountDeletionRequested' : 'authenticationFailed';
+    final key = success
+        ? 'accountDeletionRequested'
+        : ref.read(authControllerProvider).errorKey ?? 'accountDeletionFailed';
     ScaffoldMessenger.of(
       context,
     ).showSnackBar(SnackBar(content: Text(context.l10n.t(key))));
+    if (success) context.go('/account');
   }
 }
