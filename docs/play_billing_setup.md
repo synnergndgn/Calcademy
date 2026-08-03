@@ -34,6 +34,22 @@ this build.
 10. Install the app from Google Play on a physical Android device using the
     license tester account.
 
+## Play Console status — 2026-08-04
+
+- Billing foundation is merged into `main` and build 16 is active on the
+  internal track.
+- Subscription creation is blocked because the developer account does not yet
+  have a Google Payments merchant account. Play Console shows the subscription
+  page as locked until that account is created.
+- Product ID `calcademy_premium_monthly` is therefore **not created or active**.
+- Base plan ID `monthly` is therefore **not created or active**.
+- No offer or discount exists.
+- `Calcademy Tester List` is the active internal-track tester list, but no list
+  has yet been saved under **Settings > License testing**.
+- Build `1.6.0+17` was rebuilt locally with the Supabase staging URL and
+  publishable key. Its AAB is ready for internal upload after browser file
+  access is enabled.
+
 Product metadata and localized price come from Google Play. The app must not
 hard-code a production price.
 

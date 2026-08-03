@@ -4,7 +4,7 @@ abstract final class AppMetadata {
   static const applicationId = 'com.aligundogan.calcademy';
   static const publisherName = 'Ali Gündoğan';
   static const versionName = '1.6.0';
-  static const buildNumber = 16;
+  static const buildNumber = 17;
   static const versionCode = buildNumber;
   static const tagline = 'Calculate. Visualize. Optimize. Learn.';
   static const shortDescription =
