@@ -16,6 +16,9 @@ void main() {
   });
 
   test('delete-account function enforces POST and bearer authentication', () {
+    expect(functionSource, contains('request.method === "OPTIONS"'));
+    expect(functionSource, contains('Access-Control-Allow-Origin'));
+    expect(functionSource, contains('Access-Control-Allow-Headers'));
     expect(functionSource, contains('request.method !== "POST"'));
     expect(functionSource, contains('Authorization'));
     expect(functionSource, contains('Bearer '));
