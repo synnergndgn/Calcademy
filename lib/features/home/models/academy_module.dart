@@ -36,6 +36,34 @@ class AcademyModule {
 
 const academyModules = [
   AcademyModule(
+    id: 'premium',
+    titleKey: 'calcademyPremium',
+    icon: Icons.workspace_premium_rounded,
+    category: AcademyModuleCategory.workspace,
+    route: '/premium',
+    descriptionKey: 'premiumPageSubtitle',
+    searchTerms: ['premium', 'subscription', 'abonelik', 'reklamsız'],
+    available: true,
+  ),
+  AcademyModule(
+    id: 'camera-solver',
+    titleKey: 'cameraSolver',
+    icon: Icons.document_scanner_outlined,
+    category: AcademyModuleCategory.workspace,
+    route: '/camera-solver',
+    descriptionKey: 'cameraSolverComingSoon',
+    searchTerms: [
+      'camera',
+      'kamera',
+      'ocr',
+      'scan',
+      'tara',
+      'photo',
+      'fotoğraf',
+    ],
+    available: true,
+  ),
+  AcademyModule(
     id: 'ai-assistant',
     titleKey: 'aiAssistantTitle',
     icon: Icons.auto_awesome_rounded,

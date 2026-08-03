@@ -1,4 +1,8 @@
 import 'package:calcademy/app/ads/ad_banner.dart';
+import 'package:calcademy/app/premium/entitlement_repository.dart';
+import 'package:calcademy/app/premium/local_entitlement_repository.dart';
+import 'package:calcademy/app/premium/premium_entitlement.dart';
+import 'package:calcademy/app/premium/premium_gate_controller.dart';
 import 'package:calcademy/app/theme/app_theme.dart';
 import 'package:calcademy/core/services/preferences.dart';
 import 'package:calcademy/features/ai_assistant/presentation/ai_assistant_page.dart';
@@ -24,12 +28,33 @@ void main() {
       expect(find.byType(AiAssistantPage), findsOneWidget);
       expect(find.byKey(const Key('ai-assistant-input')), findsOneWidget);
       expect(find.byKey(const Key('ai-assistant-send')), findsOneWidget);
+      expect(
+        find.byKey(const Key('premium-gate-geminiAssistant')),
+        findsOneWidget,
+      );
+      expect(find.byKey(const Key('premium-badge-locked')), findsOneWidget);
+      await _scrollForwardUntilBuilt(tester, const Key('ai-suggestion-chips'));
       expect(find.byKey(const Key('ai-suggestion-chips')), findsOneWidget);
       expect(find.byType(ActionChip), findsNWidgets(5));
       expect(find.textContaining('local rules'), findsWidgets);
       expect(find.byType(AdBanner), findsNothing);
     },
   );
+
+  testWidgets('mock premium marks Gemini teaser active but still coming soon', (
+    tester,
+  ) async {
+    await _pumpPage(
+      tester,
+      entitlementRepository: LocalEntitlementRepository(
+        initialEntitlement: const PremiumEntitlement.mockPremium(),
+      ),
+    );
+
+    expect(find.byKey(const Key('premium-badge-active')), findsOneWidget);
+    expect(find.text('Coming soon'), findsOneWidget);
+    expect(find.byKey(const Key('ai-assistant-input')), findsOneWidget);
+  });
 
   testWidgets(
     'sending npv shows Financial Calculator, formula, and disclaimer',
@@ -124,7 +149,8 @@ void main() {
 
     await _scrollBackUntilBuilt(tester, const Key('ai-open-tool-matrix'));
     final toolButton = find.byKey(const Key('ai-open-tool-matrix'));
-    await tester.ensureVisible(toolButton);
+    await Scrollable.ensureVisible(tester.element(toolButton), alignment: 0.5);
+    await tester.pumpAndSettle();
     await tester.tap(toolButton);
     await tester.pumpAndSettle();
     expect(find.byKey(const Key('matrix-destination')), findsOneWidget);
@@ -139,7 +165,11 @@ void main() {
     final formulaButton = find.byKey(
       const Key('ai-open-formula-determinant-2x2'),
     );
-    await tester.ensureVisible(formulaButton);
+    await Scrollable.ensureVisible(
+      tester.element(formulaButton),
+      alignment: 0.5,
+    );
+    await tester.pumpAndSettle();
     await tester.tap(formulaButton);
     await tester.pumpAndSettle();
     expect(find.byKey(const Key('formula-destination')), findsOneWidget);
@@ -216,7 +246,11 @@ Future<void> _scrollForwardUntilBuilt(WidgetTester tester, Key key) async {
   }
 }
 
-Future<void> _pumpPage(WidgetTester tester, {GoRouter? router}) async {
+Future<void> _pumpPage(
+  WidgetTester tester, {
+  GoRouter? router,
+  EntitlementRepository? entitlementRepository,
+}) async {
   final preferences = await SharedPreferences.getInstance();
   final effectiveRouter =
       router ??
@@ -232,7 +266,13 @@ Future<void> _pumpPage(WidgetTester tester, {GoRouter? router}) async {
   if (router == null) addTearDown(effectiveRouter.dispose);
   await tester.pumpWidget(
     ProviderScope(
-      overrides: [sharedPreferencesProvider.overrideWithValue(preferences)],
+      overrides: [
+        sharedPreferencesProvider.overrideWithValue(preferences),
+        if (entitlementRepository != null)
+          entitlementRepositoryProvider.overrideWithValue(
+            entitlementRepository,
+          ),
+      ],
       child: MaterialApp.router(
         theme: AppTheme.light(),
         locale: const Locale('en'),

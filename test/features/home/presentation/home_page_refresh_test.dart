@@ -92,6 +92,26 @@ void main() {
     }
   });
 
+  testWidgets('search finds Premium and Camera Solver placeholders', (
+    tester,
+  ) async {
+    await _pumpHome(tester);
+
+    await tester.enterText(
+      find.byKey(const Key('home-module-search')),
+      'premium',
+    );
+    await tester.pump();
+    expect(find.byKey(const Key('module-card-premium')), findsOneWidget);
+
+    await tester.enterText(
+      find.byKey(const Key('home-module-search')),
+      'kamera',
+    );
+    await tester.pump();
+    expect(find.byKey(const Key('module-card-camera-solver')), findsOneWidget);
+  });
+
   testWidgets('search exposes Saved as a home module', (tester) async {
     await _pumpHome(tester);
 

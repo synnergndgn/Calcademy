@@ -1,16 +1,22 @@
 # Google Play Data Safety Draft
 
+> **1.3.0+12 Premium Architecture note:** This build adds architecture and
+> coming-soon UI only. It has no real account creation, purchase flow, Gemini
+> API, camera/OCR, image upload, or new data collection. Mock entitlement and
+> usage state remain local.
+
 > **1.2.0+11 AI Assistant note:** AI Assistant Foundation is local-only in
 > 1.2.0+11. No prompts are sent to an external AI provider in this build. The
 > feature adds no camera/OCR access, backend, account, analytics, or persistent
 > chat history. Existing AdMob data handling remains unchanged.
 
-> **Branch-scoped draft (`feature/ai-assistant-foundation`, 1.2.0+11).** Recheck
+> **Branch-scoped draft (`feature/premium-architecture-foundation`,
+> 1.3.0+12).** Recheck
 > the final AAB and current Google/AdMob disclosures immediately before Play
 > Console submission.
 > See `docs/monetization_strategy.md`.
 
-This worksheet reflects 1.2.0+11, which **integrates the Google AdMob banner SDK**. It has no account, Calcademy backend, cloud synchronization, analytics, crash-reporting SDK, or external AI provider, but the AdMob SDK requires the `INTERNET`/`ACCESS_NETWORK_STATE` permissions and collects/shares advertising and device data off the device. Re-audit the exact final AAB and all transitive SDKs (including the AdMob/Google Mobile Ads dependency chain and its own current Data Safety disclosure) before submitting the form.
+This worksheet reflects 1.3.0+12, which **integrates the Google AdMob banner SDK**. It has no real account, purchase flow, Calcademy backend, cloud synchronization, analytics, crash-reporting SDK, external AI provider, or camera/OCR processing, but the AdMob SDK requires the `INTERNET`/`ACCESS_NETWORK_STATE` permissions and collects/shares advertising and device data off the device. Re-audit the exact final AAB and all transitive SDKs (including the AdMob/Google Mobile Ads dependency chain and its own current Data Safety disclosure) before submitting the form.
 
 Google defines data collection for this form around data transmitted off the device. Data processed only on the device generally does not need to be disclosed as collected. Even apps declaring no collection must complete the form for applicable Play tracks and provide a privacy-policy link. See the [official Data Safety guidance](https://support.google.com/googleplay/android-developer/answer/10787469).
 

@@ -1,20 +1,18 @@
-# Calcademy 1.2.0 (11)
+# Calcademy 1.3.0 (12)
 
 ## English
 
-- Added the Calcademy Assistant foundation with local tool and formula
-  suggestions.
-- Added bilingual, educational solution plans and clear out-of-scope behavior.
-- Added Assistant quick access and search integration while preserving the
-  Formula Library.
-- No prompt is sent to an external AI API in this release.
+- Added the account-optional Calcademy Premium architecture foundation.
+- Added local entitlement, feature-gate, and usage-quota models.
+- Added Premium and Camera Solver coming-soon pages and a locked Gemini teaser.
+- No account, purchase, Gemini API, camera, or OCR flow is active in this build.
 
 ## Türkçe
 
-- Yerel araç ve formül önerileri sunan Calcademy Asistanı temeli eklendi.
-- İki dilli eğitim amaçlı çözüm planları ve net kapsam dışı davranışı eklendi.
-- Formül Kütüphanesi korunarak Home hızlı erişim ve arama entegrasyonu eklendi.
-- Bu sürümde hiçbir soru harici bir AI API'sine gönderilmez.
+- Hesap zorunluluğu olmayan Calcademy Premium mimari temeli eklendi.
+- Yerel entitlement, özellik kapısı ve kullanım kotası modelleri eklendi.
+- Premium ve Kamera Çözücü yakında ekranları ile kilitli Gemini tanıtımı eklendi.
+- Bu sürümde hesap, satın alma, Gemini API, kamera veya OCR akışı aktif değildir.
 
-This release adds no account, backend, camera, OCR, or external AI service.
+This release adds no real account, billing, backend, camera, OCR, or external AI service.
 Existing AdMob disclosures and Data Safety declarations remain applicable.
