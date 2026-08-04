@@ -43,6 +43,17 @@ class AppLocalizations {
       'validatingPurchase': 'Validating purchase',
       'purchaseValidationRequired':
           'Purchase validation is required before Premium can be activated.',
+      'backendValidationPending':
+          'Backend validation pending. Backend validation is not enabled yet.',
+      'purchaseValidationUnavailable': 'Purchase validation unavailable',
+      'purchaseValidationRejected': 'Purchase validation was rejected.',
+      'premiumStatusSyncedFromAccount': 'Premium status synced from account',
+      'subscriptionExpired': 'Subscription expired',
+      'subscriptionCanceled': 'Subscription canceled',
+      'couldNotSyncEntitlement': 'Could not sync entitlement',
+      'tryAgain': 'Try again',
+      'premiumSubscriptionAvailableWhenPlayReady':
+          'Premium subscription available once Play setup is complete.',
       'premiumSubscription': 'Premium subscription',
       'monthlyPlan': 'Monthly plan',
       'currentPlan': 'Current plan',
@@ -120,7 +131,7 @@ class AppLocalizations {
       'cameraNoPermission': 'No camera permission is requested yet.',
       'cameraNoOcr': 'OCR is not included yet.',
       'cameraNoUpload': 'No image is selected or uploaded.',
-      'removeAdsActive': 'Ads are removed for this mock premium entitlement.',
+      'removeAdsActive': 'Remove ads is active for this Premium entitlement.',
       'usageUnlimited': 'Unlimited local use',
       'usageRemaining': '{count} uses remaining today',
       'aiAssistantTitle': 'Ask Calcademy',
@@ -1332,6 +1343,17 @@ class AppLocalizations {
       'validatingPurchase': 'Satın alma doğrulanıyor',
       'purchaseValidationRequired':
           'Premium etkinleştirilmeden önce satın alma doğrulanmalıdır.',
+      'backendValidationPending':
+          'Backend doğrulaması bekliyor. Backend doğrulaması henüz etkin değil.',
+      'purchaseValidationUnavailable': 'Satın alma doğrulaması kullanılamıyor',
+      'purchaseValidationRejected': 'Satın alma doğrulaması reddedildi.',
+      'premiumStatusSyncedFromAccount': 'Premium durumu hesaptan eşitlendi',
+      'subscriptionExpired': 'Abonelik süresi doldu',
+      'subscriptionCanceled': 'Abonelik iptal edildi',
+      'couldNotSyncEntitlement': 'Premium hakkı eşitlenemedi',
+      'tryAgain': 'Tekrar dene',
+      'premiumSubscriptionAvailableWhenPlayReady':
+          'Play kurulumu tamamlandığında Premium abonelik kullanılabilir.',
       'premiumSubscription': 'Premium abonelik',
       'monthlyPlan': 'Aylık plan',
       'currentPlan': 'Mevcut plan',
@@ -1365,7 +1387,7 @@ class AppLocalizations {
       'cameraNoPermission': 'Henüz kamera izni istenmez.',
       'cameraNoOcr': 'OCR henüz eklenmedi.',
       'cameraNoUpload': 'Görsel seçilmez veya yüklenmez.',
-      'removeAdsActive': 'Bu mock premium yetkisinde reklamlar kaldırılır.',
+      'removeAdsActive': 'Bu Premium hakkı için reklam kaldırma etkindir.',
       'usageUnlimited': 'Sınırsız yerel kullanım',
       'usageRemaining': 'Bugün {count} kullanım kaldı',
       'aiAssistantTitle': 'Calcademy Asistanı',

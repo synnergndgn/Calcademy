@@ -10,6 +10,7 @@ import 'package:calcademy/app/billing/billing_repository.dart';
 import 'package:calcademy/app/billing/billing_state.dart';
 import 'package:calcademy/app/billing/play_billing_repository.dart';
 import 'package:calcademy/app/premium/entitlement_sync_service.dart';
+import 'package:calcademy/app/premium/premium_gate_controller.dart';
 import 'package:calcademy/app/premium/purchase_validation_request.dart';
 import 'package:calcademy/app/premium/purchase_validation_result.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -20,9 +21,12 @@ final billingRepositoryProvider = Provider<BillingRepository>((ref) {
   return repository;
 });
 
-final entitlementSyncServiceProvider = Provider<EntitlementSyncService>(
-  (ref) => const PendingEntitlementSyncService(),
-);
+final entitlementSyncServiceProvider = Provider<EntitlementSyncService>((ref) {
+  final client = ref.watch(supabaseClientProvider);
+  return client == null
+      ? const PendingEntitlementSyncService()
+      : SupabaseEntitlementSyncService(client);
+});
 
 final billingControllerProvider =
     NotifierProvider<BillingController, BillingState>(BillingController.new);
@@ -187,13 +191,13 @@ class BillingController extends Notifier<BillingState> {
               ),
             );
       } catch (_) {
-        result = const PurchaseValidationResult(
-          status: PurchaseValidationStatus.error,
-          messageKey: 'purchaseValidationRequired',
-        );
+        result = const PurchaseValidationResult.error();
       }
     }
     state = state.copyWith(validationResult: result);
+    if (result.grantsPremium) {
+      await ref.read(premiumGateControllerProvider.notifier).refresh();
+    }
     if (purchase.pendingCompletePurchase) {
       try {
         await _repository.completePurchase(purchase);

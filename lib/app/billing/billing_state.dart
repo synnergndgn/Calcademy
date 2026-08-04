@@ -50,6 +50,8 @@ class BillingState {
       validationResult?.status == PurchaseValidationStatus.pending ||
       validationResult?.status == PurchaseValidationStatus.unsupported;
 
+  bool get hasValidationFeedback => validationResult != null;
+
   BillingState copyWith({
     BillingStatus? status,
     bool? isSignedIn,

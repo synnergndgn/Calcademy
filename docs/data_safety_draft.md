@@ -1,5 +1,24 @@
 # Google Play Data Safety Draft
 
+## 1.7 entitlement backend foundation reassessment
+
+Calcademy 1.7 adds source code for account-scoped subscription entitlement
+records and an authenticated Supabase validation-function stub. When the
+function is deployed and invoked, a Google Play purchase token may be sent over
+TLS solely for validation. The full token is not logged, echoed, or stored
+persistently; a SHA-256 hash and subscription status/audit metadata may be
+retained and associated with the Supabase Auth user ID.
+
+The backend may store profile email, user ID, product/base-plan identifiers,
+subscription state, period timestamps, acknowledgement/renewal flags, and safe
+validation events. Google Play continues to process payment/card information;
+Calcademy does not receive card or bank details.
+
+This foundation does not add Gemini, camera access, OCR, image upload,
+analytics, crash reporting, cloud Saved sync, or external payment. The final
+Play Data Safety form must be re-evaluated after staging deployment and again
+before real Developer API validation or production sales.
+
 > **1.6.0+16 Play Billing foundation note:** The Android build includes the
 > official Google Play Billing client and can run license-tester transactions.
 > Subscription purchases are processed by Google Play. The client models a

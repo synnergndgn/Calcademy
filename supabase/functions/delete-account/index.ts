@@ -59,10 +59,9 @@ Deno.serve(async (request) => {
       return jsonResponse(401, { error: "authentication_required" });
     }
 
-    // No Calcademy cloud tables exist in 1.5. Before cloud sync ships, add
-    // owner-scoped cleanup (or ON DELETE CASCADE) for profiles, subscriptions,
-    // usage_limits, ai_requests, and saved_cloud_items here and test it before
-    // deleting the Auth user. Local-only data is intentionally device-managed.
+    // Calcademy's 1.7 profile, entitlement, purchase, validation-event, and
+    // quota foreign keys use ON DELETE CASCADE. Local Saved data remains
+    // intentionally device-managed and is not available to this function.
     const { error: deleteError } = await adminClient.auth.admin.deleteUser(
       user.id,
     );

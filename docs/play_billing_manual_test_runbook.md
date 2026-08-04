@@ -1,5 +1,12 @@
 # Play Billing manual test runbook
 
+> **1.7 backend-foundation status (2026-08-04):** Google Payments profile
+> verification is still pending, so `calcademy_premium_monthly` and its base
+> plan cannot yet be created and no real sandbox purchase can be run. The
+> entitlement migration and authenticated validation-function stub exist in
+> source, but real Google Play Developer API validation is not implemented and
+> staging deployment is pending.
+
 ## A. No configuration or store unavailable
 
 1. Run the app on Windows, web, iOS, an emulator without Play Store, or a
@@ -30,8 +37,7 @@ Steps:
 1. Open **Premium** and verify the localized title and price load from Play.
 2. Tap **Subscribe** and verify the Google Play purchase sheet opens.
 3. Complete a test purchase.
-4. Verify **Purchase received, validating entitlement** followed by the
-   validation-required notice.
+4. Verify **Purchase received** followed by **Backend validation pending**.
 5. Restart the app and verify Premium has not been durably unlocked by the
    client-only result.
 6. Tap **Restore purchases** and verify the restored purchase returns to pending
@@ -65,7 +71,9 @@ camera permission, OCR, and external payment paths must remain absent.
 | Restore / manage subscription | Automated controller/UI tests pass; physical Play confirmation is pending |
 | Negative tests | Signed-out, unavailable-product, pending-validation, restore, and cancellation-safe paths pass automated tests; device checks remain pending |
 
-Build 17 is `1.6.0+17`. Its release AAB is at
+Build 17 is `1.6.0+17`. The new backend-foundation build is `1.7.0+18`; its
+quality-gate artifact paths must be recorded after this sprint's builds. The
+previous release AAB is at
 `build/app/outputs/bundle/release/app-release.aab`. Do not report the sandbox
 purchase sprint as complete until the merchant account is created, the product
 and base plan are active, a license tester list is saved, and the physical

@@ -1,68 +1,82 @@
 # Play Billing backend validation
 
-## Trust boundary
+## 1.7 trust boundary
 
-A Flutter purchase update is evidence to validate, not an entitlement. The app
-must never durably enable Premium from `PurchaseDetails` alone.
+A Flutter purchase update is evidence to validate, not an entitlement. A local
+`purchased` or `restored` state never durably enables Premium. Remove Ads is
+enabled only by an explicit active/grace-period backend entitlement or an
+injected test/mock entitlement.
 
-The target flow is:
+The current flow is:
 
-1. The signed-in app receives a purchase token from Google Play.
-2. It sends the token, product ID, platform, and authenticated user context to a
-   Supabase Edge Function over TLS.
-3. The Edge Function verifies the Supabase JWT and uses a server-held Google
-   service account to call the Google Play Developer API.
-4. The function verifies package name, product ID, purchase state, expiry,
-   acknowledgement state, and account association.
-5. A server transaction upserts the subscription and derived entitlement.
-6. The app refreshes entitlement state from the backend. Only an active backend
-   entitlement unlocks durable Premium features.
+1. A signed-in Android client receives a Google Play purchase token in memory.
+2. With Supabase configured, it invokes the authenticated
+   `validate-play-purchase` Edge Function with the product ID, token, and
+   `google_play` platform value.
+3. The function derives the user from the bearer JWT, hashes the token with
+   SHA-256, and writes safe validation audit events through its server-only
+   environment.
+4. The 1.7 stub returns `unsupported` and does not call Google or write an
+   active entitlement.
+5. The app shows Purchase received / Backend validation pending and remains
+   Free. A future `active` response triggers a new account entitlement read;
+   the response itself still does not unlock Premium.
 
-## 1.6 implementation boundary
+Signed-out purchases are not sent for validation. Missing Supabase config,
+function errors, rejected requests, and unknown backend states all fail closed.
 
-`EntitlementSyncService` and its request/result models establish the client
-interface. The default implementation returns `unsupported`, leaving the UI in
-**purchase received / validation required** state. It does not activate Premium.
-The token exists in memory only while handling the purchase: it is not logged,
-written to preferences, or stored in plaintext on the device.
+## Token and credential handling
 
-No Google service-account material, Play Developer API credential, or Supabase
-service-role credential belongs in the app bundle or repository. Secrets must
-be stored only in the Edge Function's managed server environment.
+- The full purchase token is neither logged nor echoed.
+- The database has no plaintext `purchase_token` column.
+- Audit/purchase correlation uses a SHA-256 token hash.
+- The full token exists only in request/client memory while the call is active.
+- The Supabase privileged key is read only from the Edge Function environment.
+- No Google service-account JSON, private key, Developer API key, or external
+  payment URL is present in the repository or client.
 
-## Server design
+## Function contract
 
-- Require a valid Supabase access token and derive the user ID server-side.
-- Accept only allow-listed product IDs and the expected Android package name.
-- Make validation idempotent using the purchase token's server-side digest or a
-  provider transaction identifier; encrypt sensitive values when retention is
-  necessary.
-- Restrict table writes to the service function. Clients receive read-only
-  entitlement access through row-level security scoped to their user ID.
-- Record validation outcome and expiry without returning or logging the token.
-- Re-check subscriptions on app refresh and on lifecycle events.
-- Revoke access for expiry, cancellation, refund, chargeback, account hold, or
-  revoked purchases.
+- `OPTIONS` returns 204 with CORS headers.
+- Non-POST methods return 405.
+- Missing/invalid bearer authentication returns 401.
+- Invalid JSON, product ID, token, or platform returns 400.
+- A valid authenticated request records safe audit metadata and returns:
 
-## Acknowledgement and completion
+```json
+{
+  "success": false,
+  "status": "unsupported",
+  "message": "Backend validation is not enabled yet."
+}
+```
 
-The client calls the plugin's `completePurchase` after handing the token to the
-validation interface, even when the 1.6 stub cannot grant an entitlement. This
-prevents test transactions from remaining unfinished and being automatically
-refunded. The production Edge Function should validate first and coordinate
-acknowledgement idempotently. A failed completion remains an error and must be
-retried; Google Play can refund unacknowledged purchases after its deadline.
+The function keeps the platform JWT gate enabled and also verifies/derives the
+caller explicitly with `auth.getUser` inside the handler.
 
-Before production subscription sales are enabled, replace the stub, test
-validation and acknowledgement together, and define recovery for a successful
-charge whose validation request was interrupted.
+## Next validation sprint
 
-## Refunds, cancellations, and RTDN
+The production implementation must use a server-held Google service account
+and the Google Play Developer API to verify package name, product/base-plan,
+purchase state, account association, expiry, acknowledgement, cancellation,
+refund, and revocation. It must update `subscription_purchases` and
+`premium_entitlements` transactionally and idempotently before returning an
+active result.
 
-The durable entitlement source is backend state, never a cached client flag.
-The next backend sprint should add Real-time Developer Notifications (RTDN) via
-Google Cloud Pub/Sub, verify every notification again through the Developer
-API, update subscription/entitlement rows, and periodically reconcile active
-subscriptions. Cancellation normally retains access until expiry; refunds,
-revocations, and expired subscriptions must remove access according to the
-verified server state.
+Real-time Developer Notifications (RTDN) should terminate at an authenticated
+Google Cloud Pub/Sub push endpoint. Every notification must be treated as a
+signal to re-query Google, never as trusted entitlement data. Add idempotency,
+replay protection, dead-letter handling, periodic reconciliation, and tests for
+grace period, cancellation-at-period-end, expiry, refund, revoke, and account
+hold. Do not log the notification's purchase token.
+
+## Deployment
+
+```powershell
+npx supabase@2.111.0 db push
+npx supabase@2.111.0 functions deploy validate-play-purchase
+```
+
+Staging deployment is pending in this sprint. Merchant profile verification,
+Play subscription product creation, and real sandbox purchase testing are also
+pending.
