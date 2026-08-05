@@ -1,3 +1,4 @@
+import 'package:calcademy/app/premium/premium_surface.dart';
 import 'package:calcademy/app/theme/app_theme.dart';
 import 'package:calcademy/core/services/preferences.dart';
 import 'package:calcademy/features/account/presentation/account_page.dart';
@@ -116,7 +117,11 @@ Future<void> _pump(WidgetTester tester, GoRouter router) async {
   final preferences = await SharedPreferences.getInstance();
   await tester.pumpWidget(
     ProviderScope(
-      overrides: [sharedPreferencesProvider.overrideWithValue(preferences)],
+      overrides: [
+        sharedPreferencesProvider.overrideWithValue(preferences),
+        // These flows only exist in a Supabase-configured build.
+        premiumSurfaceEnabledProvider.overrideWithValue(true),
+      ],
       child: MaterialApp.router(
         theme: AppTheme.light(),
         locale: const Locale('en'),
