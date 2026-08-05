@@ -156,6 +156,28 @@ const recordEvent = async (event: AssistantEvent) => {
   });
 };
 
+/// Measured on staging: thinking tokens ran ~2.7x the visible answer and made
+/// up roughly two thirds of the billable output. Picking a tool and writing
+/// three steps does not need that depth. Gemini 3 Flash cannot turn thinking
+/// off, only lower it.
+const THINKING_LEVEL = Deno.env.get("GEMINI_THINKING_LEVEL") ?? "low";
+
+const buildRequestBody = (
+  request: AssistantRequest,
+  withThinkingLevel: boolean,
+) => ({
+  systemInstruction: {
+    parts: [{ text: systemInstruction(request.languageCode) }],
+  },
+  contents: [{ role: "user", parts: [{ text: request.prompt }] }],
+  generationConfig: {
+    temperature: 0.2,
+    responseMimeType: "application/json",
+    responseSchema,
+    ...(withThinkingLevel ? { thinkingLevel: THINKING_LEVEL } : {}),
+  },
+});
+
 /// Calls Gemini with the API key held only in this function's environment.
 /// The user's text is sent as its own turn so it cannot merge into the system
 /// instruction, and the reply is constrained to the shared response schema.
@@ -169,8 +191,8 @@ const callProvider = async (
 
   const controller = new AbortController();
   const timeout = setTimeout(() => controller.abort(), PROVIDER_TIMEOUT_MS);
-  try {
-    const response = await fetch(
+  const send = (withThinkingLevel: boolean) =>
+    fetch(
       `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent`,
       {
         method: "POST",
@@ -179,19 +201,22 @@ const callProvider = async (
           "x-goog-api-key": apiKey,
         },
         signal: controller.signal,
-        body: JSON.stringify({
-          systemInstruction: {
-            parts: [{ text: systemInstruction(request.languageCode) }],
-          },
-          contents: [{ role: "user", parts: [{ text: request.prompt }] }],
-          generationConfig: {
-            temperature: 0.2,
-            responseMimeType: "application/json",
-            responseSchema,
-          },
-        }),
+        body: JSON.stringify(buildRequestBody(request, withThinkingLevel)),
       },
     );
+
+  try {
+    let response = await send(true);
+    if (response.status === 400) {
+      // The exact spelling of the thinking field is version-dependent, and a
+      // rejected field would take the whole feature down for a cost tweak.
+      // Retry once without it: worst case we pay for full thinking, which is
+      // what we did before, rather than dropping to local mode.
+      console.warn(
+        "gemini_thinking_level_rejected: retrying without thinkingLevel",
+      );
+      response = await send(false);
+    }
     const latencyMs = Date.now() - startedAt;
     if (!response.ok) {
       // The upstream error body carries the actual reason — a bad model ID, a

@@ -213,8 +213,40 @@ mid-paragraph aside does not hold — the model drifts back to English. It also
 explicitly exempts tool and formula IDs from translation, since a translated ID
 would be dropped by the allow-list.
 
-Still unverified: cross-account isolation, which needs a second staging
-account.
+### Cross-account isolation — 2026-08-05
+
+Verified with two staging accounts by impersonating the `authenticated` role in
+the SQL editor, so no password was needed. Each account saw only its own
+entitlement, quota, and profile rows; the audit tables refused an authenticated
+read; and an authenticated `UPDATE` on `premium_entitlements` was refused, so a
+client cannot grant itself Premium. The reusable snippet is in
+`supabase_entitlement_schema.md`.
+
+### Cost, measured
+
+Four real staging requests on `gemini-3.6-flash`:
+
+| | Average |
+| --- | --- |
+| Input | 455 tokens |
+| Visible answer | 184 tokens |
+| Thinking | 488 tokens |
+| Latency | 4.8s |
+
+At $1.50/M input and $7.50/M output, with thinking billed as output, that is
+**~$0.0057 per request** — about **$3.43/month** for an account that spends all
+20 daily requests every day. Thinking alone is two thirds of it.
+
+`generationConfig.thinkingLevel` is therefore set to `low` (override with
+`GEMINI_THINKING_LEVEL`; `gemini-3.6-flash` defaults to `medium` and cannot
+turn thinking off). The exact spelling of that field is version-dependent, so
+a 400 response triggers one automatic retry without it: the worst case is
+paying for full thinking, not losing the feature.
+
+Re-measure `thoughts` in the `gemini_usage` log line after any model change.
+The earlier `gemini-2.5-flash` estimate of ~$0.90/month was wrong by roughly
+4x, because it used the old model's pricing and ignored thinking tokens
+entirely.
 
 `GEMINI_MODEL` optionally overrides the default `gemini-3.6-flash`.
 

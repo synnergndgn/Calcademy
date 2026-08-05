@@ -89,8 +89,33 @@ Applied to the linked `Calcademy Staging` project.
 | Anonymous `get_my_premium_status()` | `42501 permission denied for function` |
 | `handle_new_user()` | Not exposed through the Data API |
 
-**Still pending, and not verifiable from the repository:** the two-account
-authenticated RLS check (each account reads only its own rows, cannot write any
-backend-owned table, and cannot read `purchase_validation_events`) and the
-Supabase database advisors run. Both need operator-created staging test accounts
-and dashboard access.
+## Authenticated RLS verification — 2026-08-05
+
+Run with two real staging accounts.
+
+| Check | Result |
+| --- | --- |
+| Account A reads `premium_entitlements`, `usage_quotas`, `profiles` | Sees only its own rows |
+| Account B reads the same tables | Sees only its own rows; zero entitlements, since only A was seeded |
+| Authenticated `SELECT` on the backend-only audit tables | `42501 permission denied` |
+| Authenticated `UPDATE` on `premium_entitlements` | `42501 permission denied` — a client cannot grant itself Premium |
+
+This does not need either account's password. Impersonate the role in the SQL
+editor instead, which is also the only way to exercise `auth.uid()` without a
+real session:
+
+```sql
+begin;
+select set_config('request.jwt.claims',
+  json_build_object(
+    'sub', (select id::text from auth.users where email = :email),
+    'role', 'authenticated')::text, true);
+set local role authenticated;
+-- queries here run exactly as that user would see them
+rollback;
+```
+
+Wrap it in `begin`/`rollback` so the role and claim never leak into the next
+statement.
+
+**Still pending:** the Supabase database advisors run, which is dashboard-only.
