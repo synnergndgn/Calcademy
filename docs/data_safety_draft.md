@@ -1,5 +1,39 @@
 # Google Play Data Safety Draft
 
+## 1.8 Gemini assistant reassessment — REQUIRED BEFORE RELEASE
+
+**This is the first Calcademy feature that transmits user-authored text off the
+device, and it changes the answers below.** Treat every earlier note claiming
+"no prompt is sent to an external AI provider" as historical.
+
+When, and only when, a signed-in account with an active Premium entitlement
+turns on **Advanced assistant (Gemini)**, the text the user types into the
+assistant is sent over TLS to the Calcademy `ai-assist` Edge Function and from
+there to the **Google Gemini API**. Google is a service provider for this
+processing. Consent defaults to off on every install and is withdrawable in
+Settings; a free, signed-out, unconfigured, or non-consenting user transmits
+nothing and receives on-device answers.
+
+What Calcademy retains: user ID, event type, model name, resolved intent,
+input/output character counts, latency, and an allow-listed reason string, in
+the backend-only `ai_assistant_events` table. **Prompt text and model output are
+never stored** by Calcademy, and no conversation is persisted on the device.
+Google's own retention is governed by Google's API terms and must be confirmed
+against the Gemini API data-use terms for the exact key type before release.
+
+Declaration consequences to work through in Play Console:
+
+| Question | Draft answer | Note |
+| --- | --- | --- |
+| Is user-generated content collected? | Yes, conditional | Assistant prompt text, only after opt-in. Consider whether Play's "Other user-generated content" or "Other in-app messages" better matches the current form wording |
+| Is it shared? | Yes | Transmitted to Google as the inference provider |
+| Is collection optional? | Yes | Off by default, requires an explicit in-app opt-in, withdrawable in Settings |
+| Is it encrypted in transit? | Yes | TLS on both hops |
+| Can users request deletion? | Yes | Account deletion cascades; Calcademy stores no prompt text to begin with |
+
+Camera access, OCR, and image upload remain absent in 1.8. Adding them requires
+its own separate assessment — do not fold it into this one.
+
 ## 1.7 entitlement backend foundation reassessment
 
 Calcademy 1.7 adds source code for account-scoped subscription entitlement
@@ -89,6 +123,7 @@ Do not present **Not applicable** as a substitute if Play Console asks a differe
 | Files/documents | No | No | No developer server upload |
 | Calendar | No | No | No calendar access |
 | App activity | No | No | No analytics or remote activity collection |
+| Other user-generated content | Conditional | Google as the inference provider | Assistant prompt text is transmitted only after a signed-in Premium account explicitly opts in to the advanced assistant. Calcademy stores counts and timings only, never the prompt or the answer. Off by default and withdrawable in Settings |
 | Web browsing | No | No | No embedded browsing/collection feature |
 | App info/performance | No | No | No crash reporting, diagnostics, or performance telemetry SDK |
 | Device identifiers | Yes (AdMob) | Yes | Google AdMob may collect/share advertising ID, device identifiers, and IP for ad serving, measurement, and fraud prevention. Confirm exact categories from AdMob's current Data Safety guidance |

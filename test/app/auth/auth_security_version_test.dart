@@ -4,11 +4,11 @@ import 'package:calcademy/app/app_metadata.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {
-  test('version is 1.7.0+18 everywhere', () async {
+  test('version is 1.8.0+19 everywhere', () async {
     final pubspec = await File('pubspec.yaml').readAsString();
-    expect(pubspec, contains('version: 1.7.0+18'));
-    expect(AppMetadata.versionName, '1.7.0');
-    expect(AppMetadata.buildNumber, 18);
+    expect(pubspec, contains('version: 1.8.0+19'));
+    expect(AppMetadata.versionName, '1.8.0');
+    expect(AppMetadata.buildNumber, 19);
   });
 
   test(
@@ -94,6 +94,45 @@ void main() {
       expect(matches, everyElement(startsWith('supabase/functions/')));
     },
   );
+
+  test(
+    'the Gemini key is referenced only by the server function environment',
+    () async {
+      final result = await Process.run('git', ['ls-files']);
+      expect(result.exitCode, 0, reason: result.stderr.toString());
+      final tracked = (result.stdout as String)
+          .split(RegExp(r'\r?\n'))
+          .where((path) => path.endsWith('.dart') || path.endsWith('.ts'));
+      final matches = <String>[];
+      const pattern =
+          'GEMINI'
+          '_API_KEY';
+      for (final path in tracked) {
+        final contents = await File(path).readAsString();
+        if (contents.contains(pattern)) matches.add(path.replaceAll('\\', '/'));
+      }
+      expect(matches, everyElement(startsWith('supabase/functions/')));
+    },
+  );
+
+  test('no client source calls a model provider endpoint directly', () async {
+    final result = await Process.run('git', ['ls-files', 'lib']);
+    expect(result.exitCode, 0, reason: result.stderr.toString());
+    final tracked = (result.stdout as String)
+        .split(RegExp(r'\r?\n'))
+        .where((path) => path.endsWith('.dart'));
+    const forbiddenHosts = [
+      'generativelanguage.googleapis.com',
+      'api.openai.com',
+      'api.anthropic.com',
+    ];
+    for (final path in tracked) {
+      final contents = await File(path).readAsString();
+      for (final host in forbiddenHosts) {
+        expect(contents, isNot(contains(host)), reason: '$host in $path');
+      }
+    }
+  });
 }
 
 bool _isTextSource(String path) {

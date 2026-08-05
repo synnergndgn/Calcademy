@@ -33,10 +33,16 @@ void main() {
         findsOneWidget,
       );
       expect(find.byKey(const Key('premium-badge-locked')), findsOneWidget);
+      // Asserted before scrolling: the notice sits at the top of the list, and
+      // scrolling far enough to reach the chips unmounts it.
+      expect(find.byKey(const Key('ai-scope-notice')), findsOneWidget);
+      expect(find.textContaining('local rules'), findsWidgets);
+      // A page with no Supabase config must never advertise the remote mode.
+      expect(find.textContaining('Gemini API'), findsNothing);
+      expect(find.byKey(const Key('ai-remote-consent')), findsNothing);
       await _scrollForwardUntilBuilt(tester, const Key('ai-suggestion-chips'));
       expect(find.byKey(const Key('ai-suggestion-chips')), findsOneWidget);
       expect(find.byType(ActionChip), findsNWidgets(5));
-      expect(find.textContaining('local rules'), findsWidgets);
       expect(find.byType(AdBanner), findsNothing);
     },
   );

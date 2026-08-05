@@ -93,6 +93,16 @@ class SettingsPage extends ConsumerWidget {
                   value: settings.scientificNotation,
                   onChanged: controller.setScientificNotation,
                 ),
+                SwitchListTile(
+                  key: const Key('settings-remote-assistant'),
+                  title: Text(context.l10n.t('aiAssistantRemoteToggle')),
+                  subtitle: Text(
+                    context.l10n.t('aiAssistantRemoteToggleSubtitle'),
+                  ),
+                  secondary: const Icon(Icons.auto_awesome_outlined),
+                  value: settings.remoteAssistantEnabled,
+                  onChanged: controller.setRemoteAssistantEnabled,
+                ),
                 ListTile(
                   leading: const Icon(Icons.pin_outlined),
                   title: Text(context.l10n.t('precision')),

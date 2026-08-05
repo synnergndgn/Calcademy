@@ -11,6 +11,7 @@ class AppSettings {
     required this.keySoundEnabled,
     required this.decimalPrecision,
     required this.scientificNotation,
+    this.remoteAssistantEnabled = false,
   });
 
   final ThemeMode themeMode;
@@ -21,6 +22,10 @@ class AppSettings {
   final int decimalPrecision;
   final bool scientificNotation;
 
+  /// Opt-in consent for sending assistant questions off the device. Defaults
+  /// to false and must stay false until the user turns it on explicitly.
+  final bool remoteAssistantEnabled;
+
   AppSettings copyWith({
     ThemeMode? themeMode,
     String? languageCode,
@@ -29,6 +34,7 @@ class AppSettings {
     bool? keySoundEnabled,
     int? decimalPrecision,
     bool? scientificNotation,
+    bool? remoteAssistantEnabled,
   }) {
     return AppSettings(
       themeMode: themeMode ?? this.themeMode,
@@ -38,6 +44,8 @@ class AppSettings {
       keySoundEnabled: keySoundEnabled ?? this.keySoundEnabled,
       decimalPrecision: decimalPrecision ?? this.decimalPrecision,
       scientificNotation: scientificNotation ?? this.scientificNotation,
+      remoteAssistantEnabled:
+          remoteAssistantEnabled ?? this.remoteAssistantEnabled,
     );
   }
 }

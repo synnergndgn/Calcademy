@@ -1,3 +1,8 @@
 [functions.validate-play-purchase]
 # Keep the platform JWT gate and also derive the caller with auth.getUser.
 verify_jwt = true
+
+[functions.ai-assist]
+# Same posture: the platform rejects unauthenticated calls, and the handler
+# still derives the caller itself before spending quota or calling the provider.
+verify_jwt = true
