@@ -2,6 +2,8 @@ import 'package:calcademy/app/auth/auth_gate_controller.dart';
 import 'package:calcademy/app/auth/auth_status.dart';
 import 'package:calcademy/app/premium/premium_feature.dart';
 import 'package:calcademy/app/premium/premium_gate_controller.dart';
+import 'package:calcademy/app/premium/usage_quota.dart';
+import 'package:calcademy/features/ai_assistant/infrastructure/remote_assistant_quota_repository.dart';
 import 'package:calcademy/features/ai_assistant/application/ai_assistant_state.dart';
 import 'package:calcademy/features/ai_assistant/domain/ai_assistant_limits.dart';
 import 'package:calcademy/features/ai_assistant/domain/ai_assistant_message.dart';
@@ -35,6 +37,23 @@ final canUseRemoteAssistantProvider = Provider<bool>(
       ref.watch(remoteAssistantEligibleProvider) &&
       ref.watch(settingsProvider).remoteAssistantEnabled,
 );
+
+final remoteAssistantQuotaRepositoryProvider =
+    Provider<RemoteAssistantQuotaRepository?>((ref) {
+      final client = ref.watch(supabaseClientProvider);
+      return client == null
+          ? null
+          : SupabaseRemoteAssistantQuotaRepository(client);
+    });
+
+/// The allowance to show before any request has been made this session. Once
+/// the backend answers, `AiAssistantState.quota` supersedes this.
+final initialRemoteAssistantQuotaProvider = FutureProvider<UsageQuota?>((
+  ref,
+) async {
+  if (!ref.watch(canUseRemoteAssistantProvider)) return null;
+  return ref.watch(remoteAssistantQuotaRepositoryProvider)?.fetch();
+});
 
 final aiAssistantServiceProvider = Provider<AiAssistantService>((ref) {
   final client = ref.watch(supabaseClientProvider);
@@ -96,6 +115,7 @@ class AiAssistantController extends Notifier<AiAssistantState> {
         isSending: false,
         errorKey: result.success ? null : 'aiAssistantUnsupported',
         clearError: result.success,
+        quota: result.quota,
       );
       return result.success;
     } on Exception {

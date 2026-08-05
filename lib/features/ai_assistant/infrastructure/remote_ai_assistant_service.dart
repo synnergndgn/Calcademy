@@ -1,3 +1,5 @@
+import 'package:calcademy/app/premium/usage_limit.dart';
+import 'package:calcademy/app/premium/usage_quota.dart';
 import 'package:calcademy/app/tools/calcademy_tool_registry.dart';
 import 'package:calcademy/features/ai_assistant/application/ai_response_composer.dart';
 import 'package:calcademy/features/ai_assistant/domain/ai_assistant_limits.dart';
@@ -71,6 +73,7 @@ class RemoteAiAssistantService implements AiAssistantService {
           _failureForStatus(response.status),
           input,
           languageCode,
+          quota: _quotaFrom(response.data),
         );
       }
       final plan = _planFrom(response.data, languageCode);
@@ -82,9 +85,17 @@ class RemoteAiAssistantService implements AiAssistantService {
         success: true,
         messages: [composer.compose(plan, languageCode)],
         plan: plan,
+        quota: _quotaFrom(response.data),
       );
     } on FunctionException catch (error) {
-      return _fallbackTo(_failureForStatus(error.status), input, languageCode);
+      // A 429 body still carries the quota, which is the case where the user
+      // most needs to see it.
+      return _fallbackTo(
+        _failureForStatus(error.status),
+        input,
+        languageCode,
+        quota: _quotaFrom(error.details),
+      );
     } catch (_) {
       return _fallbackTo(AiRemoteFailure.unavailable, input, languageCode);
     }
@@ -110,17 +121,49 @@ class RemoteAiAssistantService implements AiAssistantService {
   Future<AiAssistantResult> _fallbackTo(
     AiRemoteFailure failure,
     String input,
-    String languageCode,
-  ) async {
+    String languageCode, {
+    UsageQuota? quota,
+  }) async {
     _lastFailure = failure;
     final result = await fallback.analyze(input, languageCode: languageCode);
     final notice = _noticeFor(failure, languageCode);
-    if (notice == null) return result;
+    if (notice == null) {
+      return quota == null
+          ? result
+          : AiAssistantResult(
+              success: result.success,
+              messages: result.messages,
+              plan: result.plan,
+              error: result.error,
+              quota: quota,
+            );
+    }
     return AiAssistantResult(
       success: result.success,
       messages: [notice, ...result.messages],
       plan: result.plan,
       error: result.error,
+      quota: quota,
+    );
+  }
+
+  /// Reads `{"quota": {"used": n, "limit": n, "resetsAt": "..."}}` from either
+  /// a success body or an error body.
+  static UsageQuota? _quotaFrom(Object? data) {
+    if (data is! Map) return null;
+    final quota = data['quota'];
+    if (quota is! Map) return null;
+    final used = quota['used'];
+    final limit = quota['limit'];
+    if (used is! int || limit is! int || limit <= 0) return null;
+    final resetsAt = quota['resetsAt'];
+    final parsed = resetsAt is String ? DateTime.tryParse(resetsAt) : null;
+    final now = DateTime.now().toUtc();
+    return UsageQuota(
+      feature: UsageFeature.geminiAssistant,
+      dailyLimit: limit,
+      usedToday: used,
+      resetsAt: parsed ?? DateTime.utc(now.year, now.month, now.day + 1),
     );
   }
 

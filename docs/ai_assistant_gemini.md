@@ -62,6 +62,24 @@ answer, so an upstream outage does not cost the user part of their allowance.
 The Premium allowance is 20 requests per UTC day. Free accounts get zero, which
 is enforced by the entitlement check before quota is even consulted.
 
+### Showing the allowance
+
+The assistant page renders the remaining count in remote mode only. It comes
+from two sources:
+
+- every backend response — success **and** the 429 refusal — carries
+  `quota: { used, limit, resetsAt }`, which becomes the live value;
+- `get_my_usage_quota()` seeds it on page open, before any request.
+
+This is display only. The allowance that governs a request is reserved by
+`consume_ai_usage_quota` server-side, so a stale, absent, or tampered value
+here cannot buy an extra request.
+
+One sharp edge: `get_my_usage_quota()` coalesces a day with no row yet to
+`limit_count = 0`. Rendered literally that tells a user who has made no
+requests that their allowance is gone, so the client treats a zero limit as
+"unknown" and shows nothing rather than a wrong zero.
+
 ## Prompt-injection and output handling
 
 The user's text is sent as its own `user` turn and is never concatenated into
