@@ -195,11 +195,13 @@ This document is a factual product description, not legal advice or a guarantee 
 ## Türkçe özet
 
 Calcademy hesaplamaları cihazda yapar; ayarlar, geçmiş ve kaydedilen hesaplamalar
-yalnızca uygulamanın yerel depolamasında tutulur. 1.5 sürümünde runtime config
-verilmişse isteğe bağlı Supabase e-posta hesabı kullanılabilir; temel araçlar
+yalnızca uygulamanın yerel depolamasında tutulur. Runtime config verilmişse
+isteğe bağlı Supabase e-posta hesabı kullanılabilir; temel araçlar
 hesap olmadan çalışır. Hesap silme, ayrıcalıklı anahtarı mobil uygulamaya
-koymadan güvenli Edge Function üzerinden yapılır. Bulut Saved eşitleme,
-analytics, crash-reporting, Play Billing, Gemini ve kamera/OCR yoktur.
+koymadan güvenli Edge Function üzerinden yapılır. 1.7 altyapısı hesapla ilişkili
+abonelik hakkı kayıtlarını ve tam satın alma tokenını saklamayan doğrulama
+fonksiyonu iskeletini içerir; gerçek Google doğrulaması henüz yoktur. Bulut
+Saved eşitleme, analytics, crash-reporting, Gemini ve kamera/OCR yoktur.
 
 Google Play dahili testine dağıtılan **1.0.0 (sürüm 8)** yapısı, **Google AdMob** SDK’sı aracılığıyla yalnızca Ana Sayfa ve Kayıtlı ekranlarında banner reklam gösterir. Hesaplama, grafik, matris ve optimizasyon ekranlarında reklam yoktur. Google/AdMob; reklamların sunulması, ölçülmesi ve sahtekârlığın önlenmesi için reklam/cihaz tanımlayıcıları, IP adresi ve benzeri verileri kendi politikaları kapsamında işleyebilir.
 

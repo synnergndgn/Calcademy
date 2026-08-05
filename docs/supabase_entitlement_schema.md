@@ -74,11 +74,23 @@ npx supabase@2.111.0 db push
 npx supabase@2.111.0 functions deploy validate-play-purchase
 ```
 
-Then verify migration history, run Supabase database advisors, sign in with two
-separate test accounts, and confirm each account can read only its own rows.
-Confirm that authenticated clients cannot write any backend-owned table and
-cannot read `purchase_validation_events`.
+## Staging deployment record — 2026-08-05
 
-**Sprint status:** repository migration and function source are ready; staging
-deployment is pending and must not be reported as completed until the commands
-and post-deploy checks succeed.
+Applied to the linked `Calcademy Staging` project.
+
+| Check | Result |
+| --- | --- |
+| Migration `20260804111930` | Applied; `migration list` shows matching local and remote entries |
+| `validate-play-purchase` | Deployed, `ACTIVE`, `verify_jwt: true` |
+| `delete-account` | Still `ACTIVE`, unchanged |
+| Function `OPTIONS` | 204 |
+| Function `GET` / `POST` unauthenticated | 401 at the platform JWT gate, before the handler |
+| Anonymous `SELECT` on `profiles`, `premium_entitlements`, `subscription_purchases`, `purchase_validation_events`, `usage_quotas` | All denied with `42501 permission denied` — the Data API grants are revoked for `anon` |
+| Anonymous `get_my_premium_status()` | `42501 permission denied for function` |
+| `handle_new_user()` | Not exposed through the Data API |
+
+**Still pending, and not verifiable from the repository:** the two-account
+authenticated RLS check (each account reads only its own rows, cannot write any
+backend-owned table, and cannot read `purchase_validation_events`) and the
+Supabase database advisors run. Both need operator-created staging test accounts
+and dashboard access.

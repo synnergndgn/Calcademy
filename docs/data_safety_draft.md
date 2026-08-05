@@ -81,7 +81,7 @@ Do not present **Not applicable** as a substitute if Play Console asks a differe
 | Data type | Collected by developer? | Shared? | Current behavior |
 | --- | --- | --- | --- |
 | Personal information | Conditional | Supabase as service provider when Auth is enabled | Email address, Auth user ID, and authentication/security metadata are transmitted only when runtime Auth configuration and account creation are enabled; absent config means no Auth transmission |
-| Financial information | Recheck for 1.6/internal billing tests | Google Play processes subscription purchases | Calcademy does not collect card or bank details. Google Play handles payment. The future backend will receive a purchase token and verified subscription state, so final Data Safety classification must match that implementation |
+| Financial information | Recheck for 1.7/backend testing | Google Play processes subscription purchases | Calcademy does not collect card or bank details. When configured and deployed, the validation stub can receive a purchase token, retain only its hash and safe subscription/audit metadata, and associate that state with the account. Real Google validation remains disabled, so the final Data Safety classification must be reviewed again when it is implemented |
 | Location | No | No | No location permission or feature |
 | Contacts | No | No | No contacts permission or access |
 | Messages | No | No | No messaging feature |

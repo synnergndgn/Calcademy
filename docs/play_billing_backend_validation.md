@@ -77,6 +77,10 @@ npx supabase@2.111.0 db push
 npx supabase@2.111.0 functions deploy validate-play-purchase
 ```
 
-Staging deployment is pending in this sprint. Merchant profile verification,
-Play subscription product creation, and real sandbox purchase testing are also
-pending.
+Staging deployment was completed on 2026-08-05; the migration is applied and the
+function is `ACTIVE` with `verify_jwt: true`. See the deployment record in
+`docs/supabase_entitlement_schema.md`.
+
+Merchant profile verification, Play subscription product creation, and real
+sandbox purchase testing remain pending, so the end-to-end purchase path has
+still never been exercised.

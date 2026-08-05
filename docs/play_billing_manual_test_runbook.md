@@ -1,11 +1,11 @@
 # Play Billing manual test runbook
 
-> **1.7 backend-foundation status (2026-08-04):** Google Payments profile
-> verification is still pending, so `calcademy_premium_monthly` and its base
-> plan cannot yet be created and no real sandbox purchase can be run. The
-> entitlement migration and authenticated validation-function stub exist in
-> source, but real Google Play Developer API validation is not implemented and
-> staging deployment is pending.
+> **1.7 backend-foundation status (2026-08-05):** the entitlement migration and
+> the authenticated validation-function stub are now deployed to the linked
+> staging project. Real Google Play Developer API validation is still not
+> implemented, and Google Payments profile verification is still pending, so
+> `calcademy_premium_monthly` and its base plan cannot yet be created and no real
+> sandbox purchase can be run.
 
 ## A. No configuration or store unavailable
 
