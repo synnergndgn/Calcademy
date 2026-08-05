@@ -18,7 +18,11 @@ import {
 /// `LocalUsageLimitService` in the Flutter app; the value enforced is this one.
 const PREMIUM_DAILY_LIMIT = 20;
 
-const DEFAULT_MODEL = "gemini-2.5-flash";
+/// Google retires model IDs on a schedule, and a retired ID returns 404 that
+/// this function reports as a generic provider failure. `gemini-2.5-flash` was
+/// already closed to new keys by 2026-08. Override with the `GEMINI_MODEL`
+/// secret rather than editing this when a newer one ships.
+const DEFAULT_MODEL = "gemini-3.6-flash";
 const PROVIDER_TIMEOUT_MS = 20000;
 
 const adminClient = (): SupabaseClient => {
@@ -36,10 +40,22 @@ const adminClient = (): SupabaseClient => {
   });
 };
 
+/// Diagnostics for the paths that would otherwise return a bare 500. The
+/// client renders every 500 as "unreachable", which is indistinguishable from
+/// a provider outage without these. Codes and messages only — never a token,
+/// a key, or prompt text.
+const logFailure = (stage: string, error: unknown) => {
+  const detail = error instanceof Error ? error.message : "unknown";
+  console.error(`backend_error stage=${stage} detail=${detail.slice(0, 300)}`);
+};
+
 const authenticate = async (accessToken: string) => {
   const client = adminClient();
   const { data, error } = await client.auth.getUser(accessToken);
-  if (error || !data.user) return null;
+  if (error || !data.user) {
+    console.error(`auth_rejected code=${error?.code ?? "no_user"}`);
+    return null;
+  }
   return { id: data.user.id };
 };
 
@@ -52,8 +68,14 @@ const readEntitlement = async (
     .select("status, current_period_end")
     .eq("user_id", userId)
     .maybeSingle();
-  if (error) throw new Error("entitlement_read_failed");
-  if (!data) return { isPremiumActive: false, dailyLimit: 0 };
+  if (error) {
+    logFailure("entitlement_read", error);
+    throw new Error("entitlement_read_failed");
+  }
+  if (!data) {
+    console.error("entitlement_missing: no row for caller");
+    return { isPremiumActive: false, dailyLimit: 0 };
+  }
 
   const status = typeof data.status === "string" ? data.status : "inactive";
   // A null period end means "no expiry", matching get_my_premium_status(). An
@@ -67,6 +89,12 @@ const readEntitlement = async (
   }
   const isPremiumActive = (status === "active" || status === "grace_period") &&
     withinPeriod;
+
+  if (!isPremiumActive) {
+    console.error(
+      `entitlement_inactive status=${status} withinPeriod=${withinPeriod}`,
+    );
+  }
 
   return {
     isPremiumActive,
@@ -84,9 +112,15 @@ const consumeQuota = async (
     p_feature: FEATURE,
     p_limit: limit,
   });
-  if (error) throw new Error("quota_read_failed");
+  if (error) {
+    logFailure("quota_consume", error);
+    throw new Error("quota_read_failed");
+  }
   const row = Array.isArray(data) ? data[0] : data;
-  if (!row || typeof row !== "object") throw new Error("quota_read_failed");
+  if (!row || typeof row !== "object") {
+    console.error("quota_consume_empty: rpc returned no row");
+    throw new Error("quota_read_failed");
+  }
   const record = row as Record<string, unknown>;
   return {
     allowed: record.allowed === true,
@@ -159,13 +193,57 @@ const callProvider = async (
       },
     );
     const latencyMs = Date.now() - startedAt;
-    if (!response.ok) return { status: "failed", model, latencyMs };
+    if (!response.ok) {
+      // The upstream error body carries the actual reason — a bad model ID, a
+      // rejected schema, a quota problem. It contains no prompt text and no
+      // key, so it is safe to log and is the only way to tell these apart.
+      const detail = await response.text().catch(() => "");
+      console.error(
+        `gemini_http_error status=${response.status} model=${model} detail=${
+          detail.slice(0, 600)
+        }`,
+      );
+      return { status: "failed", model, latencyMs };
+    }
 
     const payload = await response.json();
     const text = payload?.candidates?.[0]?.content?.parts?.[0]?.text;
-    if (typeof text !== "string") return { status: "failed", model, latencyMs };
-    return { status: "ok", raw: JSON.parse(text), model, latencyMs };
-  } catch {
+    if (typeof text !== "string") {
+      // Usually a safety block or a truncated candidate. Log the finish reason
+      // and prompt feedback only — never the candidate text.
+      console.error(
+        `gemini_empty_candidate model=${model} finishReason=${
+          payload?.candidates?.[0]?.finishReason ?? "none"
+        } blockReason=${payload?.promptFeedback?.blockReason ?? "none"}`,
+      );
+      return { status: "failed", model, latencyMs };
+    }
+    // Token counts only — no prompt, no answer. This is what makes the real
+    // per-request cost measurable, and what tells us whether the thinking
+    // budget is worth constraining for what is essentially a routing task.
+    const usage = payload?.usageMetadata;
+    console.log(
+      `gemini_usage model=${model} latencyMs=${latencyMs} prompt=${
+        usage?.promptTokenCount ?? "?"
+      } candidates=${usage?.candidatesTokenCount ?? "?"} thoughts=${
+        usage?.thoughtsTokenCount ?? 0
+      } total=${usage?.totalTokenCount ?? "?"}`,
+    );
+
+    try {
+      return { status: "ok", raw: JSON.parse(text), model, latencyMs };
+    } catch {
+      console.error(
+        `gemini_unparsable_json model=${model} length=${text.length}`,
+      );
+      return { status: "failed", model, latencyMs };
+    }
+  } catch (error) {
+    console.error(
+      `gemini_transport_error model=${model} name=${
+        error instanceof Error ? error.name : "unknown"
+      }`,
+    );
     return { status: "failed", model, latencyMs: Date.now() - startedAt };
   } finally {
     clearTimeout(timeout);
