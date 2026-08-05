@@ -1,3 +1,4 @@
+import 'package:calcademy/app/auth/auth_repository_providers.dart';
 import 'package:calcademy/features/history/presentation/history_controller.dart';
 import 'package:calcademy/features/saved/presentation/saved_controller.dart';
 import 'package:calcademy/features/settings/domain/app_settings.dart';
@@ -93,16 +94,20 @@ class SettingsPage extends ConsumerWidget {
                   value: settings.scientificNotation,
                   onChanged: controller.setScientificNotation,
                 ),
-                SwitchListTile(
-                  key: const Key('settings-remote-assistant'),
-                  title: Text(context.l10n.t('aiAssistantRemoteToggle')),
-                  subtitle: Text(
-                    context.l10n.t('aiAssistantRemoteToggleSubtitle'),
+                // Hidden in a build compiled without Supabase config: the
+                // remote assistant does not exist there, and a toggle that
+                // cannot change anything reads as a broken setting.
+                if (ref.watch(isAuthConfiguredProvider))
+                  SwitchListTile(
+                    key: const Key('settings-remote-assistant'),
+                    title: Text(context.l10n.t('aiAssistantRemoteToggle')),
+                    subtitle: Text(
+                      context.l10n.t('aiAssistantRemoteToggleSubtitle'),
+                    ),
+                    secondary: const Icon(Icons.auto_awesome_outlined),
+                    value: settings.remoteAssistantEnabled,
+                    onChanged: controller.setRemoteAssistantEnabled,
                   ),
-                  secondary: const Icon(Icons.auto_awesome_outlined),
-                  value: settings.remoteAssistantEnabled,
-                  onChanged: controller.setRemoteAssistantEnabled,
-                ),
                 ListTile(
                   leading: const Icon(Icons.pin_outlined),
                   title: Text(context.l10n.t('precision')),

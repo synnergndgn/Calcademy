@@ -181,6 +181,7 @@ Release hazırlık belgeleri:
 - [Package name karar belgesi](docs/package_name_decision.md)
 - [Play App Signing karar rehberi](docs/play_app_signing_decision.md)
 - [Final release build checklist](docs/final_release_build_checklist.md)
+- [Track promotion checklist](docs/track_promotion_checklist.md)
 - [Play Console App Content checklist](docs/play_console_app_content_checklist.md)
 - [Data Safety taslağı](docs/data_safety_draft.md)
 - [Store asset checklist](docs/store_asset_checklist.md)
