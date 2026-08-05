@@ -17,7 +17,7 @@ Android release identity: `com.aligundogan.calcademy` · Publisher: Ali Gündoğ
 | Veri ve İstatistik | Statistics |
 | Finans | Financial Calculator |
 | Referans | Formula Library |
-| Yardımcı | Calcademy Assistant (lokal, kural tabanlı) |
+| Yardımcı | Calcademy Assistant (varsayılan lokal; isteğe bağlı Gemini destekli gelişmiş mod) |
 | Çalışma Alanı | Saved Calculations |
 
 Camera Solver rotası mevcuttur ancak henüz bir placeholder ekranıdır: kamera
@@ -153,14 +153,20 @@ yerel Saved kayıtları ve lokal Assistant hesapsız çalışır.
 - **Reklamlar:** Banner yalnızca Home ve Saved ekranlarında gösterilir.
   Hesaplama, grafik, matris ve optimizasyon ekranları reklamsızdır. Aktif bir
   backend entitlement'ı bu banner'ları gizler.
+- **Gelişmiş asistan:** Cihaz dışına metin gönderen tek özellik. Dört koşulun
+  tamamı gerekir — Supabase config, giriş yapılmış hesap, aktif Premium hakkı ve
+  kullanıcının Ayarlar'dan verdiği açık onay. Varsayılan kapalıdır; her koşul her
+  istekte yeniden değerlendirilir. Kota, doğrulama ve model çıktısı filtreleme
+  sunucu tarafındadır; her hata durumunda lokal kural motoruna düşülür.
 
 Ayrıntı: [Premium mimarisi](docs/premium_architecture.md),
 [entitlement şeması](docs/supabase_entitlement_schema.md),
-[Play Billing backend doğrulaması](docs/play_billing_backend_validation.md).
+[Play Billing backend doğrulaması](docs/play_billing_backend_validation.md),
+[Gemini destekli asistan](docs/ai_assistant_gemini.md).
 
 ## Gizlilik ve release yaklaşımı
 
-Hesaplamalar cihazda yapılır; ayarlar, geçmiş ve kaydedilen hesaplamalar yalnızca uygulamanın yerel depolamasında tutulur. Bulut Saved eşitleme, analytics, crash-reporting, Gemini ve kamera/OCR yoktur. Lokalize Hakkında ve Yasal Bilgiler ekranı bu yaklaşımı uygulama içinde açıklar ve [yayınlanmış gizlilik politikasını](https://synnergndgn.github.io/Calcademy/privacy_policy) harici tarayıcıda açabilir. Android adaptive/monochrome launcher kaynakları mevcut Calcademy işaretinden türetilmiştir; final 512×512 store icon ve feature graphic ayrıca görsel onay gerektirir. Debug APK CI/yerel kalite kapısından üretilebilir; Play Store imzalama ve mağaza metadata’sı ayrı release adımlarıdır.
+Hesaplamalar cihazda yapılır; ayarlar, geçmiş ve kaydedilen hesaplamalar yalnızca uygulamanın yerel depolamasında tutulur ve hiçbir zaman asistana gönderilmez. Bulut Saved eşitleme, analytics, crash-reporting ve kamera/OCR yoktur. Gelişmiş asistan açıkken yalnızca kullanıcının yazdığı soru metni cihazdan çıkar; Calcademy bu metni ve yanıtı saklamaz. Lokalize Hakkında ve Yasal Bilgiler ekranı bu yaklaşımı uygulama içinde açıklar ve [yayınlanmış gizlilik politikasını](https://synnergndgn.github.io/Calcademy/privacy_policy) harici tarayıcıda açabilir. Android adaptive/monochrome launcher kaynakları mevcut Calcademy işaretinden türetilmiştir; final 512×512 store icon ve feature graphic ayrıca görsel onay gerektirir. Debug APK CI/yerel kalite kapısından üretilebilir; Play Store imzalama ve mağaza metadata’sı ayrı release adımlarıdır.
 
 Release hazırlık belgeleri:
 
@@ -175,6 +181,7 @@ Release hazırlık belgeleri:
 - [Package name karar belgesi](docs/package_name_decision.md)
 - [Play App Signing karar rehberi](docs/play_app_signing_decision.md)
 - [Final release build checklist](docs/final_release_build_checklist.md)
+- [Track promotion checklist](docs/track_promotion_checklist.md)
 - [Play Console App Content checklist](docs/play_console_app_content_checklist.md)
 - [Data Safety taslağı](docs/data_safety_draft.md)
 - [Store asset checklist](docs/store_asset_checklist.md)
@@ -196,6 +203,7 @@ Hesap, abonelik ve backend belgeleri:
 - [Auth manuel test runbook](docs/auth_manual_test_runbook.md)
 - [Hesap silme akışı](docs/account_deletion.md)
 - [AI Assistant foundation](docs/ai_assistant_foundation.md)
+- [Gemini destekli asistan](docs/ai_assistant_gemini.md)
 - [Formula Library planı](docs/formula_library_plan.md)
 
 Release build, repoya eklenmeyen özel bir upload keystore ve `android/key.properties` gerektirir. R8 ve resource shrinking release varyantında etkindir; debug varyantı bu ayarlardan etkilenmez.
@@ -208,7 +216,7 @@ Release build, repoya eklenmeyen özel bir upload keystore ve `android/key.prope
 - Büyük matris/optimizasyon/OR problemleri güvenli merkezi limitlerle sınırlandırılır.
 - Saved Calculations için bulut senkronizasyonu ve tüm modüllerde full restore yoktur.
 - PDF/CSV dışa aktarma ve üretim mağaza dağıtımı bu sürümün kapsamı dışındadır.
-- Calcademy Assistant lokal ve kural tabanlıdır; harici bir AI sağlayıcısına istek göndermez.
+- Calcademy Assistant varsayılan olarak lokal ve kural tabanlıdır; gelişmiş mod yalnızca giriş yapmış Premium hesap açıkça onay verdiğinde çalışır.
 - Camera Solver yalnızca placeholder ekrandır; kamera izni, OCR ve görüntü yükleme yoktur.
 - Gerçek Google Play Developer API abonelik doğrulaması ve RTDN işleme henüz uygulanmamıştır.
 - UMP consent akışı uygulanmamıştır; EEA/UK reklam dağıtımı öncesinde gereklidir.

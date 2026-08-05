@@ -66,6 +66,16 @@ void main() {
       'aiAssistantExamples',
       'aiAssistantComingSoonCamera',
       'aiAssistantComingSoonGemini',
+      'aiAssistantRemoteModeNotice',
+      'aiAssistantRemoteConsentTitle',
+      'aiAssistantRemoteConsentBody',
+      'aiAssistantRemoteConsentAccept',
+      'aiAssistantRemoteConsentDecline',
+      'aiAssistantRemoteToggle',
+      'aiAssistantRemoteToggleSubtitle',
+      'aiAssistantRemotePremiumRequired',
+      'aiAssistantRemoteQuotaExceeded',
+      'aiAssistantRemoteUnavailable',
     ];
     for (final key in keys) {
       expect(english.t(key), isNot(key), reason: 'English missing $key');

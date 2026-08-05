@@ -138,7 +138,7 @@ class AppLocalizations {
       'aiAssistantSubtitle':
           'Find the right Calcademy tool, formula, and learning path for your problem.',
       'aiAssistantScopeNotice':
-          'Uses Calcademy tools and formulas. Camera and Gemini integration coming later.',
+          'Answers stay within Calcademy tools and formulas. Camera and OCR are coming later.',
       'aiAssistantInputHint':
           'Ask about a calculation, formula, or supported tool',
       'aiAssistantSend': 'Send',
@@ -151,7 +151,23 @@ class AppLocalizations {
       'aiAssistantSuggestedTool': 'Suggested tool',
       'aiAssistantSuggestedFormula': 'Suggested formula',
       'aiAssistantLocalModeNotice':
-          'This early version uses local rules. No prompt is sent to an external AI provider.',
+          'Local mode: answers come from on-device local rules and no question is sent to an external AI provider.',
+      'aiAssistantRemoteModeNotice':
+          'Advanced mode: your question is sent through the Calcademy backend to the Google Gemini API.',
+      'aiAssistantRemoteConsentTitle': 'Enable the advanced assistant',
+      'aiAssistantRemoteConsentBody':
+          'The advanced assistant sends the text you type to the Google Gemini API through the Calcademy backend, so it can read your problem and pick the right tool. Calcademy does not store your question or the answer; only counts and timings are logged. Your calculations, history, and saved data are never sent. You can turn this off at any time in Settings.',
+      'aiAssistantRemoteConsentAccept': 'Enable',
+      'aiAssistantRemoteConsentDecline': 'Stay local',
+      'aiAssistantRemoteToggle': 'Advanced assistant (Gemini)',
+      'aiAssistantRemoteToggleSubtitle':
+          'Send assistant questions to Google Gemini through the Calcademy backend. Requires an account and Premium.',
+      'aiAssistantRemotePremiumRequired':
+          'The advanced assistant requires a Premium subscription.',
+      'aiAssistantRemoteQuotaExceeded':
+          'Your advanced assistant allowance for today is used up.',
+      'aiAssistantRemoteUnavailable':
+          'The advanced assistant is unreachable right now.',
       'aiAssistantFinancialDisclaimer':
           'Financial calculations are for informational and educational purposes only and are not financial advice.',
       'aiAssistantEmptyInput': 'Enter a question before sending.',
@@ -159,9 +175,10 @@ class AppLocalizations {
           'Questions can contain at most 1000 characters.',
       'aiAssistantExamples': 'Try an example',
       'aiAssistantComingSoonCamera': 'Camera and OCR are coming later.',
-      'aiAssistantComingSoonGemini': 'Gemini integration is coming later.',
+      'aiAssistantComingSoonGemini':
+          'The Gemini-backed assistant is opt-in and requires an account with Premium.',
       'aiAssistantAboutNotice':
-          'Calcademy Assistant currently uses local rules to suggest supported Calcademy tools and formulas. Real AI API integration will be added in a future version.',
+          'Calcademy Assistant runs on local rules by default and suggests supported Calcademy tools and formulas. Signed-in Premium accounts can opt in to the Gemini-backed advanced assistant in Settings, which sends the typed question to Google through the Calcademy backend.',
       'formulaLibraryTitle': 'Formula Library',
       'formulaLibrarySubtitle':
           'Browse key formulas and open related Calcademy tools.',
@@ -1394,7 +1411,7 @@ class AppLocalizations {
       'aiAssistantSubtitle':
           'Probleminiz için doğru Calcademy aracını, formülünü ve öğrenme yolunu bulun.',
       'aiAssistantScopeNotice':
-          'Calcademy araçlarını ve formüllerini kullanır. Kamera ve Gemini entegrasyonu daha sonra eklenecektir.',
+          'Yanıtlar Calcademy araçları ve formülleriyle sınırlıdır. Kamera ve OCR daha sonra eklenecektir.',
       'aiAssistantInputHint':
           'Bir hesaplama, formül veya desteklenen araç sorun',
       'aiAssistantSend': 'Gönder',
@@ -1407,7 +1424,22 @@ class AppLocalizations {
       'aiAssistantSuggestedTool': 'Önerilen araç',
       'aiAssistantSuggestedFormula': 'Önerilen formül',
       'aiAssistantLocalModeNotice':
-          'Bu erken sürüm yerel kurallar kullanır. Hiçbir soru harici bir AI sağlayıcısına gönderilmez.',
+          'Yerel mod: yanıtlar cihazdaki yerel kurallarla üretilir ve hiçbir soru harici bir AI sağlayıcısına gönderilmez.',
+      'aiAssistantRemoteModeNotice':
+          'Gelişmiş mod: sorunuz Calcademy sunucusu üzerinden Google Gemini API’sine gönderilir.',
+      'aiAssistantRemoteConsentTitle': 'Gelişmiş asistanı etkinleştir',
+      'aiAssistantRemoteConsentBody':
+          'Gelişmiş asistan, probleminizi okuyup doğru aracı seçebilmesi için yazdığınız metni Calcademy sunucusu üzerinden Google Gemini API’sine gönderir. Calcademy sorunuzu ve yanıtı saklamaz; yalnızca sayaç ve süre bilgileri kaydedilir. Hesaplamalarınız, geçmişiniz ve kayıtlı verileriniz hiçbir zaman gönderilmez. Bunu istediğiniz zaman Ayarlar’dan kapatabilirsiniz.',
+      'aiAssistantRemoteConsentAccept': 'Etkinleştir',
+      'aiAssistantRemoteConsentDecline': 'Yerel kalsın',
+      'aiAssistantRemoteToggle': 'Gelişmiş asistan (Gemini)',
+      'aiAssistantRemoteToggleSubtitle':
+          'Asistan sorularını Calcademy sunucusu üzerinden Google Gemini’ye gönderir. Hesap ve Premium gerektirir.',
+      'aiAssistantRemotePremiumRequired':
+          'Gelişmiş asistan Premium abonelik gerektirir.',
+      'aiAssistantRemoteQuotaExceeded':
+          'Bugünkü gelişmiş asistan hakkınız doldu.',
+      'aiAssistantRemoteUnavailable': 'Gelişmiş asistana şu anda ulaşılamıyor.',
       'aiAssistantFinancialDisclaimer':
           'Finansal hesaplamalar yalnızca bilgilendirme ve eğitim amaçlıdır; finansal tavsiye değildir.',
       'aiAssistantEmptyInput': 'Göndermeden önce bir soru girin.',
@@ -1415,9 +1447,9 @@ class AppLocalizations {
       'aiAssistantExamples': 'Bir örnek deneyin',
       'aiAssistantComingSoonCamera': 'Kamera ve OCR daha sonra eklenecektir.',
       'aiAssistantComingSoonGemini':
-          'Gemini entegrasyonu daha sonra eklenecektir.',
+          'Gemini destekli asistan isteğe bağlıdır; hesap ve Premium gerektirir.',
       'aiAssistantAboutNotice':
-          'Calcademy Asistanı şu anda desteklenen Calcademy araçlarını ve formüllerini önermek için yerel kurallar kullanır. Gerçek AI API entegrasyonu sonraki sürümde eklenecektir.',
+          'Calcademy Asistanı varsayılan olarak yerel kurallarla çalışır ve desteklenen Calcademy araçlarını ve formüllerini önerir. Giriş yapmış Premium hesaplar, Ayarlar’dan Gemini destekli gelişmiş asistanı açabilir; bu mod yazılan soruyu Calcademy sunucusu üzerinden Google’a gönderir.',
       'appName': 'Calcademy',
       'logoSemantics': 'Calcademy logosu',
       'tagline': 'Hesapla. Görselleştir. Optimize et. Öğren.',

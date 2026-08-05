@@ -3,8 +3,8 @@ abstract final class AppMetadata {
   static const name = appName;
   static const applicationId = 'com.aligundogan.calcademy';
   static const publisherName = 'Ali Gündoğan';
-  static const versionName = '1.7.0';
-  static const buildNumber = 18;
+  static const versionName = '1.8.0';
+  static const buildNumber = 19;
   static const versionCode = buildNumber;
   static const tagline = 'Calculate. Visualize. Optimize. Learn.';
   static const shortDescription =
@@ -20,7 +20,12 @@ abstract final class AppMetadata {
   // The app stays local-first for user calculation data; the only third-party
   // SDK is Google AdMob, which serves a banner and processes ad/device
   // identifiers per its own policy. See docs/privacy_policy.md.
+  //
+  // Since 1.8, assistant prompt text can leave the device — but only for a
+  // signed-in Premium account that explicitly opted in. Calculation data still
+  // never leaves. See docs/ai_assistant_gemini.md.
   static const privacyStatus = 'local-first';
+  static const remoteAssistantStatus = 'opt-in-premium-only';
   static const adsStatus = 'admob-banner';
   static const analyticsStatus = 'not-included';
   static const cloudSyncStatus = 'not-included';

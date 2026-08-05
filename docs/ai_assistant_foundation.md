@@ -1,5 +1,11 @@
 # AI Assistant Foundation — 1.2.0+11
 
+> **Superseded in part as of 1.8.** The local pipeline described here still
+> exists and is still the default, but it is no longer the only mode: signed-in
+> Premium accounts can opt in to a Gemini-backed remote assistant. The claims
+> below about no external AI provider and unchanged Data Safety answers apply to
+> the local mode only. See [`ai_assistant_gemini.md`](ai_assistant_gemini.md).
+
 ## Scope
 
 Calcademy Assistant in 1.2.0 is a local, rule-based feature foundation. It is
@@ -84,3 +90,7 @@ rate limits, redaction and retention rules, failure fallbacks, and an updated
 privacy/Data Safety assessment. Camera/OCR should be reviewed independently and
 must not be bundled into the provider integration without permission and data
 flow review.
+
+**That sprint landed in 1.8** and met each of those conditions; see
+[`ai_assistant_gemini.md`](ai_assistant_gemini.md). Camera/OCR was deliberately
+left out of it and still requires its own review.

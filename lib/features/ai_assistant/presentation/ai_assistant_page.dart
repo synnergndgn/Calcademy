@@ -9,6 +9,8 @@ import 'package:calcademy/features/ai_assistant/presentation/widgets/ai_disclaim
 import 'package:calcademy/features/ai_assistant/presentation/widgets/ai_formula_suggestion_card.dart';
 import 'package:calcademy/features/ai_assistant/presentation/widgets/ai_input_bar.dart';
 import 'package:calcademy/features/ai_assistant/presentation/widgets/ai_message_bubble.dart';
+import 'package:calcademy/features/ai_assistant/presentation/widgets/ai_quota_indicator.dart';
+import 'package:calcademy/features/ai_assistant/presentation/widgets/ai_remote_consent_card.dart';
 import 'package:calcademy/features/ai_assistant/presentation/widgets/ai_scope_notice_card.dart';
 import 'package:calcademy/features/ai_assistant/presentation/widgets/ai_tool_suggestion_card.dart';
 import 'package:calcademy/features/formula_library/domain/formula_registry.dart';
@@ -85,7 +87,9 @@ class _AiAssistantPageState extends ConsumerState<AiAssistantPage> {
                         ),
                         const SizedBox(height: AppSpacing.sm),
                         const AiScopeNoticeCard(),
+                        const AiQuotaIndicator(),
                         const SizedBox(height: AppSpacing.sm),
+                        const AiRemoteConsentCard(),
                         PremiumGateCard(
                           feature: PremiumFeature.geminiAssistant,
                           title: context.l10n.t('premiumGeminiTeaser'),

@@ -17,6 +17,7 @@ class SettingsController extends Notifier<AppSettings> {
   static const _soundKey = 'settings.sound';
   static const _precisionKey = 'settings.precision';
   static const _scientificKey = 'settings.scientific';
+  static const _remoteAssistantKey = 'settings.remoteAssistant';
 
   @override
   AppSettings build() {
@@ -37,6 +38,8 @@ class SettingsController extends Notifier<AppSettings> {
       keySoundEnabled: prefs.getBool(_soundKey) ?? false,
       decimalPrecision: prefs.getInt(_precisionKey) ?? 10,
       scientificNotation: prefs.getBool(_scientificKey) ?? true,
+      // Consent is off until the user grants it, on every install.
+      remoteAssistantEnabled: prefs.getBool(_remoteAssistantKey) ?? false,
     );
   }
 
@@ -73,5 +76,12 @@ class SettingsController extends Notifier<AppSettings> {
   Future<void> setScientificNotation(bool value) async {
     state = state.copyWith(scientificNotation: value);
     await ref.read(sharedPreferencesProvider).setBool(_scientificKey, value);
+  }
+
+  Future<void> setRemoteAssistantEnabled(bool value) async {
+    state = state.copyWith(remoteAssistantEnabled: value);
+    await ref
+        .read(sharedPreferencesProvider)
+        .setBool(_remoteAssistantKey, value);
   }
 }

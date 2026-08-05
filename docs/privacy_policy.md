@@ -1,5 +1,28 @@
 # Calcademy Privacy Policy
 
+> **1.8.0 advanced assistant update (2026-08-05):** Calcademy now offers an
+> optional **advanced assistant** powered by the Google Gemini API. This is the
+> first Calcademy feature that sends text you type off your device, so it is
+> off by default and never turns itself on.
+>
+> It becomes available only when you are signed in, hold an active Premium
+> entitlement, and explicitly turn on **Advanced assistant (Gemini)**. While it
+> is on, the question you type in the assistant is sent over an encrypted
+> connection to a Calcademy backend function and from there to the Google
+> Gemini API, so it can be read and answered. You can turn it off at any time
+> in Settings, which stops all transmission immediately.
+>
+> Calcademy does **not** store your question or the answer. Our backend records
+> only your account ID, the type of event, the model name, the recognized topic,
+> character counts, timing, and a fixed status label — enough to enforce daily
+> limits and detect abuse, and nothing more. No conversation is saved on your
+> device either. Your calculations, history, saved records, and files are never
+> sent to the assistant.
+>
+> Your daily allowance is limited. When the assistant is off, unavailable, or
+> your allowance is spent, Calcademy answers using on-device rules instead and
+> nothing leaves your device. Camera access and OCR remain absent.
+
 > **1.7.0+18 entitlement backend foundation update (2026-08-04):** Calcademy
 > can associate account identifiers with subscription entitlement records in
 > Supabase. When configured and deployed, the app may send a Google Play
@@ -161,9 +184,10 @@ For 1.5.0+14, the optional Supabase Auth client described above supersedes the
 legacy “no account SDK” statement in the historical paragraph below.
 
 Calcademy contains banner advertising through Google AdMob, optional account
-authentication through Supabase, and the Google Play Billing foundation, but no
-analytics, crash-reporting, cloud Saved sync, Gemini, or camera/OCR integration.
-If those services or
+authentication through Supabase, the Google Play Billing foundation, and the
+opt-in Gemini-backed advanced assistant described at the top of this policy. It
+contains no analytics, crash-reporting, cloud Saved sync, or camera/OCR
+integration. If those services or
 additional ad technologies (mediation, interstitial, rewarded, native) are
 added, this policy and the applicable store Data Safety disclosures must be
 updated before release. Where required, consent controls must be implemented
@@ -200,8 +224,25 @@ isteğe bağlı Supabase e-posta hesabı kullanılabilir; temel araçlar
 hesap olmadan çalışır. Hesap silme, ayrıcalıklı anahtarı mobil uygulamaya
 koymadan güvenli Edge Function üzerinden yapılır. 1.7 altyapısı hesapla ilişkili
 abonelik hakkı kayıtlarını ve tam satın alma tokenını saklamayan doğrulama
-fonksiyonu iskeletini içerir; gerçek Google doğrulaması henüz yoktur. Bulut
-Saved eşitleme, analytics, crash-reporting, Gemini ve kamera/OCR yoktur.
+fonksiyonu iskeletini içerir; gerçek Google doğrulaması henüz yoktur.
+
+**Gelişmiş asistan (Gemini):** Calcademy’nin cihaz dışına metin gönderen ilk
+özelliğidir ve varsayılan olarak **kapalıdır**. Yalnızca giriş yapmış, aktif
+Premium hakkı olan ve Ayarlar’dan **Gelişmiş asistan (Gemini)** seçeneğini
+kendisi açan kullanıcılar için çalışır. Açıkken, asistana yazdığınız soru
+şifreli bağlantıyla Calcademy sunucu fonksiyonuna, oradan da Google Gemini
+API’sine gönderilir. Ayarlar’dan kapattığınızda gönderim anında durur.
+
+Calcademy sorunuzu ve yanıtı **saklamaz**. Sunucu tarafında yalnızca hesap
+kimliği, olay türü, model adı, tanınan konu, karakter sayıları, süre ve sabit
+bir durum etiketi kaydedilir; bunlar günlük limiti uygulamak ve kötüye
+kullanımı tespit etmek içindir. Cihazda da sohbet geçmişi tutulmaz.
+Hesaplamalarınız, geçmişiniz, kayıtlı verileriniz ve dosyalarınız asistana
+hiçbir zaman gönderilmez. Günlük kullanım hakkı sınırlıdır; asistan kapalıysa,
+ulaşılamıyorsa veya hakkınız dolduysa yanıt cihazdaki yerel kurallarla üretilir
+ve hiçbir veri cihazdan çıkmaz.
+
+Bulut Saved eşitleme, analytics, crash-reporting ve kamera/OCR yoktur.
 
 Google Play dahili testine dağıtılan **1.0.0 (sürüm 8)** yapısı, **Google AdMob** SDK’sı aracılığıyla yalnızca Ana Sayfa ve Kayıtlı ekranlarında banner reklam gösterir. Hesaplama, grafik, matris ve optimizasyon ekranlarında reklam yoktur. Google/AdMob; reklamların sunulması, ölçülmesi ve sahtekârlığın önlenmesi için reklam/cihaz tanımlayıcıları, IP adresi ve benzeri verileri kendi politikaları kapsamında işleyebilir.
 

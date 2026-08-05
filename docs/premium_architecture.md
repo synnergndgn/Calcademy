@@ -1,4 +1,4 @@
-# Premium architecture — 1.7.0+18
+# Premium architecture — 1.8.0+19
 
 Calcademy remains usable without login. Calculator, Formula Library, local
 Saved data, and the local rule-based Assistant remain available on the Free
@@ -45,7 +45,21 @@ explicit backend state is still required.
 An active/grace backend entitlement or explicit test mock can hide the Home and
 Saved banners. Ad placement remains unchanged elsewhere.
 
+## Gemini assistant gate
+
+`PremiumFeature.geminiAssistant` is the first feature gate whose denial has a
+privacy consequence rather than only a functional one: without it, no assistant
+text leaves the device at all. The entitlement is checked twice — in
+`canUseRemoteAssistantProvider` before a request is built, and again server-side
+in the `ai-assist` function against `premium_entitlements` before quota is spent
+or the provider is called. A client that lies about its entitlement gets a 403.
+
+Consent is an independent, additional requirement layered on top of the gate;
+Premium alone never enables transmission. See
+[`ai_assistant_gemini.md`](ai_assistant_gemini.md).
+
 ## Deferred features
 
-The schema reserves quota state for later work, but Gemini calls, camera
-permission, OCR, image upload, and external payment links remain absent.
+Camera permission, OCR, image upload, and external payment links remain absent.
+`usage_quotas` now backs the Gemini assistant; the camera-solver quota rows stay
+reserved and unused.
