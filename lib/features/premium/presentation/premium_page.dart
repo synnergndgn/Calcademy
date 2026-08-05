@@ -4,7 +4,9 @@ import 'package:calcademy/app/auth/auth_status.dart';
 import 'package:calcademy/app/billing/billing_controller.dart';
 import 'package:calcademy/app/billing/billing_state.dart';
 import 'package:calcademy/app/premium/premium_feature.dart';
+import 'package:calcademy/app/premium/premium_entitlement.dart';
 import 'package:calcademy/app/premium/premium_gate_controller.dart';
+import 'package:calcademy/app/premium/premium_status.dart';
 import 'package:calcademy/app/premium/widgets/premium_badge.dart';
 import 'package:calcademy/app/theme/app_breakpoints.dart';
 import 'package:calcademy/app/theme/app_spacing.dart';
@@ -36,10 +38,22 @@ class _PremiumPageState extends ConsumerState<PremiumPage> {
     final auth = ref.watch(authGateControllerProvider);
     final billing = ref.watch(billingControllerProvider);
     final benefits = [
-      ('premiumGeminiAssistant', Icons.auto_awesome_rounded),
-      ('cameraSolver', Icons.document_scanner_outlined),
-      ('removeAds', Icons.block_rounded),
-      ('higherDailyLimits', Icons.speed_rounded),
+      (
+        'premiumGeminiAssistant',
+        Icons.auto_awesome_rounded,
+        PremiumFeature.geminiAssistant,
+      ),
+      (
+        'cameraSolver',
+        Icons.document_scanner_outlined,
+        PremiumFeature.cameraSolver,
+      ),
+      ('removeAds', Icons.block_rounded, PremiumFeature.removeAds),
+      (
+        'higherDailyLimits',
+        Icons.speed_rounded,
+        PremiumFeature.higherDailyLimits,
+      ),
     ];
     return Scaffold(
       key: const Key('premium-page'),
@@ -62,8 +76,12 @@ class _PremiumPageState extends ConsumerState<PremiumPage> {
                 ),
                 children: [
                   _StatusCard(
-                    isPremium: entitlement.isPremium,
+                    entitlement: entitlement,
+                    isSignedIn: auth.status == AuthStatus.signedIn,
                     email: auth.user?.email,
+                    onRetry: () => ref
+                        .read(premiumGateControllerProvider.notifier)
+                        .refresh(),
                   ),
                   const SizedBox(height: AppSpacing.lg),
                   Text(
@@ -76,7 +94,11 @@ class _PremiumPageState extends ConsumerState<PremiumPage> {
                       child: ListTile(
                         leading: Icon(benefit.$2),
                         title: Text(context.l10n.t(benefit.$1)),
-                        trailing: const Icon(Icons.lock_outline_rounded),
+                        trailing: Icon(
+                          entitlement.canUse(benefit.$3)
+                              ? Icons.check_circle_outline_rounded
+                              : Icons.lock_outline_rounded,
+                        ),
                       ),
                     ),
                   const SizedBox(height: AppSpacing.md),
@@ -124,10 +146,32 @@ class _PremiumPageState extends ConsumerState<PremiumPage> {
 }
 
 class _StatusCard extends StatelessWidget {
-  const _StatusCard({required this.isPremium, required this.email});
+  const _StatusCard({
+    required this.entitlement,
+    required this.isSignedIn,
+    required this.email,
+    required this.onRetry,
+  });
 
-  final bool isPremium;
+  final PremiumEntitlement entitlement;
+  final bool isSignedIn;
   final String? email;
+  final VoidCallback onRetry;
+
+  String get _planKey => entitlement.isPremium ? 'premium' : 'freePlan';
+
+  String? get _detailKey => switch (entitlement.status) {
+    PremiumStatus.premiumActive ||
+    PremiumStatus.premiumGracePeriod => 'premiumStatusSyncedFromAccount',
+    PremiumStatus.pendingValidation => 'backendValidationPending',
+    PremiumStatus.premiumExpired => 'subscriptionExpired',
+    PremiumStatus.premiumCanceled => 'subscriptionCanceled',
+    PremiumStatus.premiumRevoked => 'subscriptionExpired',
+    PremiumStatus.unknown => 'couldNotSyncEntitlement',
+    PremiumStatus.free when isSignedIn =>
+      'premiumSubscriptionAvailableWhenPlayReady',
+    PremiumStatus.free => null,
+  };
 
   @override
   Widget build(BuildContext context) => Card(
@@ -142,23 +186,36 @@ class _StatusCard extends StatelessWidget {
             style: Theme.of(context).textTheme.headlineSmall,
           ),
           const SizedBox(height: AppSpacing.xs),
-          PremiumBadge(active: isPremium),
+          PremiumBadge(active: entitlement.isPremium),
           Text(
             context.l10n.t('currentPlan'),
             style: Theme.of(context).textTheme.labelLarge,
           ),
           Text(
-            context.l10n.t(
-              isPremium ? 'premiumActive' : 'noActiveSubscription',
-            ),
+            context.l10n.t(_planKey),
             key: const Key('premium-current-status'),
           ),
+          if (_detailKey case final detailKey?) ...[
+            const SizedBox(height: AppSpacing.xs),
+            Text(
+              context.l10n.t(detailKey),
+              key: const Key('premium-entitlement-detail'),
+            ),
+          ],
           if (email case final value?) ...[
             const SizedBox(height: AppSpacing.xs),
             Text(value, key: const Key('premium-user-email')),
           ],
           const SizedBox(height: AppSpacing.xs),
           Text(context.l10n.t('basicToolsNoAccount')),
+          if (entitlement.status == PremiumStatus.unknown) ...[
+            const SizedBox(height: AppSpacing.sm),
+            OutlinedButton(
+              key: const Key('premium-entitlement-retry'),
+              onPressed: onRetry,
+              child: Text(context.l10n.t('tryAgain')),
+            ),
+          ],
         ],
       ),
     ),
@@ -276,6 +333,14 @@ class _BillingCard extends StatelessWidget {
                 key: const Key('premium-purchase-received'),
               ),
               Text(context.l10n.t(billing.validationResult!.messageKey)),
+            ],
+            if (billing.hasValidationFeedback &&
+                !billing.isPendingValidation) ...[
+              const SizedBox(height: AppSpacing.sm),
+              Text(
+                context.l10n.t(billing.validationResult!.messageKey),
+                key: const Key('premium-validation-result'),
+              ),
             ],
             if (billing.errorMessage case final error?) ...[
               const SizedBox(height: AppSpacing.sm),

@@ -12,6 +12,7 @@ import 'package:calcademy/app/premium/entitlement_repository.dart';
 import 'package:calcademy/app/premium/local_entitlement_repository.dart';
 import 'package:calcademy/app/premium/premium_entitlement.dart';
 import 'package:calcademy/app/premium/premium_gate_controller.dart';
+import 'package:calcademy/app/premium/premium_status.dart';
 import 'package:calcademy/app/theme/app_theme.dart';
 import 'package:calcademy/features/camera_solver/presentation/camera_solver_page.dart';
 import 'package:calcademy/features/premium/presentation/premium_page.dart';
@@ -36,7 +37,7 @@ void main() {
     await _pump(tester, router);
 
     expect(find.byType(PremiumPage), findsOneWidget);
-    expect(find.text('No active subscription'), findsOneWidget);
+    expect(find.text('Free plan'), findsOneWidget);
     expect(find.text('Gemini-powered assistant'), findsOneWidget);
     expect(find.text('Camera Solver'), findsOneWidget);
     expect(find.text('Remove ads'), findsOneWidget);
@@ -157,7 +158,7 @@ void main() {
     expect(find.byKey(const Key('premium-purchase-received')), findsOneWidget);
     expect(
       find.text(
-        'Purchase validation is required before Premium can be activated.',
+        'Backend validation pending. Backend validation is not enabled yet.',
       ),
       findsOneWidget,
     );
@@ -279,6 +280,13 @@ void main() {
       'purchaseReceived',
       'validatingPurchase',
       'purchaseValidationRequired',
+      'backendValidationPending',
+      'purchaseValidationUnavailable',
+      'premiumStatusSyncedFromAccount',
+      'subscriptionExpired',
+      'subscriptionCanceled',
+      'couldNotSyncEntitlement',
+      'tryAgain',
       'premiumSubscription',
       'monthlyPlan',
       'currentPlan',
@@ -320,6 +328,42 @@ void main() {
     expect(premiumPage, contains("play.google.com"));
     expect(authRepository, isNot(contains('http')));
   });
+
+  for (final statusCase in [
+    (PremiumStatus.pendingValidation, 'Backend validation pending.'),
+    (PremiumStatus.premiumExpired, 'Subscription expired'),
+    (PremiumStatus.premiumCanceled, 'Subscription canceled'),
+  ]) {
+    testWidgets('premium page renders ${statusCase.$1.name}', (tester) async {
+      final router = GoRouter(
+        initialLocation: '/premium',
+        routes: [
+          GoRoute(path: '/premium', builder: (_, _) => const PremiumPage()),
+        ],
+      );
+      addTearDown(router.dispose);
+      final authRepository = LocalAuthRepository(
+        initialStatus: AuthStatus.signedIn,
+        initialUser: const AppUser(id: 'status-user'),
+      );
+      addTearDown(authRepository.dispose);
+      await _pump(
+        tester,
+        router,
+        repository: LocalEntitlementRepository(
+          initialEntitlement: PremiumEntitlement.free(
+            status: statusCase.$1,
+            source: EntitlementSource.backend,
+          ),
+        ),
+        authRepository: authRepository,
+        billingRepository: LocalBillingRepository(available: false),
+      );
+
+      expect(find.textContaining(statusCase.$2), findsOneWidget);
+      expect(find.text('Free plan'), findsOneWidget);
+    });
+  }
 }
 
 Future<void> _scrollUntilBuilt(WidgetTester tester, Key key) async {

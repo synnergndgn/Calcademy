@@ -16,7 +16,12 @@ Android release identity: `com.aligundogan.calcademy` · Publisher: Ali Gündoğ
 | Optimizasyon ve Yöneylem Araştırması | Lineer Programlama, Tam Sayılı Programlama, Operations Research |
 | Veri ve İstatistik | Statistics |
 | Finans | Financial Calculator |
+| Referans | Formula Library |
+| Yardımcı | Calcademy Assistant (lokal, kural tabanlı) |
 | Çalışma Alanı | Saved Calculations |
+
+Camera Solver rotası mevcuttur ancak henüz bir placeholder ekranıdır: kamera
+izni, OCR ve görüntü yükleme bu sürümde yoktur.
 
 Home ekranı modülleri bu bilgi mimarisine göre gruplar. Lokalize arama; modül adı, açıklaması ve kategori üzerinden çalışır. Telefonlarda tek sütun, tablet ve masaüstünde responsive grid kullanılır.
 
@@ -41,6 +46,11 @@ Proje feature-first düzeni kullanır. Matematiksel modeller ve çözücüler UI
 ```text
 lib/
 ├── app/                    # Uygulama, router, navigation ve design token'ları
+│   ├── ads/                # AdBanner ve AdMob başlatma koruması
+│   ├── auth/               # Supabase/local auth repository ve controller'ları
+│   ├── billing/            # Play Billing repository, controller ve state
+│   ├── config/             # Derleme zamanı runtime config (SUPABASE_URL vb.)
+│   └── premium/            # Entitlement, feature gate ve kullanım kotaları
 ├── core/                   # Ortak servisler ve yeniden kullanılabilir UI
 ├── features/
 │   ├── calculator/
@@ -53,8 +63,19 @@ lib/
 │   ├── linear_programming/
 │   ├── integer_programming/
 │   ├── operations_research/
+│   ├── formula_library/
+│   ├── ai_assistant/
+│   ├── camera_solver/      # Placeholder ekran
+│   ├── account/
+│   ├── premium/
 │   └── saved_calculations/
 └── l10n/                   # TR/EN kullanıcı metinleri
+
+supabase/
+├── migrations/             # Profil, entitlement, satın alma ve kota şeması
+└── functions/
+    ├── delete-account/
+    └── validate-play-purchase/
 ```
 
 ### Tasarım sistemi
@@ -70,12 +91,15 @@ Material 3 `ColorScheme`, ortak spacing/radius/breakpoint değerleri ve tema tü
 - fl_chart
 - flutter_svg
 - share_plus
+- supabase_flutter (Auth ve entitlement; yalnızca runtime config verildiğinde)
+- in_app_purchase (Google Play Billing)
+- google_mobile_ads (Home ve Saved banner)
 
 Matematik ifadeleri `eval` kullanmadan kontrollü lexer/parser katmanlarında işlenir. Büyük veya sayısal olarak riskli problemler merkezi limit ve toleranslarla sınırlandırılır.
 
 ## Saved Calculations
 
-Başarılı sonuçlar desteklenen modüllerden ortak Saved Calculations repository’sine kaydedilebilir. Kayıtlar; modül, hesaplama tipi, giriş/sonuç özeti, küçük sürümlenmiş payload, zaman damgası ve favori durumunu içerir. Arama, modül filtresi, sıralama, favori, kopyalama ve silme cihaz içinde çalışır. Bulut senkronizasyonu veya kullanıcı hesabı yoktur.
+Başarılı sonuçlar desteklenen modüllerden ortak Saved Calculations repository’sine kaydedilebilir. Kayıtlar; modül, hesaplama tipi, giriş/sonuç özeti, küçük sürümlenmiş payload, zaman damgası ve favori durumunu içerir. Arama, modül filtresi, sıralama, favori, kopyalama ve silme cihaz içinde çalışır. Saved Calculations için bulut senkronizasyonu yoktur; kayıtlar yalnızca cihazda tutulur ve hesaba bağlanmaz.
 
 ## Operations Research
 
@@ -97,7 +121,7 @@ flutter run
 
 ## Test ve kalite kapısı
 
-Unit testler domain servislerini, solver sonuçlarını, validation ve kayıt adapter’larını; widget testleri navigasyon, form/result akışları, copy/save eylemleri, dark mode ve responsive geometrileri kapsar. Release-readiness tabanında 441 test geçmektedir.
+Unit testler domain servislerini, solver sonuçlarını, validation ve kayıt adapter’larını; widget testleri navigasyon, form/result akışları, copy/save eylemleri, dark mode ve responsive geometrileri kapsar. 1.7.0+18 tabanında 664 test geçmektedir.
 
 ```bash
 dart format --set-exit-if-changed .
@@ -107,9 +131,36 @@ flutter build apk --debug
 git diff --check
 ```
 
+## Hesap, Premium ve reklamlar
+
+Calcademy giriş yapmadan kullanılabilir. Hesap yalnızca abonelik işlemleri ve
+kalıcı Premium hakkı için gereklidir; tüm hesaplama modülleri, Formula Library,
+yerel Saved kayıtları ve lokal Assistant hesapsız çalışır.
+
+- **Auth:** İsteğe bağlı Supabase e-posta hesabı. `SUPABASE_URL` ve
+  `SUPABASE_ANON_KEY` derleme zamanı tanımlanmadıysa hiçbir Auth trafiği
+  oluşmaz. Hesap silme, ayrıcalıklı anahtar mobil uygulamaya konmadan
+  `delete-account` Edge Function'ı üzerinden yapılır.
+- **Billing:** `in_app_purchase` ile Google Play aboneliği. İstemcideki
+  `purchased`/`restored` durumu tek başına Premium açmaz.
+- **Entitlement:** Üretim Premium durumunun tek kaynağı, giriş yapılmış hesabın
+  Supabase entitlement kaydıdır (`get_my_premium_status()`). Yalnızca geçerli
+  dönem sonuna sahip `active` ve `grace_period` kayıtları Premium sayılır.
+- **Doğrulama:** `validate-play-purchase` fonksiyonu bu sürümde güvenli bir
+  iskelettir; kimlik doğrular, satın alma tokenını SHA-256 ile özetler, denetim
+  kaydı yazar ve `unsupported` döner. Gerçek Google Play Developer API
+  doğrulaması henüz uygulanmamıştır.
+- **Reklamlar:** Banner yalnızca Home ve Saved ekranlarında gösterilir.
+  Hesaplama, grafik, matris ve optimizasyon ekranları reklamsızdır. Aktif bir
+  backend entitlement'ı bu banner'ları gizler.
+
+Ayrıntı: [Premium mimarisi](docs/premium_architecture.md),
+[entitlement şeması](docs/supabase_entitlement_schema.md),
+[Play Billing backend doğrulaması](docs/play_billing_backend_validation.md).
+
 ## Gizlilik ve release yaklaşımı
 
-Bu sürüm hesap, backend, reklam veya analytics kullanmaz. Hesaplamalar ve ayarlar cihazda saklanır; lokalize Hakkında ve Yasal Bilgiler ekranı bu yaklaşımı uygulama içinde açıklar ve [yayınlanmış gizlilik politikasını](https://synnergndgn.github.io/Calcademy/privacy_policy) harici tarayıcıda açabilir. Android adaptive/monochrome launcher kaynakları mevcut Calcademy işaretinden türetilmiştir; final 512×512 store icon ve feature graphic ayrıca görsel onay gerektirir. Debug APK CI/yerel kalite kapısından üretilebilir; Play Store imzalama ve mağaza metadata’sı ayrı release adımlarıdır.
+Hesaplamalar cihazda yapılır; ayarlar, geçmiş ve kaydedilen hesaplamalar yalnızca uygulamanın yerel depolamasında tutulur. Bulut Saved eşitleme, analytics, crash-reporting, Gemini ve kamera/OCR yoktur. Lokalize Hakkında ve Yasal Bilgiler ekranı bu yaklaşımı uygulama içinde açıklar ve [yayınlanmış gizlilik politikasını](https://synnergndgn.github.io/Calcademy/privacy_policy) harici tarayıcıda açabilir. Android adaptive/monochrome launcher kaynakları mevcut Calcademy işaretinden türetilmiştir; final 512×512 store icon ve feature graphic ayrıca görsel onay gerektirir. Debug APK CI/yerel kalite kapısından üretilebilir; Play Store imzalama ve mağaza metadata’sı ayrı release adımlarıdır.
 
 Release hazırlık belgeleri:
 
@@ -133,6 +184,20 @@ Release hazırlık belgeleri:
 - [Target audience checklist](docs/target_audience_checklist.md)
 - [CI ve quality gate rehberi](docs/ci_quality_gate.md)
 
+Hesap, abonelik ve backend belgeleri:
+
+- [Supabase auth foundation](docs/supabase_auth_foundation.md)
+- [Supabase staging kurulumu](docs/supabase_staging_setup.md)
+- [Supabase entitlement şeması](docs/supabase_entitlement_schema.md)
+- [Premium mimarisi](docs/premium_architecture.md)
+- [Play Billing kurulumu](docs/play_billing_setup.md)
+- [Play Billing backend doğrulaması](docs/play_billing_backend_validation.md)
+- [Play Billing manuel test runbook](docs/play_billing_manual_test_runbook.md)
+- [Auth manuel test runbook](docs/auth_manual_test_runbook.md)
+- [Hesap silme akışı](docs/account_deletion.md)
+- [AI Assistant foundation](docs/ai_assistant_foundation.md)
+- [Formula Library planı](docs/formula_library_plan.md)
+
 Release build, repoya eklenmeyen özel bir upload keystore ve `android/key.properties` gerektirir. R8 ve resource shrinking release varyantında etkindir; debug varyantı bu ayarlardan etkilenmez.
 
 ## Bilinen sınırlamalar
@@ -143,9 +208,18 @@ Release build, repoya eklenmeyen özel bir upload keystore ve `android/key.prope
 - Büyük matris/optimizasyon/OR problemleri güvenli merkezi limitlerle sınırlandırılır.
 - Saved Calculations için bulut senkronizasyonu ve tüm modüllerde full restore yoktur.
 - PDF/CSV dışa aktarma ve üretim mağaza dağıtımı bu sürümün kapsamı dışındadır.
+- Calcademy Assistant lokal ve kural tabanlıdır; harici bir AI sağlayıcısına istek göndermez.
+- Camera Solver yalnızca placeholder ekrandır; kamera izni, OCR ve görüntü yükleme yoktur.
+- Gerçek Google Play Developer API abonelik doğrulaması ve RTDN işleme henüz uygulanmamıştır.
+- UMP consent akışı uygulanmamıştır; EEA/UK reklam dağıtımı öncesinde gereklidir.
 
 ## Yol haritası
 
+- Google Payments merchant hesabı, abonelik ürünü ve gerçek sandbox satın alma doğrulaması
+- Google Play Developer API tabanlı sunucu taraflı abonelik doğrulaması ve RTDN işleme
+- Sunucu taraflı kimlik bilgisiyle çalışan, kota sınırlı ve tool allow-list'li Gemini destekli Assistant
+- Kamera/OCR için ayrı izin, veri akışı ve Data Safety değerlendirmesi
+- UMP consent akışı ve gizlilik seçenekleri giriş noktası
 - Release signing, mağaza görselleri ve erişilebilirlik saha doğrulaması
 - Saved Calculations restore kapsamının kontrollü genişletilmesi
 - Sembolik matematik için güvenilir, ayrı bir mimari değerlendirme

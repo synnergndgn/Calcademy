@@ -4,11 +4,11 @@ import 'package:calcademy/app/app_metadata.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {
-  test('version is 1.6.0+17 everywhere', () async {
+  test('version is 1.7.0+18 everywhere', () async {
     final pubspec = await File('pubspec.yaml').readAsString();
-    expect(pubspec, contains('version: 1.6.0+17'));
-    expect(AppMetadata.versionName, '1.6.0');
-    expect(AppMetadata.buildNumber, 17);
+    expect(pubspec, contains('version: 1.7.0+18'));
+    expect(AppMetadata.versionName, '1.7.0');
+    expect(AppMetadata.buildNumber, 18);
   });
 
   test(
@@ -91,10 +91,7 @@ void main() {
         final contents = await File(path).readAsString();
         if (contents.contains(pattern)) matches.add(path.replaceAll('\\', '/'));
       }
-      expect(
-        matches,
-        everyElement(startsWith('supabase/functions/delete-account/')),
-      );
+      expect(matches, everyElement(startsWith('supabase/functions/')));
     },
   );
 }

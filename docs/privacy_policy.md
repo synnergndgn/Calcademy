@@ -1,5 +1,14 @@
 # Calcademy Privacy Policy
 
+> **1.7.0+18 entitlement backend foundation update (2026-08-04):** Calcademy
+> can associate account identifiers with subscription entitlement records in
+> Supabase. When configured and deployed, the app may send a Google Play
+> purchase token to an authenticated backend function solely for validation.
+> The full token is not logged, echoed, or permanently stored; a cryptographic
+> hash and subscription/audit metadata may be retained. The current stub does
+> not call the Google Play Developer API and cannot create an active entitlement.
+> Gemini and camera/OCR remain inactive.
+
 > **1.6.0+16 Play Billing foundation update (2026-08-03):** The Android app
 > includes Google Play Billing for the `calcademy_premium_monthly` subscription
 > and can be exercised in Play internal testing. Google Play securely processes
@@ -33,6 +42,7 @@ The publisher, contact, effective-date, and jurisdiction details must be reverif
 
 | Version | Distribution | Advertising |
 |---|---|---|
+| 1.7.0 (build 18) | Entitlement backend foundation / pre-production | Google AdMob banner on Home and Saved; optional Supabase account and entitlement records; Google validation and production subscription sales still disabled |
 | 1.6.0 (build 16) | Play Billing foundation / internal testing | Google AdMob banner on Home and Saved; optional Supabase email auth; Google Play subscription testing with backend entitlement validation still pending |
 | 1.5.0 (build 14) | Staging Auth / pre-production | Google AdMob banner on Home and Saved; optional Supabase email auth and authenticated account deletion when configured |
 | 1.4.0 (build 13) | Auth foundation / pre-production | Google AdMob banner on Home and Saved; optional Supabase email auth only when configured |
@@ -101,13 +111,15 @@ price, processes the payment, and provides subscription-management and
 cancellation controls. Calcademy does not provide an external checkout and does
 not ask for or receive card or bank-account details.
 
-Google Play returns a purchase token to the app. The intended production design
-sends it to a secure backend solely to validate the purchase and maintain the
-account's subscription entitlement. The 1.6 foundation has no active validation
-backend: the token is not logged or persistently stored by the app, and a
-client-side purchase result does not durably enable Premium. This policy and the
-Play Data Safety form must be reviewed again before backend validation or
-production subscription sales are enabled.
+Google Play returns a purchase token to the app. When Supabase is configured
+and the function is deployed, Calcademy may send that token to an authenticated
+backend solely to validate the purchase and maintain the account's subscription
+entitlement. The full token is not logged, echoed, or permanently stored; the
+backend may retain a cryptographic hash, product/subscription state, timestamps,
+and safe validation audit records linked to the account. The 1.7 stub does not
+call Google and cannot activate Premium. A client-side purchase result does not
+durably enable Premium. This policy and the Play Data Safety form must be
+reviewed again before real Google validation or production sales are enabled.
 
 ## Network access and sharing
 
@@ -183,11 +195,13 @@ This document is a factual product description, not legal advice or a guarantee 
 ## Türkçe özet
 
 Calcademy hesaplamaları cihazda yapar; ayarlar, geçmiş ve kaydedilen hesaplamalar
-yalnızca uygulamanın yerel depolamasında tutulur. 1.5 sürümünde runtime config
-verilmişse isteğe bağlı Supabase e-posta hesabı kullanılabilir; temel araçlar
+yalnızca uygulamanın yerel depolamasında tutulur. Runtime config verilmişse
+isteğe bağlı Supabase e-posta hesabı kullanılabilir; temel araçlar
 hesap olmadan çalışır. Hesap silme, ayrıcalıklı anahtarı mobil uygulamaya
-koymadan güvenli Edge Function üzerinden yapılır. Bulut Saved eşitleme,
-analytics, crash-reporting, Play Billing, Gemini ve kamera/OCR yoktur.
+koymadan güvenli Edge Function üzerinden yapılır. 1.7 altyapısı hesapla ilişkili
+abonelik hakkı kayıtlarını ve tam satın alma tokenını saklamayan doğrulama
+fonksiyonu iskeletini içerir; gerçek Google doğrulaması henüz yoktur. Bulut
+Saved eşitleme, analytics, crash-reporting, Gemini ve kamera/OCR yoktur.
 
 Google Play dahili testine dağıtılan **1.0.0 (sürüm 8)** yapısı, **Google AdMob** SDK’sı aracılığıyla yalnızca Ana Sayfa ve Kayıtlı ekranlarında banner reklam gösterir. Hesaplama, grafik, matris ve optimizasyon ekranlarında reklam yoktur. Google/AdMob; reklamların sunulması, ölçülmesi ve sahtekârlığın önlenmesi için reklam/cihaz tanımlayıcıları, IP adresi ve benzeri verileri kendi politikaları kapsamında işleyebilir.
 

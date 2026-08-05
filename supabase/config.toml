@@ -1,0 +1,3 @@
+[functions.validate-play-purchase]
+# Keep the platform JWT gate and also derive the caller with auth.getUser.
+verify_jwt = true

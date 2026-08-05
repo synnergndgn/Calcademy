@@ -12,6 +12,9 @@ class LocalEntitlementRepository implements EntitlementRepository {
   PremiumEntitlement get current => _current;
 
   @override
+  Future<PremiumEntitlement> refresh() async => _current;
+
+  @override
   void setEntitlement(PremiumEntitlement entitlement) {
     _current = entitlement;
   }

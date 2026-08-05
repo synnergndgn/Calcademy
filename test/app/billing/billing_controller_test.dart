@@ -6,7 +6,11 @@ import 'package:calcademy/app/billing/billing_controller.dart';
 import 'package:calcademy/app/billing/billing_state.dart';
 import 'package:calcademy/app/billing/local_billing_repository.dart';
 import 'package:calcademy/app/premium/entitlement_sync_service.dart';
+import 'package:calcademy/app/premium/local_entitlement_repository.dart';
+import 'package:calcademy/app/premium/premium_entitlement.dart';
+import 'package:calcademy/app/premium/premium_feature.dart';
 import 'package:calcademy/app/premium/premium_gate_controller.dart';
+import 'package:calcademy/app/premium/premium_status.dart';
 import 'package:calcademy/app/premium/purchase_validation_request.dart';
 import 'package:calcademy/app/premium/purchase_validation_result.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -18,6 +22,7 @@ void main() {
     addTearDown(fixture.dispose);
     await fixture.controller.initialize();
     expect(await fixture.controller.subscribe(), isFalse);
+    expect(fixture.sync.requests, isEmpty);
     expect(
       fixture.container.read(premiumGateControllerProvider).isPremium,
       isFalse,
@@ -105,6 +110,45 @@ void main() {
     expect(result.status, PurchaseValidationStatus.unsupported);
     expect(result.grantsPremium, isFalse);
   });
+
+  test(
+    'mock active validation refreshes explicit backend entitlement',
+    () async {
+      final auth = LocalAuthRepository(
+        initialStatus: AuthStatus.signedIn,
+        initialUser: const AppUser(id: 'premium-student'),
+      );
+      final billing = LocalBillingRepository();
+      final entitlement = LocalEntitlementRepository();
+      final sync = _ActivatingSyncService(entitlement);
+      final container = ProviderContainer(
+        overrides: [
+          authRepositoryProvider.overrideWithValue(auth),
+          isAuthConfiguredProvider.overrideWithValue(true),
+          billingRepositoryProvider.overrideWithValue(billing),
+          entitlementRepositoryProvider.overrideWithValue(entitlement),
+          entitlementSyncServiceProvider.overrideWithValue(sync),
+        ],
+      );
+      addTearDown(container.dispose);
+      addTearDown(auth.dispose);
+      addTearDown(billing.dispose);
+
+      final controller = container.read(billingControllerProvider.notifier);
+      await controller.initialize();
+      expect(await controller.subscribe(), isTrue);
+      await Future<void>.delayed(Duration.zero);
+      await Future<void>.delayed(Duration.zero);
+
+      expect(container.read(premiumGateControllerProvider).isPremium, isTrue);
+      expect(
+        container
+            .read(premiumGateControllerProvider)
+            .canUse(PremiumFeature.removeAds),
+        isTrue,
+      );
+    },
+  );
 }
 
 class _Fixture {
@@ -155,5 +199,25 @@ class _RecordingSyncService implements EntitlementSyncService {
   ) async {
     requests.add(request);
     return const PurchaseValidationResult.unsupported();
+  }
+}
+
+class _ActivatingSyncService implements EntitlementSyncService {
+  _ActivatingSyncService(this.repository);
+
+  final LocalEntitlementRepository repository;
+
+  @override
+  Future<PurchaseValidationResult> validateAndSync(
+    PurchaseValidationRequest request,
+  ) async {
+    repository.setEntitlement(
+      const PremiumEntitlement(
+        status: PremiumStatus.premiumActive,
+        activeFeatures: {PremiumFeature.removeAds},
+        source: EntitlementSource.backend,
+      ),
+    );
+    return const PurchaseValidationResult.active();
   }
 }

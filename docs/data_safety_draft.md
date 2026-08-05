@@ -1,5 +1,24 @@
 # Google Play Data Safety Draft
 
+## 1.7 entitlement backend foundation reassessment
+
+Calcademy 1.7 adds source code for account-scoped subscription entitlement
+records and an authenticated Supabase validation-function stub. When the
+function is deployed and invoked, a Google Play purchase token may be sent over
+TLS solely for validation. The full token is not logged, echoed, or stored
+persistently; a SHA-256 hash and subscription status/audit metadata may be
+retained and associated with the Supabase Auth user ID.
+
+The backend may store profile email, user ID, product/base-plan identifiers,
+subscription state, period timestamps, acknowledgement/renewal flags, and safe
+validation events. Google Play continues to process payment/card information;
+Calcademy does not receive card or bank details.
+
+This foundation does not add Gemini, camera access, OCR, image upload,
+analytics, crash reporting, cloud Saved sync, or external payment. The final
+Play Data Safety form must be re-evaluated after staging deployment and again
+before real Developer API validation or production sales.
+
 > **1.6.0+16 Play Billing foundation note:** The Android build includes the
 > official Google Play Billing client and can run license-tester transactions.
 > Subscription purchases are processed by Google Play. The client models a
@@ -62,7 +81,7 @@ Do not present **Not applicable** as a substitute if Play Console asks a differe
 | Data type | Collected by developer? | Shared? | Current behavior |
 | --- | --- | --- | --- |
 | Personal information | Conditional | Supabase as service provider when Auth is enabled | Email address, Auth user ID, and authentication/security metadata are transmitted only when runtime Auth configuration and account creation are enabled; absent config means no Auth transmission |
-| Financial information | Recheck for 1.6/internal billing tests | Google Play processes subscription purchases | Calcademy does not collect card or bank details. Google Play handles payment. The future backend will receive a purchase token and verified subscription state, so final Data Safety classification must match that implementation |
+| Financial information | Recheck for 1.7/backend testing | Google Play processes subscription purchases | Calcademy does not collect card or bank details. When configured and deployed, the validation stub can receive a purchase token, retain only its hash and safe subscription/audit metadata, and associate that state with the account. Real Google validation remains disabled, so the final Data Safety classification must be reviewed again when it is implemented |
 | Location | No | No | No location permission or feature |
 | Contacts | No | No | No contacts permission or access |
 | Messages | No | No | No messaging feature |

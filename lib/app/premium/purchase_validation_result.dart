@@ -12,10 +12,28 @@ class PurchaseValidationResult {
         messageKey: 'validatingPurchase',
       );
 
+  const PurchaseValidationResult.active()
+    : this(
+        status: PurchaseValidationStatus.active,
+        messageKey: 'premiumStatusSyncedFromAccount',
+      );
+
+  const PurchaseValidationResult.rejected()
+    : this(
+        status: PurchaseValidationStatus.rejected,
+        messageKey: 'purchaseValidationRejected',
+      );
+
   const PurchaseValidationResult.unsupported()
     : this(
         status: PurchaseValidationStatus.unsupported,
-        messageKey: 'purchaseValidationRequired',
+        messageKey: 'backendValidationPending',
+      );
+
+  const PurchaseValidationResult.error()
+    : this(
+        status: PurchaseValidationStatus.error,
+        messageKey: 'purchaseValidationUnavailable',
       );
 
   final PurchaseValidationStatus status;

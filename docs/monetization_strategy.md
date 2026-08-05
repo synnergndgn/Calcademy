@@ -1,18 +1,28 @@
-# Monetization Strategy — AdMob Retry 1.0 (branch: `feature/admob-retry`)
+# Monetization Strategy — 1.7.0+18
 
-> **Branch-scoped document.** Everything below describes the state of the
-> `feature/admob-retry` branch (1.0.0+8). The stable `main` branch is
-> **1.0.0+7 and ads-free**. Nothing here becomes the shipping posture until the
-> branch passes real-device release verification and is merged.
+> **Decided model: freemium.** Core tools stay free and usable without an
+> account; ads are shown on Home and Saved only; a Google Play subscription
+> removes those ads and is intended to gate future Gemini/camera work. The
+> AdMob sections below are retained as the crash post-mortem and the still-open
+> ad-release checklist.
 
 ## Status
 
-| | `main` (1.0.0+7) | `feature/admob-retry` (1.0.0+8) |
-|---|---|---|
-| Ads SDK | none | `google_mobile_ads` 9.0.0 |
-| Banner | none | Home + Saved only |
-| Consent (UMP) | n/a | **out of scope this sprint** |
-| Play "Contains ads" | No | Yes (draft only) |
+| | `main` today (1.7.0+18) |
+|---|---|
+| Ads SDK | `google_mobile_ads` 9.0.0 |
+| Banner | Home + Saved only |
+| Consent (UMP) | **not implemented** — blocks EEA/UK ad delivery |
+| Play "Contains ads" | Yes (draft only) |
+| Billing | `in_app_purchase` 3.3.0; `calcademy_premium_monthly` planned |
+| Merchant account | **not created** — blocks product creation and sandbox purchase |
+| Entitlement source | Supabase `get_my_premium_status()`; client purchase state never grants Premium |
+| Backend validation | authenticated stub returning `unsupported`; real Play Developer API validation not implemented |
+
+## AdMob crash post-mortem (1.0.0+6)
+
+The history below is kept because the dependency-forcing and R8 keep rules it
+describes are still load-bearing in the current build.
 
 ## Why 1.0.0+6 crashed
 
@@ -85,11 +95,12 @@ before any EEA/UK release, and before the Play data declarations below go live.
 - The banner reserves zero height until an ad loads, so it cannot push or clip
   content offline, on small screens, or at 200% text scale.
 
-## Merge gate
+## Merge gate (historical — branch merged in PR #2)
 
-This branch may merge to `main` only when all of the following hold
+The gate below was the merge condition for `feature/admob-retry`
 (status as of 2026-07-25, Xiaomi 23021RAAEG — see
-`docs/admob_retry_device_test.md`):
+`docs/admob_retry_device_test.md`). Unchecked lines are still open release
+work and are repeated in the checklist that follows.
 
 - [x] Release APK (minify off) opens on a real device.
 - [x] Release APK (minify **on**) opens on a real device — the configuration
@@ -138,12 +149,29 @@ release-process items, not stability items.
 - Monetization must never imply that a numerical result becomes more accurate
   after payment.
 
-## Alternatives still open
+## Model decision
 
-1. **Free and ad-free** — strongest academic experience, simplest privacy
-   posture; requires another funding source. This is what `main` ships today.
-2. **Freemium** — core tools free, genuinely advanced workflows premium;
-   requires entitlement and restore-purchase design.
-3. **One-time paid app** — predictable UX, no ad tracking; reduces discovery.
-4. **Donation/support** — low complexity, uncertain revenue; must be checked
-   against current Google Play Billing requirements.
+**Freemium was chosen.** Every calculation module, the Formula Library, local
+Saved data, and the local rule-based Assistant remain free and account-free.
+The subscription removes the Home/Saved banners and is the intended gate for
+Gemini-backed assistance, camera solving, and higher daily limits once those
+exist. Correctness, accessibility, and access to already-saved data are never
+gated.
+
+Rejected for now: free-and-ad-free (needs another funding source), one-time
+paid (reduces discovery and does not fund recurring inference cost), and
+donation-only (uncertain revenue).
+
+## Subscription blockers
+
+1. **Google Payments merchant account is not created.** Without it
+   `calcademy_premium_monthly` and its `monthly` base plan cannot exist, so no
+   license-tester sandbox purchase can be run. This is an external, account-level
+   step and blocks the entire end-to-end billing verification.
+2. **Backend validation is a stub.** Real entitlement requires a server-held
+   Google service account, `purchases.subscriptionsv2.get`, transactional and
+   idempotent writes to `subscription_purchases` and `premium_entitlements`, and
+   an authenticated RTDN Pub/Sub endpoint. See
+   `docs/play_billing_backend_validation.md`.
+3. **Staging deployment is pending** for the entitlement migration and the
+   validation function.
