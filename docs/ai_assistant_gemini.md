@@ -127,24 +127,52 @@ npx supabase@2.111.0 functions deploy ai-assist
 | Anonymous `SELECT` on `ai_assistant_events` | Denied, `42501` |
 | Anonymous `consume_ai_usage_quota` / `release_ai_usage_quota` / `current_usage_period_start` | Denied, `42501` |
 | Anonymous `get_my_usage_quota` | Denied, `42501` — granted to `authenticated` only |
-| `GEMINI_API_KEY` secret | **Not set** — operator step |
-| `ai-assist` function deploy | **Not deployed** — pointless until the key exists |
+| `GEMINI_API_KEY` secret | Set |
+| `ai-assist` function deploy | `ACTIVE`, `verify_jwt: true`; `OPTIONS` 204, unauthenticated 401 |
+| `consume_ai_usage_quota` executed | **Verified** — see below |
 
-Until the secret is set and the function is deployed, every client falls back to
-local mode, which is the intended safe default. Nothing in the app is broken by
-this state.
+### Quota verification — 2026-08-05
 
-**Not yet verified:** `consume_ai_usage_quota` has never been *executed*. The
-migration applies cleanly and the privilege model is confirmed, but PL/pgSQL
-compiles a function body on first call, so runtime errors would not have
-surfaced yet. Executing it needs a real `auth.users` row because `usage_quotas`
-carries a foreign key to it. First check after creating a staging test account:
+Executed against a real staging account. PL/pgSQL compiles a function body on
+first call, so this is the run that proves the body works at all, not just that
+it parses.
 
-- call it 21 times for that user and confirm the 21st returns
-  `allowed = false` with `used_count` stuck at 20;
-- call `release_ai_usage_quota` and confirm the counter drops by exactly one and
-  never goes below zero;
-- confirm a second account's counter is unaffected throughout.
+| Check | Result |
+| --- | --- |
+| 25 calls against a limit of 20 | `used_count` stopped at 20 |
+| The call after the limit | `allowed = false`, `used_count` unchanged at 20 |
+| `release_ai_usage_quota` | Counter dropped to exactly 19 |
+
+**Trap when re-running this.** The obvious harness is wrong:
+
+```sql
+-- WRONG: no lateral dependency on i, so Postgres treats this as a plain cross
+-- join, calls the function ONCE, and copies the single row 21 times. It looks
+-- like the counter is stuck at 1.
+select i, q.* from generate_series(1, 21) as i,
+lateral public.consume_ai_usage_quota(:user, 'gemini_assistant', 20) as q;
+```
+
+Drive the repetition from PL/pgSQL instead, where it cannot be folded away:
+
+```sql
+do $$
+declare
+  v_user uuid := (select id from auth.users where email = :email);
+  r record;
+begin
+  for i in 1..25 loop
+    select * into r from public.consume_ai_usage_quota(
+      v_user, 'gemini_assistant', 20);
+  end loop;
+end $$;
+select used_count, limit_count from public.usage_quotas
+where feature = 'gemini_assistant';
+```
+
+Still unverified: cross-account isolation, which needs a second staging
+account, and the full HTTP round-trip through the function, which needs a
+signed-in client.
 
 `GEMINI_MODEL` optionally overrides the default `gemini-2.5-flash`. Verify the
 model ID against current Google documentation before deploying; the function
