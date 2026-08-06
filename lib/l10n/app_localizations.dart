@@ -134,6 +134,9 @@ class AppLocalizations {
       'removeAdsActive': 'Remove ads is active for this Premium entitlement.',
       'usageUnlimited': 'Unlimited local use',
       'usageRemaining': '{count} uses remaining today',
+      'adPrivacyOptions': 'Ad privacy options',
+      'adPrivacyOptionsSubtitle':
+          'Review or change your advertising consent choices.',
       'aiAssistantTitle': 'Ask Calcademy',
       'aiAssistantSubtitle':
           'Find the right Calcademy tool, formula, and learning path for your problem.',
@@ -1390,6 +1393,9 @@ class AppLocalizations {
       'removeAdsActive': 'Bu Premium hakkı için reklam kaldırma etkindir.',
       'usageUnlimited': 'Sınırsız yerel kullanım',
       'usageRemaining': 'Bugün {count} kullanım kaldı',
+      'adPrivacyOptions': 'Reklam gizlilik seçenekleri',
+      'adPrivacyOptionsSubtitle':
+          'Reklam onay tercihlerinizi görüntüleyin veya değiştirin.',
       'aiAssistantTitle': 'Calcademy Asistanı',
       'aiAssistantSubtitle':
           'Probleminiz için doğru Calcademy aracını, formülünü ve öğrenme yolunu bulun.',

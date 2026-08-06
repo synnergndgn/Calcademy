@@ -1,6 +1,7 @@
 import 'dart:io';
 
 import 'package:flutter/foundation.dart';
+import 'package:google_mobile_ads/google_mobile_ads.dart';
 
 /// Single, central source of truth for AdMob identifiers and gating.
 ///
@@ -62,6 +63,40 @@ abstract final class AdConfig {
 
   /// Whether this build registers any AdMob test device.
   static bool get hasTestDevices => testDeviceIds.isNotEmpty;
+
+  /// Forces UMP to treat this device as being in the EEA:
+  ///
+  /// ```
+  /// flutter build apk --release \
+  ///   --dart-define=ADMOB_TEST_DEVICE_IDS=ABC123 \
+  ///   --dart-define=UMP_DEBUG_GEOGRAPHY=eea
+  /// ```
+  ///
+  /// Without it the consent form is unreachable from a non-EEA country,
+  /// because UMP correctly reports that consent is not required there — so the
+  /// flow would appear to "work" while never having been seen. Requires a
+  /// registered test identifier; UMP ignores debug geography otherwise.
+  ///
+  /// Never set in a shipped build: forcing EEA on real users would show a
+  /// consent form to people whose local law does not call for one.
+  static const _debugGeographyRaw = String.fromEnvironment(
+    'UMP_DEBUG_GEOGRAPHY',
+  );
+
+  static bool get forcesEeaDebugGeography =>
+      _debugGeographyRaw.trim().toLowerCase() == 'eea';
+
+  /// Debug settings for the consent request, or `null` in a normal build so
+  /// UMP sees exactly the production configuration.
+  static ConsentDebugSettings? get consentDebugSettings {
+    if (!forcesEeaDebugGeography && !hasTestDevices) return null;
+    return ConsentDebugSettings(
+      debugGeography: forcesEeaDebugGeography
+          ? DebugGeography.debugGeographyEea
+          : null,
+      testIdentifiers: hasTestDevices ? testDeviceIds : null,
+    );
+  }
 
   /// Whether the Mobile Ads SDK may run at all. `false` on web, desktop, and
   /// every test — so ad code is inert there and can never crash or overflow.

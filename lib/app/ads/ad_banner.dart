@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:calcademy/app/ads/ad_config.dart';
 import 'package:calcademy/app/ads/ad_service.dart';
+import 'package:calcademy/app/ads/consent_service.dart';
 import 'package:calcademy/app/premium/premium_feature.dart';
 import 'package:calcademy/app/premium/premium_gate_controller.dart';
 import 'package:flutter/material.dart';
@@ -41,10 +42,18 @@ class _AdBannerState extends ConsumerState<AdBanner> {
 
   bool get _enabled => widget.enabled ?? AdConfig.adsEnabled;
 
-  /// Fully guarded: SDK init and ad load can each fail without ever throwing
-  /// out of here or affecting the widget tree beyond staying hidden.
+  /// Fully guarded: consent, SDK init, and ad load can each fail without ever
+  /// throwing out of here or affecting the widget tree beyond staying hidden.
+  ///
+  /// Consent comes first and is decisive. Where EEA/UK rules apply the SDK must
+  /// not request an ad before the user has been asked, so a refusal — or any
+  /// state we could not establish — leaves the banner hidden rather than
+  /// serving. Elsewhere UMP reports that consent is not required and this is a
+  /// single no-op round trip.
   Future<void> _prepareAndLoad() async {
     try {
+      final consent = await AdConsentService.ensureConsent();
+      if (!consent.canRequestAds || !mounted) return;
       final ready = await AdService.ensureInitialized();
       if (!ready || !mounted) return;
       _load();

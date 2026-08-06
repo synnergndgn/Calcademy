@@ -24,7 +24,7 @@
 > by a server-side Edge Function, and the public deletion page source is in
 > `docs/`. The older internal-test status below remains release history.
 
-**Status:** Current for Calcademy **1.0.0 (build 8)**, the build distributed through Google Play **internal testing**. This build displays banner advertisements through the Google AdMob SDK. Consent (Google UMP) is **not** implemented in this build; see “Advertising (Google AdMob)” below.
+**Status:** Current for Calcademy **1.0.0 (build 8)**, the build distributed through Google Play **internal testing**. This build displays banner advertisements through the Google AdMob SDK. A Google UMP consent flow now runs before any ad is requested; see “Advertising (Google AdMob)” below.
 
 **Developer/publisher name:** `Ali Gündoğan`
 
@@ -99,7 +99,11 @@ sign-in.
 
 Calcademy displays banner advertisements through the **Google AdMob** SDK, on the Home and Saved screens only. To serve, measure, cap the frequency of, and prevent fraud in these ads, Google and its ad partners may process data such as advertising and device identifiers, IP address, coarse/derived location, and general device information under [Google's own policies](https://policies.google.com/privacy). This processing is performed by Google/AdMob, not by a Calcademy server; Calcademy does not receive your calculations or saved work through it.
 
-**Consent is not yet implemented in this build.** The Google User Messaging Platform (UMP) consent flow is not present in build 8. Because of this, the build is limited to Play internal/closed testing and is **not** released in regions that require a consent mechanism (for example the EEA, UK, and Switzerland). A UMP consent/ad-choice flow will be implemented and verified before any production release, and this policy will be updated at that time. Until then, personalized advertising must not be assumed.
+**Consent (Google UMP).** Calcademy asks for your advertising consent through Google's User Messaging Platform **before** requesting any ad. Where consent is required — for example in the EEA, the UK, and Switzerland — no ad is requested until you have been asked and have made a choice. If you decline, no banner is shown and the rest of the app continues to work exactly as before; nothing in Calcademy is withheld for refusing ads.
+
+Where local law does not require consent, Google reports that none is needed and no form is shown.
+
+If you were asked for consent, **Settings** contains an **Ad privacy options** entry where you can review or change your choice at any time. Withdrawing consent takes effect immediately, without restarting the app.
 
 The third-party involved is **Google AdMob**. Calcademy does not add Firebase, Google Analytics, or any analytics/crash-reporting SDK.
 
@@ -183,7 +187,7 @@ Material changes will be reflected by updating this policy's effective date and 
 - [x] Provide accessible, localized in-app privacy/data-handling text without a broken external link.
 - [x] Connect About & Legal to the public policy URL with safe failure feedback.
 - [ ] Compare this policy with the exact final AAB, merged manifest, dependencies, Data Safety form, and Ads declaration.
-- [ ] Implement UMP consent and update this policy before any production release.
+- [x] Implement UMP consent and update this policy before any production release.
 - [ ] Publish `app-ads.txt` at the developer website root before production.
 - [ ] Obtain legal review appropriate to the publisher and target jurisdictions where needed.
 - [ ] Recheck the [official Google Play User Data policy](https://support.google.com/googleplay/android-developer/answer/10144311) immediately before upload.
@@ -205,6 +209,10 @@ Saved eşitleme, analytics, crash-reporting, Gemini ve kamera/OCR yoktur.
 
 Google Play dahili testine dağıtılan **1.0.0 (sürüm 8)** yapısı, **Google AdMob** SDK’sı aracılığıyla yalnızca Ana Sayfa ve Kayıtlı ekranlarında banner reklam gösterir. Hesaplama, grafik, matris ve optimizasyon ekranlarında reklam yoktur. Google/AdMob; reklamların sunulması, ölçülmesi ve sahtekârlığın önlenmesi için reklam/cihaz tanımlayıcıları, IP adresi ve benzeri verileri kendi politikaları kapsamında işleyebilir.
 
-**Bu yapıda onay (UMP) mekanizması bulunmamaktadır.** Bu nedenle yapı yalnızca dahili/kapalı testle sınırlıdır ve onay mekanizması gerektiren bölgelerde (ör. AEA, Birleşik Krallık, İsviçre) yayınlanmamaktadır. Üretim sürümünden önce UMP onay akışı uygulanacak ve bu politika güncellenecektir. O zamana kadar kişiselleştirilmiş reklam varsayılmaz.
+**Onay (Google UMP).** Calcademy, herhangi bir reklam istemeden **önce** Google'ın User Messaging Platform aracılığıyla reklam onayınızı sorar. Onay gereken bölgelerde (ör. AEA, Birleşik Krallık, İsviçre) siz bir seçim yapmadan hiçbir reklam istenmez. Reddederseniz banner gösterilmez ve uygulamanın geri kalanı aynen çalışır; reklamı reddettiğiniz için Calcademy'de hiçbir özellik kısıtlanmaz.
+
+Yerel mevzuatın onay gerektirmediği yerlerde Google onay gerekmediğini bildirir ve hiçbir form gösterilmez.
+
+Size onay sorulduysa, **Ayarlar** içindeki **Reklam gizlilik seçenekleri** bölümünden seçiminizi istediğiniz zaman görüntüleyebilir veya değiştirebilirsiniz. Onayı geri çekmek, uygulamayı yeniden başlatmadan anında etkili olur.
 
 Ana manifest, AdMob’un reklam getirmesi için `INTERNET` ve `ACCESS_NETWORK_STATE` izinlerini ister. Kullanıcı sistem paylaşımını açıkça seçerse seçilen içerik kullanıcının tercih ettiği uygulamaya aktarılabilir. Kayıtlar uygulama içinden silinebilir; tüm veriler Android ayarlarından uygulama verisi temizlenerek veya uygulama kaldırılarak silinebilir. Reklam tanımlayıcıları Android sistem ayarlarından yönetilir. Ek reklam teknolojileri veya veri toplayan başka bir servis eklenmeden önce bu politika ve mağaza beyanları güncellenmelidir.

@@ -153,6 +153,10 @@ yerel Saved kayıtları ve lokal Assistant hesapsız çalışır.
 - **Reklamlar:** Banner yalnızca Home ve Saved ekranlarında gösterilir.
   Hesaplama, grafik, matris ve optimizasyon ekranları reklamsızdır. Aktif bir
   backend entitlement'ı bu banner'ları gizler.
+- **Reklam onayı (UMP):** Onay, herhangi bir reklam istenmeden önce toplanır.
+  `canRequestAds` false ise banner hiç istenmez ve SDK'ya dokunulmaz. Onay
+  gerekmeyen bölgelerde akış tek bir no-op turdur. Onay sorulan kullanıcılar
+  için Ayarlar'da tercihini değiştirebileceği bir giriş noktası bulunur.
 
 Ayrıntı: [Premium mimarisi](docs/premium_architecture.md),
 [entitlement şeması](docs/supabase_entitlement_schema.md),
@@ -170,6 +174,7 @@ Release hazırlık belgeleri:
 - [Screenshot checklist](docs/release_screenshot_checklist.md)
 - [Release smoke test](docs/release_smoke_test.md)
 - [Monetization stratejisi](docs/monetization_strategy.md)
+- [UMP consent rehberi](docs/ump_consent.md)
 - [1.0.0 release notes taslağı](docs/release_notes_v1_0_0.md)
 - [Play Store final karar checklist](docs/play_store_final_checklist.md)
 - [Package name karar belgesi](docs/package_name_decision.md)
@@ -212,7 +217,7 @@ Release build, repoya eklenmeyen özel bir upload keystore ve `android/key.prope
 - Calcademy Assistant lokal ve kural tabanlıdır; harici bir AI sağlayıcısına istek göndermez.
 - Camera Solver yalnızca placeholder ekrandır; kamera izni, OCR ve görüntü yükleme yoktur.
 - Gerçek Google Play Developer API abonelik doğrulaması ve RTDN işleme henüz uygulanmamıştır.
-- UMP consent akışı uygulanmamıştır; EEA/UK reklam dağıtımı öncesinde gereklidir.
+- UMP consent akışı uygulanmıştır; AdMob konsolunda GDPR mesajının yayınlanması hâlâ gerekiyor.
 
 ## Yol haritası
 
@@ -220,7 +225,7 @@ Release build, repoya eklenmeyen özel bir upload keystore ve `android/key.prope
 - Google Play Developer API tabanlı sunucu taraflı abonelik doğrulaması ve RTDN işleme
 - Sunucu taraflı kimlik bilgisiyle çalışan, kota sınırlı ve tool allow-list'li Gemini destekli Assistant
 - Kamera/OCR için ayrı izin, veri akışı ve Data Safety değerlendirmesi
-- UMP consent akışı ve gizlilik seçenekleri giriş noktası
+- AdMob konsolunda GDPR mesajının yazılıp yayınlanması
 - Release signing, mağaza görselleri ve erişilebilirlik saha doğrulaması
 - Saved Calculations restore kapsamının kontrollü genişletilmesi
 - Sembolik matematik için güvenilir, ayrı bir mimari değerlendirme
