@@ -45,11 +45,14 @@ class _AdBannerState extends ConsumerState<AdBanner> {
   /// Fully guarded: consent, SDK init, and ad load can each fail without ever
   /// throwing out of here or affecting the widget tree beyond staying hidden.
   ///
-  /// Consent comes first and is decisive. Where EEA/UK rules apply the SDK must
-  /// not request an ad before the user has been asked, so a refusal — or any
-  /// state we could not establish — leaves the banner hidden rather than
-  /// serving. Elsewhere UMP reports that consent is not required and this is a
-  /// single no-op round trip.
+  /// Consent comes first: where EEA/UK rules apply the SDK must not request an
+  /// ad before the user has been asked. Elsewhere UMP reports that consent is
+  /// not required and this is a single no-op round trip.
+  ///
+  /// `canRequestAds` means "the consent flow finished", **not** "the user
+  /// agreed". A user who declined still passes here and receives a
+  /// non-personalised ad, which is Google's design. Only an unfinished or
+  /// unreadable consent state keeps the banner hidden.
   Future<void> _prepareAndLoad() async {
     try {
       final consent = await AdConsentService.ensureConsent();

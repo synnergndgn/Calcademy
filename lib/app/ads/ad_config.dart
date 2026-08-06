@@ -64,18 +64,43 @@ abstract final class AdConfig {
   /// Whether this build registers any AdMob test device.
   static bool get hasTestDevices => testDeviceIds.isNotEmpty;
 
+  /// UMP's own debug device identifier, which is **not** the AdMob one.
+  ///
+  /// The two SDKs hash the device differently and neither accepts the other's
+  /// value, so a build that passes only [testDeviceIds] leaves UMP treating
+  /// the device as ordinary — and silently ignoring [forcesEeaDebugGeography].
+  /// The symptom is no consent form and no error.
+  ///
+  /// Find it in logcat on first launch:
+  ///
+  /// ```
+  /// UserMessagingPlatform: Use new ConsentDebugSettings.Builder()
+  ///   .addTestDeviceHashedId("<this value>") to set this as a debug device.
+  /// ```
+  static const _umpTestDeviceIdsRaw = String.fromEnvironment(
+    'UMP_TEST_DEVICE_IDS',
+  );
+
+  static List<String> get umpTestDeviceIds => _umpTestDeviceIdsRaw
+      .split(',')
+      .map((id) => id.trim())
+      .where((id) => id.isNotEmpty)
+      .toList(growable: false);
+
+  static bool get hasUmpTestDevices => umpTestDeviceIds.isNotEmpty;
+
   /// Forces UMP to treat this device as being in the EEA:
   ///
   /// ```
   /// flutter build apk --release \
-  ///   --dart-define=ADMOB_TEST_DEVICE_IDS=ABC123 \
+  ///   --dart-define=UMP_TEST_DEVICE_IDS=<hashed-id-from-logcat> \
   ///   --dart-define=UMP_DEBUG_GEOGRAPHY=eea
   /// ```
   ///
   /// Without it the consent form is unreachable from a non-EEA country,
   /// because UMP correctly reports that consent is not required there — so the
-  /// flow would appear to "work" while never having been seen. Requires a
-  /// registered test identifier; UMP ignores debug geography otherwise.
+  /// flow would appear to "work" while never having been seen. Both defines are
+  /// required: UMP ignores debug geography on a device it does not recognise.
   ///
   /// Never set in a shipped build: forcing EEA on real users would show a
   /// consent form to people whose local law does not call for one.
@@ -89,12 +114,12 @@ abstract final class AdConfig {
   /// Debug settings for the consent request, or `null` in a normal build so
   /// UMP sees exactly the production configuration.
   static ConsentDebugSettings? get consentDebugSettings {
-    if (!forcesEeaDebugGeography && !hasTestDevices) return null;
+    if (!forcesEeaDebugGeography && !hasUmpTestDevices) return null;
     return ConsentDebugSettings(
       debugGeography: forcesEeaDebugGeography
           ? DebugGeography.debugGeographyEea
           : null,
-      testIdentifiers: hasTestDevices ? testDeviceIds : null,
+      testIdentifiers: hasUmpTestDevices ? umpTestDeviceIds : null,
     );
   }
 

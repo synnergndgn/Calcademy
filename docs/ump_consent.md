@@ -20,9 +20,24 @@ AdBanner mounts
   → BannerAd load
 ```
 
-`canRequestAds` is decisive. If it is false the banner stays hidden and the SDK
-is never asked for an ad. Outside the regions that require consent, UMP reports
-that none is needed and the whole flow is one no-op round trip.
+`canRequestAds` is decisive, but **it does not mean the user consented.** It
+means the consent-gathering flow has completed. A user who pressed *Do not
+consent* still returns true here, and the SDK then serves a **non-personalised**
+ad: chosen from context, with nothing stored on or read from the device. That is
+Google's design, and it is why a refusal does not end in an empty screen.
+
+Verified on device 2026-08-06: after refusing, `IABTCF_PurposeConsents` was all
+zeros and a banner still served. The code was correct; an earlier draft of the
+privacy policy was not, and claimed refusal meant no ads at all.
+
+Serving nothing to refusers was considered and rejected. It would have made
+declining consent a free way to remove ads, which is the subscription's main
+value — so the paid tier would have been pointless in exactly the region with
+the highest ARPU.
+
+If `canRequestAds` is false the banner stays hidden and the SDK is never asked
+for an ad. Outside the regions that require consent, UMP reports that none is
+needed and the whole flow is one no-op round trip.
 
 Nothing here runs before `runApp` — the same rule that the AdMob startup crash
 established. Consent is driven by the first banner mounting, so a fault in the
@@ -62,14 +77,27 @@ To actually see it, force the geography and register the device:
 
 ```powershell
 flutter build apk --release `
-  --dart-define=ADMOB_TEST_DEVICE_IDS=<device-id> `
+  --dart-define=UMP_TEST_DEVICE_IDS=<ump-hashed-id> `
   --dart-define=UMP_DEBUG_GEOGRAPHY=eea
 ```
 
-Find the device id in logcat on the first ad request — the Mobile Ads SDK logs
-a line naming the test device identifier to add. UMP **ignores debug geography
-unless the device is registered as a test identifier**, so both defines are
-required; supplying only the geography silently does nothing.
+**UMP's device identifier is not AdMob's.** They are different hashes of the
+same device and neither SDK accepts the other's value. This cost a build cycle
+on 2026-08-06: passing the AdMob id left UMP treating the device as ordinary,
+so it ignored the debug geography, correctly reported that a Turkish user needs
+no consent, and served a banner with no form and no error. The flow was working;
+the simulation was not.
+
+Read the right one from logcat on first launch:
+
+```
+UserMessagingPlatform: Use new ConsentDebugSettings.Builder()
+  .addTestDeviceHashedId("<use this>") to set this as a debug device.
+```
+
+Both defines are required — UMP ignores debug geography on a device it does not
+recognise. `ADMOB_TEST_DEVICE_IDS` is a separate concern: it makes AdMob serve
+test ads from the real unit so a release build can be tapped safely.
 
 `UMP_DEBUG_GEOGRAPHY` must never be set in a shipped build. Forcing EEA on real
 users would present a consent form to people whose local law does not call for
@@ -77,10 +105,10 @@ one, and would degrade their experience for no reason.
 
 ### What to verify on device
 
-- [ ] First launch in forced-EEA: the consent form appears before any banner.
+- [x] First launch in forced-EEA: the consent form appears before any banner.
 - [ ] Consenting: the banner loads on Home and Saved afterwards.
-- [ ] Refusing: no banner appears anywhere, and the app remains fully usable.
-- [ ] After refusing, Settings shows **Ad privacy options**.
+- [x] Refusing: a **non-personalised** banner still serves, and the app remains fully usable. Confirm `IABTCF_PurposeConsents` is all zeros in logcat.
+- [x] After refusing, Settings shows **Ad privacy options**.
 - [ ] Reopening it and consenting makes the banner appear without a restart.
 - [ ] Withdrawing consent hides the banner without a restart.
 - [ ] Airplane mode on first launch: the app starts, no crash, no banner.

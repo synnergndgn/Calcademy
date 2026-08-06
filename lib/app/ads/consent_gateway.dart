@@ -5,6 +5,10 @@ import 'package:google_mobile_ads/google_mobile_ads.dart';
 
 /// Whether Calcademy may request an ad, and whether the user must be offered a
 /// way to reopen their choice.
+///
+/// [canRequestAds] mirrors UMP's own meaning: the consent flow has completed,
+/// not that the user agreed. Someone who declined still returns true and gets a
+/// non-personalised ad. Do not read this field as "has consent".
 class ConsentState {
   const ConsentState({
     required this.canRequestAds,

@@ -99,7 +99,7 @@ sign-in.
 
 Calcademy displays banner advertisements through the **Google AdMob** SDK, on the Home and Saved screens only. To serve, measure, cap the frequency of, and prevent fraud in these ads, Google and its ad partners may process data such as advertising and device identifiers, IP address, coarse/derived location, and general device information under [Google's own policies](https://policies.google.com/privacy). This processing is performed by Google/AdMob, not by a Calcademy server; Calcademy does not receive your calculations or saved work through it.
 
-**Consent (Google UMP).** Calcademy asks for your advertising consent through Google's User Messaging Platform **before** requesting any ad. Where consent is required — for example in the EEA, the UK, and Switzerland — no ad is requested until you have been asked and have made a choice. If you decline, no banner is shown and the rest of the app continues to work exactly as before; nothing in Calcademy is withheld for refusing ads.
+**Consent (Google UMP).** Calcademy asks for your advertising consent through Google's User Messaging Platform **before** requesting any ad. Where consent is required — for example in the EEA, the UK, and Switzerland — no ad is requested until you have been asked and have made a choice. If you decline, Calcademy still shows banner ads, but they are **non-personalised**: they are chosen from the context rather than from a profile of you, and information is not stored on or read from your device for advertising. Nothing in Calcademy is withheld for refusing, and no feature is locked behind consent.
 
 Where local law does not require consent, Google reports that none is needed and no form is shown.
 
@@ -209,7 +209,7 @@ Saved eşitleme, analytics, crash-reporting, Gemini ve kamera/OCR yoktur.
 
 Google Play dahili testine dağıtılan **1.0.0 (sürüm 8)** yapısı, **Google AdMob** SDK’sı aracılığıyla yalnızca Ana Sayfa ve Kayıtlı ekranlarında banner reklam gösterir. Hesaplama, grafik, matris ve optimizasyon ekranlarında reklam yoktur. Google/AdMob; reklamların sunulması, ölçülmesi ve sahtekârlığın önlenmesi için reklam/cihaz tanımlayıcıları, IP adresi ve benzeri verileri kendi politikaları kapsamında işleyebilir.
 
-**Onay (Google UMP).** Calcademy, herhangi bir reklam istemeden **önce** Google'ın User Messaging Platform aracılığıyla reklam onayınızı sorar. Onay gereken bölgelerde (ör. AEA, Birleşik Krallık, İsviçre) siz bir seçim yapmadan hiçbir reklam istenmez. Reddederseniz banner gösterilmez ve uygulamanın geri kalanı aynen çalışır; reklamı reddettiğiniz için Calcademy'de hiçbir özellik kısıtlanmaz.
+**Onay (Google UMP).** Calcademy, herhangi bir reklam istemeden **önce** Google'ın User Messaging Platform aracılığıyla reklam onayınızı sorar. Onay gereken bölgelerde (ör. AEA, Birleşik Krallık, İsviçre) siz bir seçim yapmadan hiçbir reklam istenmez. Reddederseniz Calcademy banner reklam göstermeye devam eder, ancak bunlar **kişiselleştirilmemiş** olur: sizin profilinize göre değil, bulunduğunuz bağlama göre seçilir ve reklam amacıyla cihazınıza veri yazılmaz ya da cihazınızdan veri okunmaz. Reddettiğiniz için Calcademy'de hiçbir özellik kısıtlanmaz ve hiçbir işlev onayın arkasına kilitlenmez.
 
 Yerel mevzuatın onay gerektirmediği yerlerde Google onay gerekmediğini bildirir ve hiçbir form gösterilmez.
 

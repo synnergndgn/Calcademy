@@ -6,8 +6,13 @@ import 'package:flutter/foundation.dart';
 ///
 /// Google requires a UMP consent flow wherever EEA/UK rules apply, and the SDK
 /// must not request an ad until the user has been asked. So this runs ahead of
-/// [AdService]: no consent, no banner. Outside those regions UMP reports that
-/// consent is not required and the flow is a single no-op round trip.
+/// [AdService]: until the flow finishes, no banner. Outside those regions UMP
+/// reports that consent is not required and it is a single no-op round trip.
+///
+/// "Finished" is not "agreed". [ConsentState.canRequestAds] mirrors UMP's
+/// `canRequestAds`, which turns true once the user has answered either way —
+/// a decline still allows a non-personalised ad. Only an unfinished or
+/// unreadable state blocks.
 ///
 /// Shaped like [AdService] deliberately — one shared in-flight future, guarded
 /// by [AdConfig.adsEnabled] so it is inert in tests and on unsupported

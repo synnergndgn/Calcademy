@@ -154,9 +154,11 @@ yerel Saved kayıtları ve lokal Assistant hesapsız çalışır.
   Hesaplama, grafik, matris ve optimizasyon ekranları reklamsızdır. Aktif bir
   backend entitlement'ı bu banner'ları gizler.
 - **Reklam onayı (UMP):** Onay, herhangi bir reklam istenmeden önce toplanır.
-  `canRequestAds` false ise banner hiç istenmez ve SDK'ya dokunulmaz. Onay
-  gerekmeyen bölgelerde akış tek bir no-op turdur. Onay sorulan kullanıcılar
-  için Ayarlar'da tercihini değiştirebileceği bir giriş noktası bulunur.
+  Akış tamamlanmadan banner istenmez ve SDK'ya dokunulmaz. Onay gerekmeyen
+  bölgelerde akış tek bir no-op turdur. Onay sorulan kullanıcılar için
+  Ayarlar'da tercihini değiştirebileceği bir giriş noktası bulunur.
+  Reddeden kullanıcı **kişiselleştirilmemiş** reklam görür; cihazına reklam
+  amacıyla veri yazılmaz.
 
 Ayrıntı: [Premium mimarisi](docs/premium_architecture.md),
 [entitlement şeması](docs/supabase_entitlement_schema.md),
