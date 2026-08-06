@@ -72,6 +72,23 @@ which is why the custom domain matters here.
 4. In AdMob, click **Check for updates** and wait for Google to crawl and verify
    (can take up to ~24 hours, sometimes longer).
 
+### Verification cannot happen before the app is public
+
+AdMob finds the file by reading the **developer website** field from the app's
+public Play Store listing and crawling that domain. An app that exists only on
+a closed test track has no public listing, so there is nothing for the crawler
+to start from — and no amount of re-clicking **Check for updates** will change
+that.
+
+Confirmed 2026-08-06 while Calcademy was on closed testing. This is expected,
+not a misconfiguration, and it blocks nothing: the file is live and correct and
+simply waits. Verification becomes possible the day the app is published to
+production.
+
+The consequence of being unverified is lower eCPM, because some buyers will not
+bid on unauthorised inventory — which only matters once there is real traffic,
+so the timing works out.
+
 ## Publisher id in code
 
 `AdConfig.appAdsTxtPublisherId` is intentionally `null` — the real publisher line
