@@ -1,3 +1,5 @@
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:calcademy/app/premium/premium_surface.dart';
 import 'package:calcademy/app/app_metadata.dart';
 import 'package:calcademy/app/theme/app_spacing.dart';
 import 'package:calcademy/core/widgets/calcademy_logo.dart';
@@ -9,7 +11,7 @@ import 'package:url_launcher/url_launcher.dart';
 
 typedef ExternalUrlLauncher = Future<bool> Function(Uri uri);
 
-class AboutPage extends StatelessWidget {
+class AboutPage extends ConsumerWidget {
   const AboutPage({
     super.key,
     this.privacyPolicyUrl = AppMetadata.privacyPolicyUrl,
@@ -20,7 +22,7 @@ class AboutPage extends StatelessWidget {
   final ExternalUrlLauncher? externalUrlLauncher;
 
   @override
-  Widget build(BuildContext context) => Scaffold(
+  Widget build(BuildContext context, WidgetRef ref) => Scaffold(
     appBar: AppBar(title: Text(context.l10n.t('aboutLegal'))),
     body: ListView(
       key: const Key('about-legal-scroll'),
@@ -79,18 +81,24 @@ class AboutPage extends StatelessWidget {
                     ),
                   ),
                 ),
-                const SizedBox(height: AppSpacing.xl),
-                _AboutSection(
-                  sectionKey: const Key('about-ai-assistant-section'),
-                  title: context.l10n.t('aiAssistantTitle'),
-                  icon: Icons.auto_awesome_outlined,
-                  children: [
-                    Text(
-                      context.l10n.t('aiAssistantAboutNotice'),
-                      style: Theme.of(context).textTheme.bodyLarge,
-                    ),
-                  ],
-                ),
+                // Hidden in the ad-supported build alongside every other
+                // account and Premium surface. Describing an assistant the
+                // user has no way to open is the same dead end as showing a
+                // button for it.
+                if (ref.watch(premiumSurfaceEnabledProvider)) ...[
+                  const SizedBox(height: AppSpacing.xl),
+                  _AboutSection(
+                    sectionKey: const Key('about-ai-assistant-section'),
+                    title: context.l10n.t('aiAssistantTitle'),
+                    icon: Icons.auto_awesome_outlined,
+                    children: [
+                      Text(
+                        context.l10n.t('aiAssistantAboutNotice'),
+                        style: Theme.of(context).textTheme.bodyLarge,
+                      ),
+                    ],
+                  ),
+                ],
                 const SizedBox(height: AppSpacing.xl),
                 _AboutSection(
                   sectionKey: const Key('about-privacy-section'),

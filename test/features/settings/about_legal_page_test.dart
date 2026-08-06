@@ -1,3 +1,4 @@
+import 'package:calcademy/app/premium/premium_surface.dart';
 import 'dart:io';
 
 import 'package:calcademy/app/app_metadata.dart';
@@ -144,7 +145,10 @@ void main() {
 
     await tester.pumpWidget(
       ProviderScope(
-        overrides: [sharedPreferencesProvider.overrideWithValue(preferences)],
+        overrides: [
+          sharedPreferencesProvider.overrideWithValue(preferences),
+          premiumSurfaceEnabledProvider.overrideWithValue(true),
+        ],
         child: _app(routerConfig: router),
       ),
     );
@@ -198,6 +202,20 @@ void main() {
       greaterThan(theme.colorScheme.surface.computeLuminance()),
     );
     expect(tester.takeException(), isNull);
+  });
+
+  testWidgets('the ad-supported build hides the assistant section', (
+    tester,
+  ) async {
+    // The assistant is compiled out of that build, so describing it here would
+    // be the same dead end as offering a button for it.
+    await _pumpAbout(tester, premiumSurface: false);
+
+    expect(find.byKey(const Key('about-ai-assistant-section')), findsNothing);
+    expect(find.text('Ask Calcademy'), findsNothing);
+    // Everything else about the page survives.
+    expect(find.text('Privacy & data handling'), findsOneWidget);
+    expect(find.byKey(const Key('open-privacy-policy-action')), findsOneWidget);
   });
 
   test('About & Legal localization keys have English and Turkish parity', () {
@@ -347,8 +365,18 @@ Future<void> _pumpAbout(
   WidgetTester tester, {
   bool dark = false,
   Widget page = const AboutPage(),
+  bool premiumSurface = true,
 }) async {
-  await tester.pumpWidget(_app(home: page, dark: dark));
+  // About reads the surface gate, so it needs a scope. Most cases exercise the
+  // configured product; free_build_surface coverage lives below.
+  await tester.pumpWidget(
+    ProviderScope(
+      overrides: [
+        premiumSurfaceEnabledProvider.overrideWithValue(premiumSurface),
+      ],
+      child: _app(home: page, dark: dark),
+    ),
+  );
   await tester.pumpAndSettle();
 }
 
