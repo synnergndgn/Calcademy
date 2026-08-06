@@ -43,19 +43,31 @@ disable demand for the app.
    It must be at the **root**, served over HTTPS, and returned as
    `text/plain` with HTTP 200.
 
-### Hosting on GitHub Pages
+### Where it goes
 
-If the developer site is served from GitHub Pages (as the privacy policy is, at
-`https://synnergndgn.github.io/Calcademy/…`), note that `app-ads.txt` must sit at
-the **domain root**, not under a project subpath:
+The developer domain is **`gundev.dev`**, so the file must resolve at:
 
-- A **user/organization Pages site** (`https://<user>.github.io/`) serves the
-  repository `<user>.github.io` at the root — place `app-ads.txt` in that
-  repository's root so it resolves at `https://<user>.github.io/app-ads.txt`.
-- A **project Pages site** (`https://<user>.github.io/Calcademy/`) is a subpath
-  and cannot host a root `app-ads.txt`; the developer-website domain in Play must
-  be the root domain that actually serves the file.
-- If a custom domain is used, add the file to whatever hosts that domain's root.
+```
+https://gundev.dev/app-ads.txt
+```
+
+with exactly this content:
+
+```
+google.com, pub-5164539069315402, DIRECT, f08c47fec0942fa0
+```
+
+The same string is in `AdConfig.appAdsTxtLine`, and a test asserts the publisher
+id is the same account as the app id this build ships. That check exists because
+a well-formed id from the *wrong* account is the failure that looks correct: the
+file publishes, the crawler accepts it, and it authorises someone else's
+inventory while this app stays unauthorised.
+
+The Play Console **developer website** field must be `https://gundev.dev` — the
+crawler derives the file location from it, so a mismatch means the file is never
+found. Note that a project subpath (for example
+`https://<user>.github.io/Calcademy/`) can never host a root `app-ads.txt`,
+which is why the custom domain matters here.
 
 4. In AdMob, click **Check for updates** and wait for Google to crawl and verify
    (can take up to ~24 hours, sometimes longer).

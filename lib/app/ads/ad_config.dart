@@ -30,10 +30,26 @@ abstract final class AdConfig {
   /// https://developers.google.com/admob/flutter/test-ads
   static const testBannerAdUnitId = 'ca-app-pub-3940256099942544/6300978111';
 
-  /// Publisher id used by `app-ads.txt`. The real value must be copied from the
-  /// AdMob console; it is intentionally left `null` so no fabricated id ever
-  /// ships. See `docs/app_ads_txt_setup.md`.
-  static const String? appAdsTxtPublisherId = null;
+  /// Publisher id used by `app-ads.txt`, copied from the AdMob console. It is
+  /// the same publisher segment as [androidAppId], which is what
+  /// [isValidAppAdsTxtPublisherId] checks — a mismatch between the file and the
+  /// app would make the authorisation useless while looking correct.
+  ///
+  /// The file itself lives on the developer domain, not in this repository:
+  /// `https://gundev.dev/app-ads.txt`. See `docs/app_ads_txt_setup.md`.
+  static const appAdsTxtPublisherId = 'pub-5164539069315402';
+
+  /// The exact line that must be served at the developer domain's root.
+  static String get appAdsTxtLine =>
+      'google.com, $appAdsTxtPublisherId, DIRECT, f08c47fec0942fa0';
+
+  /// Whether the declared publisher id belongs to the same AdMob account as the
+  /// app id this build ships.
+  static bool isValidAppAdsTxtPublisherId() =>
+      _publisherIdPattern.hasMatch(appAdsTxtPublisherId) &&
+      androidAppId.startsWith('ca-app-$appAdsTxtPublisherId~');
+
+  static final _publisherIdPattern = RegExp(r'^pub-\d{16}$');
 
   /// Comma-separated AdMob test device ids, supplied at build time:
   ///

@@ -72,8 +72,12 @@ void main() {
     () async {
       final doc = await File('docs/app_ads_txt_setup.md').readAsString();
       expect(doc, contains('app-ads.txt'));
-      // No fabricated authorization line: the real pub id stays a manual step.
-      expect(AdConfig.appAdsTxtPublisherId, isNull);
+      // The id is no longer a manual TODO, so the guard checks that the
+      // documented line and the shipped id agree rather than that both are
+      // absent. Publishing a line that disagrees with the build is the failure
+      // this protects against.
+      expect(AdConfig.isValidAppAdsTxtPublisherId(), isTrue);
+      expect(doc, contains(AdConfig.appAdsTxtLine));
     },
   );
 
