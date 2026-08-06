@@ -35,7 +35,7 @@ abstract final class AppMetadata {
   // who never update.
   static const String privacyPolicyUrl =
       'https://gundev.dev/gizlilik/calcademy';
-  static const privacyPolicyEffectiveDate = '2026-08-03';
+  static const privacyPolicyEffectiveDate = '2026-08-06';
 
   static Uri? get privacyPolicyUri => parsePublicHttpsUrl(privacyPolicyUrl);
 
