@@ -7,6 +7,7 @@ import 'package:calcademy/core/widgets/empty_state.dart';
 import 'package:calcademy/core/widgets/section_header.dart';
 import 'package:calcademy/features/history/domain/calculation_record.dart';
 import 'package:calcademy/features/history/presentation/history_controller.dart';
+import 'package:calcademy/app/premium/premium_surface.dart';
 import 'package:calcademy/features/home/models/academy_module.dart';
 import 'package:calcademy/features/home/presentation/widgets/professional_module_card.dart';
 import 'package:calcademy/features/settings/presentation/settings_controller.dart';
@@ -36,7 +37,9 @@ class _HomePageState extends ConsumerState<HomePage> {
   Widget build(BuildContext context) {
     final recent = ref.watch(historyProvider).take(3).toList(growable: false);
     final query = _searchController.text.trim().toLowerCase();
-    final matchingModules = academyModules
+    final premiumSurface = ref.watch(premiumSurfaceEnabledProvider);
+    final modules = visibleAcademyModules(premiumSurface: premiumSurface);
+    final matchingModules = modules
         .where(
           (module) =>
               _matches(module, query) &&
@@ -52,8 +55,10 @@ class _HomePageState extends ConsumerState<HomePage> {
         .toList();
     final hasResults = matchingModules.isNotEmpty;
     final quickAccess = [
-      for (final id in quickAccessModuleIds)
-        academyModules.firstWhere((module) => module.id == id),
+      for (final id in visibleQuickAccessModuleIds(
+        premiumSurface: premiumSurface,
+      ))
+        modules.firstWhere((module) => module.id == id),
     ];
 
     return Scaffold(

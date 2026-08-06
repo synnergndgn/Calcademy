@@ -1,3 +1,4 @@
+import 'package:calcademy/app/premium/premium_surface.dart';
 import 'package:calcademy/app/theme/app_theme.dart';
 import 'package:calcademy/core/services/preferences.dart';
 import 'package:calcademy/features/home/presentation/home_page.dart';
@@ -223,7 +224,12 @@ void main() {
     addTearDown(router.dispose);
     await tester.pumpWidget(
       ProviderScope(
-        overrides: [sharedPreferencesProvider.overrideWithValue(preferences)],
+        overrides: [
+          sharedPreferencesProvider.overrideWithValue(preferences),
+          // Home is exercised here as the full product surface; the
+          // ad-supported build is covered in free_build_surface_test.
+          premiumSurfaceEnabledProvider.overrideWithValue(true),
+        ],
         child: _app(routerConfig: router),
       ),
     );
@@ -281,7 +287,12 @@ Future<void> _pumpHome(WidgetTester tester, {bool dark = false}) async {
   final preferences = await SharedPreferences.getInstance();
   await tester.pumpWidget(
     ProviderScope(
-      overrides: [sharedPreferencesProvider.overrideWithValue(preferences)],
+      overrides: [
+        sharedPreferencesProvider.overrideWithValue(preferences),
+        // Home is exercised here as the full product surface; the
+        // ad-supported build is covered in free_build_surface_test.
+        premiumSurfaceEnabledProvider.overrideWithValue(true),
+      ],
       child: _app(home: const HomePage(), dark: dark),
     ),
   );

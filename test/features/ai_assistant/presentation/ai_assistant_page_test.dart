@@ -1,3 +1,4 @@
+import 'package:calcademy/app/premium/premium_surface.dart';
 import 'package:calcademy/app/ads/ad_banner.dart';
 import 'package:calcademy/app/premium/entitlement_repository.dart';
 import 'package:calcademy/app/premium/local_entitlement_repository.dart';
@@ -268,6 +269,8 @@ Future<void> _pumpPage(
     ProviderScope(
       overrides: [
         sharedPreferencesProvider.overrideWithValue(preferences),
+        // The assistant only exists in a Supabase-configured build.
+        premiumSurfaceEnabledProvider.overrideWithValue(true),
         if (entitlementRepository != null)
           entitlementRepositoryProvider.overrideWithValue(
             entitlementRepository,

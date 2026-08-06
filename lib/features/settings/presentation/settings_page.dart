@@ -1,3 +1,4 @@
+import 'package:calcademy/app/premium/premium_surface.dart';
 import 'package:calcademy/features/history/presentation/history_controller.dart';
 import 'package:calcademy/features/saved/presentation/saved_controller.dart';
 import 'package:calcademy/features/settings/domain/app_settings.dart';
@@ -14,6 +15,7 @@ class SettingsPage extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final settings = ref.watch(settingsProvider);
     final controller = ref.read(settingsProvider.notifier);
+    final premiumSurface = ref.watch(premiumSurfaceEnabledProvider);
     return Scaffold(
       appBar: AppBar(title: Text(context.l10n.t('settings'))),
       body: ListView(
@@ -114,22 +116,24 @@ class SettingsPage extends ConsumerWidget {
           Card(
             child: Column(
               children: [
-                ListTile(
-                  key: const Key('settings-account-tile'),
-                  leading: const Icon(Icons.account_circle_outlined),
-                  title: Text(context.l10n.t('account')),
-                  subtitle: Text(context.l10n.t('coreToolsNoAccount')),
-                  trailing: const Icon(Icons.chevron_right_rounded),
-                  onTap: () => context.push('/account'),
-                ),
-                ListTile(
-                  key: const Key('settings-premium-tile'),
-                  leading: const Icon(Icons.workspace_premium_outlined),
-                  title: Text(context.l10n.t('calcademyPremium')),
-                  subtitle: Text(context.l10n.t('freePlan')),
-                  trailing: const Icon(Icons.chevron_right_rounded),
-                  onTap: () => context.push('/premium'),
-                ),
+                if (premiumSurface) ...[
+                  ListTile(
+                    key: const Key('settings-account-tile'),
+                    leading: const Icon(Icons.account_circle_outlined),
+                    title: Text(context.l10n.t('account')),
+                    subtitle: Text(context.l10n.t('coreToolsNoAccount')),
+                    trailing: const Icon(Icons.chevron_right_rounded),
+                    onTap: () => context.push('/account'),
+                  ),
+                  ListTile(
+                    key: const Key('settings-premium-tile'),
+                    leading: const Icon(Icons.workspace_premium_outlined),
+                    title: Text(context.l10n.t('calcademyPremium')),
+                    subtitle: Text(context.l10n.t('freePlan')),
+                    trailing: const Icon(Icons.chevron_right_rounded),
+                    onTap: () => context.push('/premium'),
+                  ),
+                ],
                 ListTile(
                   leading: const Icon(Icons.delete_sweep_outlined),
                   title: Text(context.l10n.t('clearHistory')),
