@@ -59,6 +59,50 @@ Android settings, not by Calcademy, so the app cannot delete them on request.
 Answer the deletion question about **Calcademy's own** collection, not Google's.
 Do not claim an account-deletion mechanism: there are no accounts here.
 
+### Submitted answers — 2026-08-06
+
+Recorded because the next release re-opens this form, and reconstructing why an
+answer was chosen is harder than writing it down once.
+
+**Device or other IDs** — the only data type declared.
+
+| Field | Answer |
+| --- | --- |
+| Collected | Yes |
+| Shared | Yes |
+| Processed ephemerally | No |
+| Required or optional | **Required** |
+| Purposes (collection) | Advertising or marketing; Fraud prevention, security, and compliance |
+| Purposes (sharing) | Advertising or marketing |
+
+Every other data type: not collected, not shared.
+
+**Why "required" rather than "users can choose".** The UMP prompt appears only
+where consent law applies, and the Settings privacy-options row follows the same
+rule — so most users have no in-app way to switch this off. Declaring it
+optional would print "optional" on the store listing for every user, including
+the ones who are never offered the choice. It understates an EEA user's control,
+who does get a real prompt, but overstating control for everyone else is the
+worse error.
+
+**Why fraud prevention is a collection purpose but not a sharing purpose.** The
+privacy policy already tells users that Google processes this data to serve,
+measure, cap the frequency of, **and prevent fraud in** these ads; omitting it
+here would put the two declarations in conflict. Sharing with ad partners,
+though, is for serving and measurement — invalid-traffic detection is Google's
+own processing, not an onward transfer.
+
+**Not declared, and why:** app functionality (the ad ID is not needed by any
+Calcademy feature), analytics (no SDK), personalisation (that field means
+personalising *app content*, not ads), account management (no accounts in this
+build).
+
+**Account questions.** Users cannot sign in with externally created accounts:
+No. A way to request data deletion: No — Calcademy holds nothing server-side in
+this build, so there is nothing to request deletion of. That is not a withheld
+right; it becomes Yes when the account build ships and `delete-account` is the
+mechanism.
+
 ### Before submitting
 
 - [ ] Answers describe build 20, not the repository.
