@@ -260,11 +260,11 @@ void main() {
     expect(AppMetadata.buildNumber, 20);
     expect(
       AppMetadata.privacyPolicyUrl,
-      'https://synnergndgn.github.io/Calcademy/privacy_policy',
+      'https://gundev.dev/gizlilik/calcademy',
     );
     expect(
       AppMetadata.privacyPolicyUri,
-      Uri.parse('https://synnergndgn.github.io/Calcademy/privacy_policy'),
+      Uri.parse('https://gundev.dev/gizlilik/calcademy'),
     );
     expect(AppMetadata.parsePublicHttpsUrl(null), isNull);
     expect(AppMetadata.parsePublicHttpsUrl(''), isNull);

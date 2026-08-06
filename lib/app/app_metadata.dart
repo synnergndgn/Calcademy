@@ -29,8 +29,12 @@ abstract final class AppMetadata {
   // Null values intentionally keep external actions hidden from the UI.
   static const String? contactEmail = null;
   static const String? repositoryUrl = null;
+  // Moved from GitHub Pages to the developer domain in 1.8.0. The old address
+  // must keep resolving: build 8 is on the closed track with that URL compiled
+  // in, and a store-declared policy link that 404s is a live problem for users
+  // who never update.
   static const String privacyPolicyUrl =
-      'https://synnergndgn.github.io/Calcademy/privacy_policy';
+      'https://gundev.dev/gizlilik/calcademy';
   static const privacyPolicyEffectiveDate = '2026-08-03';
 
   static Uri? get privacyPolicyUri => parsePublicHttpsUrl(privacyPolicyUrl);

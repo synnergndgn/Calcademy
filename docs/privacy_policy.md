@@ -32,7 +32,9 @@
 
 **Contact email:** `calcademyapp@gmail.com`
 
-**Public policy URL:** `https://synnergndgn.github.io/Calcademy/privacy_policy`
+**Public policy URL:** `https://gundev.dev/gizlilik/calcademy`
+
+The earlier address `https://synnergndgn.github.io/Calcademy/privacy_policy` still resolves and must keep doing so: Calcademy 1.0.0 (build 8) is on the closed track with that URL compiled in, and a store-declared policy link that stops working is a live problem for users who never update. The two pages are published independently — this repository's copy renders through GitHub Pages, the developer-domain copy is updated by hand — so both must be revised together whenever this document changes.
 
 **Jurisdiction/legal address:** `Nilüfer/Bursa Türkiye`
 

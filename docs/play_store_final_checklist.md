@@ -91,7 +91,7 @@ The repository now contains legacy fallback plus adaptive foreground/background 
 
 - [ ] Developer account type and verified publisher name are final.
 - [ ] Public support email and website are available.
-- [x] Privacy policy is published through GitHub Pages at `https://synnergndgn.github.io/Calcademy/privacy_policy` and linked from About & Legal.
+- [x] Privacy policy is published at `https://gundev.dev/gizlilik/calcademy` and linked from About & Legal. The GitHub Pages copy at `https://synnergndgn.github.io/Calcademy/privacy_policy` stays live for build 8, which has that URL compiled in. **Both must be updated together** — the developer-domain copy is manual and will otherwise drift.
 - [ ] Data Safety, App Content, financial-features, content-rating, and target-audience answers were reviewed against the exact final AAB and every included SDK.
 - [ ] Ads declaration is **Yes** — the build contains a Google AdMob banner; update Data Safety and privacy policy accordingly and publish `app-ads.txt`.
 - [ ] No account-access or reviewer credentials are required.
