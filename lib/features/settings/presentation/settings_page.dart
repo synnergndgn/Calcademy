@@ -1,3 +1,4 @@
+import 'package:calcademy/app/ads/consent_providers.dart';
 import 'package:calcademy/app/premium/premium_surface.dart';
 import 'package:calcademy/features/history/presentation/history_controller.dart';
 import 'package:calcademy/features/saved/presentation/saved_controller.dart';
@@ -134,6 +135,20 @@ class SettingsPage extends ConsumerWidget {
                     onTap: () => context.push('/premium'),
                   ),
                 ],
+                // Required alongside a consent flow: users who were asked must
+                // be able to reopen the choice. UMP reports when that applies,
+                // so this stays hidden where no consent was ever gathered.
+                if (ref.watch(adConsentStateProvider).privacyOptionsRequired)
+                  ListTile(
+                    key: const Key('settings-privacy-options-tile'),
+                    leading: const Icon(Icons.privacy_tip_outlined),
+                    title: Text(context.l10n.t('adPrivacyOptions')),
+                    subtitle: Text(context.l10n.t('adPrivacyOptionsSubtitle')),
+                    trailing: const Icon(Icons.chevron_right_rounded),
+                    onTap: () => ref
+                        .read(adConsentStateProvider.notifier)
+                        .showPrivacyOptions(),
+                  ),
                 ListTile(
                   leading: const Icon(Icons.delete_sweep_outlined),
                   title: Text(context.l10n.t('clearHistory')),

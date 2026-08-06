@@ -12,7 +12,7 @@
 |---|---|
 | Ads SDK | `google_mobile_ads` 9.0.0 |
 | Banner | Home + Saved only |
-| Consent (UMP) | **not implemented** — blocks EEA/UK ad delivery |
+| Consent (UMP) | Implemented; gathered before any ad request. AdMob console message still needs publishing |
 | Play "Contains ads" | Yes (draft only) |
 | Billing | `in_app_purchase` 3.3.0; `calcademy_premium_monthly` planned |
 | Merchant account | **not created** — blocks product creation and sandbox purchase |
@@ -76,12 +76,17 @@ leave `WorkManager.getInstance()` throwing `IllegalStateException` later — it
 relocates the crash from startup to ad-load rather than removing it. Kept as a
 documented fallback only if the dependency fix proves insufficient.
 
-## Consent (UMP) — deliberately deferred
+## Consent (UMP) — deferred then implemented
 
-`user-messaging-platform:4.0.0` ships as a native transitive dependency
-regardless, but **no Dart-side UMP call is made this sprint**. The goal is to
-isolate one variable: AdMob SDK startup stability. Consent must be implemented
-before any EEA/UK release, and before the Play data declarations below go live.
+The AdMob retry sprint deliberately made no Dart-side UMP call, to isolate one
+variable: SDK startup stability. Consent landed in its own later sprint and now
+runs before any ad request, with a privacy-options entry point in Settings. See
+[`ump_consent.md`](ump_consent.md).
+
+One item is not code and remains open: a GDPR message must be authored and
+**published** in the AdMob console. Without it there is nothing for the flow to
+show, users in consent regions are never asked, and the fail-closed design
+means no ads and no revenue in exactly the regions this work was meant to open.
 
 ## Placement guardrails
 
@@ -116,14 +121,14 @@ work and are repeated in the checklist that follows.
       Calculator stays ad-free.
 - [x] `flutter analyze` clean and `flutter test` 517/517 green.
 - [ ] Play Console declarations and policy docs updated together with the merge.
-- [ ] UMP consent implemented (required before any EEA/UK release).
+- [x] UMP consent implemented (required before any EEA/UK release).
 
 The startup crash is **fixed and verified on device**. The remaining gates are
 release-process items, not stability items.
 
 ## Remaining release work before an ad-supported launch
 
-- [ ] Implement UMP consent and a privacy-options entry point.
+- [x] Implement UMP consent and a privacy-options entry point.
 - [ ] Publish and validate `app-ads.txt` on the verified developer domain
       (`docs/app_ads_txt_setup.md`); the publisher id is still `null` in code.
 - [ ] Redo the Data Safety form against the exact SDK/version and mediation

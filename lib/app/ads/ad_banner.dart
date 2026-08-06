@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:calcademy/app/ads/ad_config.dart';
 import 'package:calcademy/app/ads/ad_service.dart';
+import 'package:calcademy/app/ads/consent_service.dart';
 import 'package:calcademy/app/premium/premium_feature.dart';
 import 'package:calcademy/app/premium/premium_gate_controller.dart';
 import 'package:flutter/material.dart';
@@ -41,10 +42,21 @@ class _AdBannerState extends ConsumerState<AdBanner> {
 
   bool get _enabled => widget.enabled ?? AdConfig.adsEnabled;
 
-  /// Fully guarded: SDK init and ad load can each fail without ever throwing
-  /// out of here or affecting the widget tree beyond staying hidden.
+  /// Fully guarded: consent, SDK init, and ad load can each fail without ever
+  /// throwing out of here or affecting the widget tree beyond staying hidden.
+  ///
+  /// Consent comes first: where EEA/UK rules apply the SDK must not request an
+  /// ad before the user has been asked. Elsewhere UMP reports that consent is
+  /// not required and this is a single no-op round trip.
+  ///
+  /// `canRequestAds` means "the consent flow finished", **not** "the user
+  /// agreed". A user who declined still passes here and receives a
+  /// non-personalised ad, which is Google's design. Only an unfinished or
+  /// unreadable consent state keeps the banner hidden.
   Future<void> _prepareAndLoad() async {
     try {
+      final consent = await AdConsentService.ensureConsent();
+      if (!consent.canRequestAds || !mounted) return;
       final ready = await AdService.ensureInitialized();
       if (!ready || !mounted) return;
       _load();

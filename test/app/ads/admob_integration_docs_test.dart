@@ -97,13 +97,23 @@ void main() {
     expect(AppMetadata.cloudSyncStatus, 'not-included');
   });
 
-  test('privacy policy does not claim consent is already active', () async {
+  test('privacy policy describes the consent flow that now exists', () async {
     final policy = await File('docs/privacy_policy.md').readAsString();
 
-    // UMP is out of scope for this sprint. Publishing a policy that implies a
-    // live consent flow would be a false statement to users and reviewers.
-    expect(policy, contains('Consent is not yet implemented in this build'));
+    // This guard used to assert the opposite: while UMP was unimplemented, a
+    // policy implying a live consent flow would have been a false statement.
+    // Now the false statement runs the other way, and a stale "not
+    // implemented" line would understate what the app actually does.
+    expect(
+      policy,
+      isNot(contains('Consent is not yet implemented in this build')),
+    );
     expect(policy, contains('User Messaging Platform'));
+    expect(policy, contains('before'));
+    // Both languages must describe the privacy options entry point, since a
+    // user can only exercise a right they are told about.
+    expect(policy, contains('Ad privacy options'));
+    expect(policy, contains('Reklam gizlilik seçenekleri'));
   });
 
   test('data safety declares collection and sharing, not "no data"', () async {
