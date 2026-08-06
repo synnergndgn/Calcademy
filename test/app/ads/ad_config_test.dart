@@ -39,7 +39,12 @@ void main() {
   });
 
   test('no app-ads.txt publisher id is fabricated in source', () {
-    // Must stay null until the real value is copied from the AdMob console.
-    expect(AdConfig.appAdsTxtPublisherId, isNull);
+    // This guard used to require null, because the real value had not been
+    // copied from the AdMob console yet. Now that it has, "not fabricated"
+    // means something stronger and checkable: the id must be the same AdMob
+    // account as the app id this build ships. A well-formed id from another
+    // account would publish, crawl, and verify while authorising the wrong
+    // inventory.
+    expect(AdConfig.isValidAppAdsTxtPublisherId(), isTrue);
   });
 }

@@ -106,13 +106,16 @@ one, and would degrade their experience for no reason.
 ### What to verify on device
 
 - [x] First launch in forced-EEA: the consent form appears before any banner.
-- [ ] Consenting: the banner loads on Home and Saved afterwards.
+- [x] Consenting: the banner loads on Home and Saved afterwards.
 - [x] Refusing: a **non-personalised** banner still serves, and the app remains fully usable. Confirm `IABTCF_PurposeConsents` is all zeros in logcat.
 - [x] After refusing, Settings shows **Ad privacy options**.
-- [ ] Reopening it and consenting makes the banner appear without a restart.
-- [ ] Withdrawing consent hides the banner without a restart.
-- [ ] Airplane mode on first launch: the app starts, no crash, no banner.
-- [ ] Without the debug defines, in Türkiye: no form, banner behaves as before.
+- [x] Reopening it and changing the answer takes effect without a restart
+      (`IABTCF_PurposeConsents` went `00000000000` → `11111111111`).
+- [x] Withdrawing consent switches the banner to non-personalised without a
+      restart. It does **not** hide it — see the `canRequestAds` note above.
+- [x] Airplane mode on first launch: the app starts, no crash, cached form,
+      no banner.
+- [x] Without the debug defines, in Türkiye: no form, banner behaves as before.
 
 Consent state is cached by UMP across launches. To re-test the first-run
 experience, clear app storage — reinstalling alone may not reset it.
@@ -127,15 +130,17 @@ meaning no ads and no revenue in those regions.
 
 Verify before release:
 
-- [ ] A GDPR message exists and is **published** for `com.aligundogan.calcademy`.
-- [ ] Its targeted regions cover the EEA, the UK, and Switzerland.
-- [ ] The privacy policy URL in the message matches the published policy.
+- [x] A GDPR message exists and is **published** for `com.aligundogan.calcademy`.
+- [x] Its targeted regions cover the EEA, the UK, and Switzerland.
+- [x] The privacy policy URL in the message matches the published policy.
 - [ ] If applicable, a US states message is configured as well.
 
 ## What this does not cover
 
-- **`app-ads.txt`.** Still unpublished, and the publisher id in `AdConfig` is
-  still `null`. Separate from consent; see `app_ads_txt_setup.md`.
+- **`app-ads.txt`.** Now published at `https://gundev.dev/app-ads.txt` with the
+  publisher id set in `AdConfig`. It cannot be *verified* until the app has a
+  public Play listing, which is a property of the release stage rather than of
+  this work; see `app_ads_txt_setup.md`.
 - **Data Safety.** Consent changes how ad identifiers are processed but not
   whether they are collected, so the existing AdMob declaration still applies.
   Re-check it against the shipped SDK version regardless.

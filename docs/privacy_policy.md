@@ -24,15 +24,17 @@
 > by a server-side Edge Function, and the public deletion page source is in
 > `docs/`. The older internal-test status below remains release history.
 
-**Status:** Current for Calcademy **1.0.0 (build 8)**, the build distributed through Google Play **internal testing**. This build displays banner advertisements through the Google AdMob SDK. A Google UMP consent flow now runs before any ad is requested; see “Advertising (Google AdMob)” below.
+**Status:** Current for Calcademy **1.8.0 (build 20)**. This build displays banner advertisements through the Google AdMob SDK and asks for advertising consent through Google UMP before requesting any ad; see “Advertising (Google AdMob)” below.
 
 **Developer/publisher name:** `Ali Gündoğan`
 
-**Effective date:** `2026-08-03`
+**Effective date:** `2026-08-06`
 
 **Contact email:** `calcademyapp@gmail.com`
 
-**Public policy URL:** `https://synnergndgn.github.io/Calcademy/privacy_policy`
+**Public policy URL:** `https://gundev.dev/gizlilik/calcademy`
+
+The earlier address `https://synnergndgn.github.io/Calcademy/privacy_policy` still resolves and must keep doing so: Calcademy 1.0.0 (build 8) is on the closed track with that URL compiled in, and a store-declared policy link that stops working is a live problem for users who never update. The two pages are published independently — this repository's copy renders through GitHub Pages, the developer-domain copy is updated by hand — so both must be revised together whenever this document changes.
 
 **Jurisdiction/legal address:** `Nilüfer/Bursa Türkiye`
 
@@ -42,6 +44,7 @@ The publisher, contact, effective-date, and jurisdiction details must be reverif
 
 | Version | Distribution | Advertising |
 |---|---|---|
+| 1.8.0 (build 20) | Play closed testing | Google AdMob banner on Home and Saved, gated behind a UMP consent flow; no account, subscription, or assistant surface in this build |
 | 1.7.0 (build 18) | Entitlement backend foundation / pre-production | Google AdMob banner on Home and Saved; optional Supabase account and entitlement records; Google validation and production subscription sales still disabled |
 | 1.6.0 (build 16) | Play Billing foundation / internal testing | Google AdMob banner on Home and Saved; optional Supabase email auth; Google Play subscription testing with backend entitlement validation still pending |
 | 1.5.0 (build 14) | Staging Auth / pre-production | Google AdMob banner on Home and Saved; optional Supabase email auth and authenticated account deletion when configured |
@@ -55,7 +58,7 @@ Advertising applies to the build described above. Calculation, graph, matrix, an
 
 Calcademy includes a localized **About & Legal** screen with an on-device summary of current data handling, local storage, the Google AdMob disclosure, educational use, and the financial disclaimer. It is reachable from Home and Settings and provides an external-browser action for the public policy URL.
 
-The local summary remains available alongside the public policy link. The production Android manifest for build 8 requests the `INTERNET` and `ACCESS_NETWORK_STATE` permissions, which the Google AdMob SDK requires to fetch banner ads.
+The local summary remains available alongside the public policy link. The production Android manifest for build 20 requests the `INTERNET` and `ACCESS_NETWORK_STATE` permissions, which the Google AdMob SDK requires to fetch banner ads.
 
 ## What Calcademy does
 

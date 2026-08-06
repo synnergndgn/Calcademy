@@ -256,15 +256,15 @@ void main() {
     expect(AppMetadata.adsStatus, 'admob-banner');
     expect(AppMetadata.analyticsStatus, 'not-included');
     expect(AppMetadata.cloudSyncStatus, 'not-included');
-    expect(AppMetadata.versionName, '1.7.0');
-    expect(AppMetadata.buildNumber, 18);
+    expect(AppMetadata.versionName, '1.8.0');
+    expect(AppMetadata.buildNumber, 20);
     expect(
       AppMetadata.privacyPolicyUrl,
-      'https://synnergndgn.github.io/Calcademy/privacy_policy',
+      'https://gundev.dev/gizlilik/calcademy',
     );
     expect(
       AppMetadata.privacyPolicyUri,
-      Uri.parse('https://synnergndgn.github.io/Calcademy/privacy_policy'),
+      Uri.parse('https://gundev.dev/gizlilik/calcademy'),
     );
     expect(AppMetadata.parsePublicHttpsUrl(null), isNull);
     expect(AppMetadata.parsePublicHttpsUrl(''), isNull);
@@ -279,7 +279,7 @@ void main() {
     );
     expect(AppMetadata.contactEmail, isNull);
     expect(AppMetadata.repositoryUrl, isNull);
-    expect(AppMetadata.privacyPolicyEffectiveDate, '2026-08-03');
+    expect(AppMetadata.privacyPolicyEffectiveDate, '2026-08-06');
   });
 
   test(

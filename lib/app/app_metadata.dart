@@ -3,8 +3,8 @@ abstract final class AppMetadata {
   static const name = appName;
   static const applicationId = 'com.aligundogan.calcademy';
   static const publisherName = 'Ali Gündoğan';
-  static const versionName = '1.7.0';
-  static const buildNumber = 18;
+  static const versionName = '1.8.0';
+  static const buildNumber = 20;
   static const versionCode = buildNumber;
   static const tagline = 'Calculate. Visualize. Optimize. Learn.';
   static const shortDescription =
@@ -29,9 +29,13 @@ abstract final class AppMetadata {
   // Null values intentionally keep external actions hidden from the UI.
   static const String? contactEmail = null;
   static const String? repositoryUrl = null;
+  // Moved from GitHub Pages to the developer domain in 1.8.0. The old address
+  // must keep resolving: build 8 is on the closed track with that URL compiled
+  // in, and a store-declared policy link that 404s is a live problem for users
+  // who never update.
   static const String privacyPolicyUrl =
-      'https://synnergndgn.github.io/Calcademy/privacy_policy';
-  static const privacyPolicyEffectiveDate = '2026-08-03';
+      'https://gundev.dev/gizlilik/calcademy';
+  static const privacyPolicyEffectiveDate = '2026-08-06';
 
   static Uri? get privacyPolicyUri => parsePublicHttpsUrl(privacyPolicyUrl);
 

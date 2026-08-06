@@ -121,7 +121,7 @@ flutter run
 
 ## Test ve kalite kapısı
 
-Unit testler domain servislerini, solver sonuçlarını, validation ve kayıt adapter’larını; widget testleri navigasyon, form/result akışları, copy/save eylemleri, dark mode ve responsive geometrileri kapsar. 1.7.0+18 tabanında 664 test geçmektedir.
+Unit testler domain servislerini, solver sonuçlarını, validation ve kayıt adapter’larını; widget testleri navigasyon, form/result akışları, copy/save eylemleri, dark mode ve responsive geometrileri kapsar. 1.8.0+20 tabanında 686 test geçmektedir.
 
 ```bash
 dart format --set-exit-if-changed .
