@@ -57,7 +57,7 @@ class _DifferentiationTabState extends ConsumerState<DifferentiationTab> {
         orElse: () => DifferentiationMethod.central,
       );
       WidgetsBinding.instance.addPostFrameCallback((_) {
-        if (mounted) _solve();
+        if (mounted) _solve(reveal: false);
       });
     }
   }
@@ -70,7 +70,9 @@ class _DifferentiationTabState extends ConsumerState<DifferentiationTab> {
     super.dispose();
   }
 
-  Future<void> _solve() async {
+  final _resultKey = GlobalKey();
+
+  Future<void> _solve({bool reveal = true}) async {
     final l10n = context.l10n;
     final double point;
     final double step;
@@ -96,6 +98,8 @@ class _DifferentiationTabState extends ConsumerState<DifferentiationTab> {
       _prepareGraph(function, result);
       return result;
     });
+    if (!mounted || !reveal) return;
+    revealCalculusResult(ref, _resultKey);
   }
 
   /// Builds the tangent overlay from the *computed* derivative; the
@@ -223,6 +227,7 @@ class _DifferentiationTabState extends ConsumerState<DifferentiationTab> {
           const Center(child: CircularProgressIndicator())
         else ...[
           CalculusResultCard(
+            key: _resultKey,
             result: state.result,
             functionExpression: _function.text,
           ),

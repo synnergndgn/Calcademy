@@ -53,7 +53,7 @@ class _TvmTabState extends ConsumerState<TvmTab> {
       _frequency.text = '${fields['frequency']!.round()}';
     }
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      if (mounted) _calculate();
+      if (mounted) _calculate(reveal: false);
     });
   }
 
@@ -66,7 +66,9 @@ class _TvmTabState extends ConsumerState<TvmTab> {
     super.dispose();
   }
 
-  void _calculate() {
+  final _resultKey = GlobalKey();
+
+  void _calculate({bool reveal = true}) {
     ref.read(financialWorkspaceProvider.notifier).calculate(() {
       final service = ref.read(tvmServiceProvider);
       final amount = parseFinancialDouble(_amount.text);
@@ -115,6 +117,7 @@ class _TvmTabState extends ConsumerState<TvmTab> {
         TvmOperation.effectiveAnnualRate => throw StateError('handled above'),
       };
     });
+    if (reveal) revealFinancialResult(ref, _resultKey);
   }
 
   @override
@@ -217,7 +220,7 @@ class _TvmTabState extends ConsumerState<TvmTab> {
         ),
         if (result != null) ...[
           const SizedBox(height: AppSpacing.md),
-          FinancialResultCard(result: result),
+          FinancialResultCard(key: _resultKey, result: result),
         ],
       ],
     );

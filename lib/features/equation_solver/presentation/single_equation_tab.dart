@@ -50,7 +50,7 @@ class _SingleEquationTabState extends ConsumerState<SingleEquationTab> {
         _scanMax.text = formatMatrixNumber(restore.scanMax!);
       }
       WidgetsBinding.instance.addPostFrameCallback((_) {
-        if (mounted) _solve();
+        if (mounted) _solve(reveal: false);
       });
     }
   }
@@ -63,7 +63,9 @@ class _SingleEquationTabState extends ConsumerState<SingleEquationTab> {
     super.dispose();
   }
 
-  void _solve() {
+  final _resultKey = GlobalKey();
+
+  Future<void> _solve({bool reveal = true}) async {
     final l10n = context.l10n;
     double min;
     double max;
@@ -80,9 +82,11 @@ class _SingleEquationTabState extends ConsumerState<SingleEquationTab> {
       _solvedScanMin = min;
       _solvedScanMax = max;
     });
-    ref
+    await ref
         .read(equationWorkspaceProvider.notifier)
         .solveSingle(_equation.text, scanMin: min, scanMax: max);
+    if (!mounted || !reveal) return;
+    revealEquationResult(ref, _resultKey);
   }
 
   @override
@@ -173,6 +177,7 @@ class _SingleEquationTabState extends ConsumerState<SingleEquationTab> {
           const Center(child: CircularProgressIndicator())
         else
           EquationResultCard(
+            key: _resultKey,
             single: state.singleResult,
             savedDraft: EquationSolverSavedAdapter.trySingle(
               equation: _solvedEquation,

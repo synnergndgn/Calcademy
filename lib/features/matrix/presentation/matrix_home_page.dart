@@ -1,4 +1,5 @@
 import 'package:calcademy/core/widgets/page_body.dart';
+import 'package:calcademy/core/widgets/result_auto_scroll.dart';
 import 'package:calcademy/app/theme/app_spacing.dart';
 import 'package:calcademy/core/widgets/result_action_bar.dart';
 import 'package:calcademy/features/matrix/data/matrix_repository.dart';
@@ -128,6 +129,7 @@ class _MatrixHomePageState extends ConsumerState<MatrixHomePage> {
       ),
       body: PageBody(
         child: ListView(
+          key: const Key('matrix-scroll-view'),
           padding: PageBody.scrollPadding(context),
           children: [
             _IntroCard(onExample: _applyExample),
@@ -152,7 +154,10 @@ class _MatrixHomePageState extends ConsumerState<MatrixHomePage> {
               label: Text(context.l10n.t('matrixCalculate')),
             ),
             const SizedBox(height: AppSpacing.lg),
-            _MatrixResultPanel(onNewOperation: _newOperation),
+            _MatrixResultPanel(
+              key: _resultKey,
+              onNewOperation: _newOperation,
+            ),
             const SizedBox(height: AppSpacing.xxl),
           ],
         ),
@@ -197,6 +202,8 @@ class _MatrixHomePageState extends ConsumerState<MatrixHomePage> {
     });
   }
 
+  final _resultKey = GlobalKey();
+
   void _calculate() {
     try {
       final operation = ref.read(matrixWorkspaceProvider).operation;
@@ -214,10 +221,13 @@ class _MatrixHomePageState extends ConsumerState<MatrixHomePage> {
           parameters['row2'] = _parseRow(_rowTwo.text).toDouble();
         }
       }
-      ref
+      final solved = ref
           .read(matrixWorkspaceProvider.notifier)
           .execute(inputs, parameters: parameters);
       FocusScope.of(context).unfocus();
+      // execute() reports engine failures through its return value rather than
+      // by throwing, so a false here is still an error state - no scroll.
+      if (solved) scheduleResultAutoScroll(_resultKey);
     } on MatrixException catch (error) {
       ref.read(matrixWorkspaceProvider.notifier).reportError(error.code);
     }
@@ -411,7 +421,7 @@ class _MatrixInputs extends ConsumerWidget {
 }
 
 class _MatrixResultPanel extends ConsumerStatefulWidget {
-  const _MatrixResultPanel({required this.onNewOperation});
+  const _MatrixResultPanel({required this.onNewOperation, super.key});
 
   final VoidCallback onNewOperation;
 

@@ -3,6 +3,8 @@ import 'package:calcademy/features/financial_calculator/application/cash_flow_se
 import 'package:calcademy/features/financial_calculator/application/loan_service.dart';
 import 'package:calcademy/features/financial_calculator/application/tvm_service.dart';
 import 'package:calcademy/features/financial_calculator/domain/financial_result.dart';
+import 'package:calcademy/core/widgets/result_auto_scroll.dart';
+import 'package:flutter/widgets.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 final tvmServiceProvider = Provider<TvmService>((ref) => const TvmService());
@@ -45,4 +47,16 @@ class FinancialWorkspaceController extends Notifier<FinancialWorkspaceState> {
   }
 
   void clear() => state = const FinancialWorkspaceState();
+}
+
+/// Scrolls the freshly rendered result into view, but only when the
+/// calculation actually succeeded.
+///
+/// [FinancialWorkspaceController.calculate] swallows validation errors into a
+/// [FinancialFailureResult] instead of throwing, so "no exception" is not a
+/// success signal here - the stored result is.
+void revealFinancialResult(WidgetRef ref, GlobalKey resultKey) {
+  final result = ref.read(financialWorkspaceProvider).result;
+  if (result == null || result is FinancialFailureResult) return;
+  scheduleResultAutoScroll(resultKey);
 }

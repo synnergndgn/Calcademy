@@ -54,7 +54,7 @@ class _ConfidenceIntervalTabState extends ConsumerState<ConfidenceIntervalTab> {
       if (spread != null) _spread.text = formatMatrixNumber(spread);
     }
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      if (mounted) _calculate();
+      if (mounted) _calculate(reveal: false);
     });
   }
 
@@ -67,7 +67,9 @@ class _ConfidenceIntervalTabState extends ConsumerState<ConfidenceIntervalTab> {
     super.dispose();
   }
 
-  void _calculate() {
+  final _resultKey = GlobalKey();
+
+  void _calculate({bool reveal = true}) {
     ref.read(statisticsWorkspaceProvider.notifier).calculate(() {
       final service = ref.read(confidenceIntervalServiceProvider);
       final n = _integer(_sampleSize.text, StatisticsIssue.invalidSampleSize);
@@ -94,6 +96,7 @@ class _ConfidenceIntervalTabState extends ConsumerState<ConfidenceIntervalTab> {
         ),
       };
     });
+    if (reveal) revealStatisticsResult(ref, _resultKey);
   }
 
   @override
@@ -152,7 +155,7 @@ class _ConfidenceIntervalTabState extends ConsumerState<ConfidenceIntervalTab> {
         ),
         if (result != null) ...[
           const SizedBox(height: AppSpacing.md),
-          StatisticsResultCard(result: result),
+          StatisticsResultCard(key: _resultKey, result: result),
         ],
       ],
     );

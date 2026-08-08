@@ -46,7 +46,7 @@ class _AnalysisTabState extends ConsumerState<AnalysisTab> {
         restore.rangeMax ?? CalculusLimits.defaultAnalysisMax,
       );
       WidgetsBinding.instance.addPostFrameCallback((_) {
-        if (mounted) _solve();
+        if (mounted) _solve(reveal: false);
       });
     }
   }
@@ -59,7 +59,9 @@ class _AnalysisTabState extends ConsumerState<AnalysisTab> {
     super.dispose();
   }
 
-  Future<void> _solve() async {
+  final _resultKey = GlobalKey();
+
+  Future<void> _solve({bool reveal = true}) async {
     final l10n = context.l10n;
     final double min;
     final double max;
@@ -79,6 +81,8 @@ class _AnalysisTabState extends ConsumerState<AnalysisTab> {
               .read(functionAnalysisServiceProvider)
               .analyze(function: function, rangeMin: min, rangeMax: max),
         );
+    if (!mounted || !reveal) return;
+    revealCalculusResult(ref, _resultKey);
   }
 
   @override
@@ -155,6 +159,7 @@ class _AnalysisTabState extends ConsumerState<AnalysisTab> {
           const Center(child: CircularProgressIndicator())
         else
           CalculusResultCard(
+            key: _resultKey,
             result: state.result,
             functionExpression: _function.text,
           ),

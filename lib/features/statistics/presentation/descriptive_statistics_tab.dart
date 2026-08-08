@@ -32,7 +32,7 @@ class _DescriptiveStatisticsTabState
         restore.values.isNotEmpty) {
       _data.text = restore.values.map(formatMatrixNumber).join(', ');
       WidgetsBinding.instance.addPostFrameCallback((_) {
-        if (mounted) _calculate();
+        if (mounted) _calculate(reveal: false);
       });
     }
   }
@@ -43,7 +43,9 @@ class _DescriptiveStatisticsTabState
     super.dispose();
   }
 
-  void _calculate() {
+  final _resultKey = GlobalKey();
+
+  void _calculate({bool reveal = true}) {
     ref
         .read(statisticsWorkspaceProvider.notifier)
         .calculate(
@@ -51,6 +53,7 @@ class _DescriptiveStatisticsTabState
               .read(descriptiveStatisticsServiceProvider)
               .calculate(_data.text),
         );
+    if (reveal) revealStatisticsResult(ref, _resultKey);
   }
 
   @override
@@ -88,7 +91,7 @@ class _DescriptiveStatisticsTabState
         ),
         if (result != null) ...[
           const SizedBox(height: AppSpacing.md),
-          StatisticsResultCard(result: result),
+          StatisticsResultCard(key: _resultKey, result: result),
         ],
       ],
     );

@@ -2,6 +2,8 @@ import 'package:calcademy/features/calculus/application/differentiation_service.
 import 'package:calcademy/features/calculus/application/function_analysis_service.dart';
 import 'package:calcademy/features/calculus/application/integration_service.dart';
 import 'package:calcademy/features/calculus/domain/calculus_result.dart';
+import 'package:calcademy/core/widgets/result_auto_scroll.dart';
+import 'package:flutter/widgets.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 final differentiationServiceProvider = Provider<DifferentiationService>(
@@ -53,4 +55,16 @@ class CalculusWorkspaceController extends Notifier<CalculusWorkspaceState> {
     _generation++;
     state = const CalculusWorkspaceState();
   }
+}
+
+/// Scrolls the freshly rendered result into view, but only when the solve
+/// actually produced one.
+///
+/// [CalculusWorkspaceController.run] stores a [CalculusFailureResult] for a
+/// function it cannot parse, and a stale generation drops the write entirely,
+/// so reading the state back covers both cases.
+void revealCalculusResult(WidgetRef ref, GlobalKey resultKey) {
+  final result = ref.read(calculusWorkspaceProvider).result;
+  if (result == null || result is CalculusFailureResult) return;
+  scheduleResultAutoScroll(resultKey);
 }

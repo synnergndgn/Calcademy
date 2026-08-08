@@ -56,7 +56,7 @@ class _IntegrationTabState extends ConsumerState<IntegrationTab> {
         orElse: () => IntegrationMethod.simpson13,
       );
       WidgetsBinding.instance.addPostFrameCallback((_) {
-        if (mounted) _solve();
+        if (mounted) _solve(reveal: false);
       });
     }
   }
@@ -70,7 +70,9 @@ class _IntegrationTabState extends ConsumerState<IntegrationTab> {
     super.dispose();
   }
 
-  Future<void> _solve() async {
+  final _resultKey = GlobalKey();
+
+  Future<void> _solve({bool reveal = true}) async {
     final l10n = context.l10n;
     final double lower;
     final double upper;
@@ -99,6 +101,8 @@ class _IntegrationTabState extends ConsumerState<IntegrationTab> {
       _prepareGraph(function, result);
       return result;
     });
+    if (!mounted || !reveal) return;
+    revealCalculusResult(ref, _resultKey);
   }
 
   void _prepareGraph(String function, CalculusResult result) {
@@ -226,6 +230,7 @@ class _IntegrationTabState extends ConsumerState<IntegrationTab> {
           const Center(child: CircularProgressIndicator())
         else ...[
           CalculusResultCard(
+            key: _resultKey,
             result: state.result,
             functionExpression: _function.text,
           ),

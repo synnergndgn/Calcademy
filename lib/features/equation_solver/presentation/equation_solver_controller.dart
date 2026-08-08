@@ -2,6 +2,8 @@ import 'package:calcademy/features/equation_solver/application/linear_system_ser
 import 'package:calcademy/features/equation_solver/application/numerical_method_service.dart';
 import 'package:calcademy/features/equation_solver/application/single_equation_service.dart';
 import 'package:calcademy/features/equation_solver/domain/equation_solver_result.dart';
+import 'package:calcademy/core/widgets/result_auto_scroll.dart';
+import 'package:flutter/widgets.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 final singleEquationServiceProvider = Provider<SingleEquationService>(
@@ -104,4 +106,21 @@ class EquationWorkspaceController extends Notifier<EquationWorkspaceState> {
     _generation++;
     state = const EquationWorkspaceState();
   }
+}
+
+/// Scrolls the freshly rendered result into view, but only when the solve
+/// actually produced one.
+///
+/// Each tab writes a different slot, and each slot spells failure its own way:
+/// [EquationSolveFailure], [LinearSystemInvalid], and a non-null
+/// [NumericalMethodResult.failure]. "No real roots" and "contradiction" are
+/// mathematical answers, not input errors, so they do reveal.
+void revealEquationResult(WidgetRef ref, GlobalKey resultKey) {
+  final state = ref.read(equationWorkspaceProvider);
+  final succeeded =
+      (state.singleResult != null && state.singleResult is! EquationSolveFailure) ||
+      (state.systemResult != null && state.systemResult is! LinearSystemInvalid) ||
+      (state.methodResult != null && state.methodResult!.failure == null);
+  if (!succeeded) return;
+  scheduleResultAutoScroll(resultKey);
 }

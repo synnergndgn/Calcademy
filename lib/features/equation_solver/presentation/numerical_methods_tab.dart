@@ -67,7 +67,7 @@ class _NumericalMethodsTabState extends ConsumerState<NumericalMethodsTab> {
         _maxIterations.text = '${restore.maxIterations}';
       }
       WidgetsBinding.instance.addPostFrameCallback((_) {
-        if (mounted) _run();
+        if (mounted) _run(reveal: false);
       });
     }
   }
@@ -82,7 +82,9 @@ class _NumericalMethodsTabState extends ConsumerState<NumericalMethodsTab> {
     super.dispose();
   }
 
-  void _run() {
+  final _resultKey = GlobalKey();
+
+  Future<void> _run({bool reveal = true}) async {
     final l10n = context.l10n;
     final double first;
     final double second;
@@ -107,7 +109,7 @@ class _NumericalMethodsTabState extends ConsumerState<NumericalMethodsTab> {
       _solvedTolerance = tolerance;
       _solvedMaxIterations = maxIterations;
     });
-    ref
+    await ref
         .read(equationWorkspaceProvider.notifier)
         .runMethod(
           (service) => switch (_method) {
@@ -133,6 +135,8 @@ class _NumericalMethodsTabState extends ConsumerState<NumericalMethodsTab> {
             ),
           },
         );
+    if (!mounted || !reveal) return;
+    revealEquationResult(ref, _resultKey);
   }
 
   @override
@@ -243,6 +247,7 @@ class _NumericalMethodsTabState extends ConsumerState<NumericalMethodsTab> {
           const Center(child: CircularProgressIndicator())
         else
           EquationResultCard(
+            key: _resultKey,
             numeric: state.methodResult,
             savedDraft: EquationSolverSavedAdapter.tryNumerical(
               function: _solvedFunction,

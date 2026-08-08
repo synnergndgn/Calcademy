@@ -45,7 +45,7 @@ class _LoanTabState extends ConsumerState<LoanTab> {
       _paymentsPerYear.text = '${fields['paymentsPerYear']!.round()}';
     }
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      if (mounted) _calculate();
+      if (mounted) _calculate(reveal: false);
     });
   }
 
@@ -58,7 +58,9 @@ class _LoanTabState extends ConsumerState<LoanTab> {
     super.dispose();
   }
 
-  void _calculate() {
+  final _resultKey = GlobalKey();
+
+  void _calculate({bool reveal = true}) {
     ref
         .read(financialWorkspaceProvider.notifier)
         .calculate(
@@ -77,6 +79,7 @@ class _LoanTabState extends ConsumerState<LoanTab> {
                 ),
               ),
         );
+    if (reveal) revealFinancialResult(ref, _resultKey);
   }
 
   @override
@@ -129,7 +132,7 @@ class _LoanTabState extends ConsumerState<LoanTab> {
         ),
         if (result != null) ...[
           const SizedBox(height: AppSpacing.md),
-          FinancialResultCard(result: result),
+          FinancialResultCard(key: _resultKey, result: result),
         ],
       ],
     );

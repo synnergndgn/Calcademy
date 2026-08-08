@@ -52,7 +52,7 @@ class _LinearSystemTabState extends ConsumerState<LinearSystemTab> {
         _rhs[row].text = formatMatrixNumber(restore.rhs[row]);
       }
       WidgetsBinding.instance.addPostFrameCallback((_) {
-        if (mounted) _solve();
+        if (mounted) _solve(reveal: false);
       });
     }
   }
@@ -95,7 +95,9 @@ class _LinearSystemTabState extends ConsumerState<LinearSystemTab> {
     super.dispose();
   }
 
-  void _solve() {
+  final _resultKey = GlobalKey();
+
+  Future<void> _solve({bool reveal = true}) async {
     final l10n = context.l10n;
     final coefficients = <List<double>>[];
     final rhs = <double>[];
@@ -117,7 +119,9 @@ class _LinearSystemTabState extends ConsumerState<LinearSystemTab> {
       _solvedCoefficients = coefficients;
       _solvedRhs = rhs;
     });
-    ref.read(equationWorkspaceProvider.notifier).solveSystem(coefficients, rhs);
+    await ref.read(equationWorkspaceProvider.notifier).solveSystem(coefficients, rhs);
+    if (!mounted || !reveal) return;
+    revealEquationResult(ref, _resultKey);
   }
 
   @override
@@ -234,6 +238,7 @@ class _LinearSystemTabState extends ConsumerState<LinearSystemTab> {
           const Center(child: CircularProgressIndicator())
         else
           EquationResultCard(
+            key: _resultKey,
             system: state.systemResult,
             savedDraft: EquationSolverSavedAdapter.tryLinearSystem(
               dimension: _solvedDimension,

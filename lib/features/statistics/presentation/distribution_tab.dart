@@ -77,7 +77,7 @@ class _DistributionTabState extends ConsumerState<DistributionTab> {
         seed(_k, 'k', asInt: true);
     }
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      if (mounted) _calculate();
+      if (mounted) _calculate(reveal: false);
     });
   }
 
@@ -99,7 +99,9 @@ class _DistributionTabState extends ConsumerState<DistributionTab> {
     super.dispose();
   }
 
-  void _calculate() {
+  final _resultKey = GlobalKey();
+
+  void _calculate({bool reveal = true}) {
     ref.read(statisticsWorkspaceProvider.notifier).calculate(() {
       final service = ref.read(probabilityDistributionServiceProvider);
       return switch (_kind) {
@@ -130,6 +132,7 @@ class _DistributionTabState extends ConsumerState<DistributionTab> {
         ),
       };
     });
+    if (reveal) revealStatisticsResult(ref, _resultKey);
   }
 
   @override
@@ -198,7 +201,7 @@ class _DistributionTabState extends ConsumerState<DistributionTab> {
         ),
         if (result != null) ...[
           const SizedBox(height: AppSpacing.md),
-          StatisticsResultCard(result: result),
+          StatisticsResultCard(key: _resultKey, result: result),
         ],
       ],
     );

@@ -55,7 +55,7 @@ class _BreakEvenTabState extends ConsumerState<BreakEvenTab> {
       _actualQuantity.text = formatMatrixNumber(fields['actualSalesQuantity']!);
     }
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      if (mounted) _calculate();
+      if (mounted) _calculate(reveal: false);
     });
   }
 
@@ -69,7 +69,9 @@ class _BreakEvenTabState extends ConsumerState<BreakEvenTab> {
     super.dispose();
   }
 
-  void _calculate() {
+  final _resultKey = GlobalKey();
+
+  void _calculate({bool reveal = true}) {
     ref
         .read(financialWorkspaceProvider.notifier)
         .calculate(
@@ -89,6 +91,7 @@ class _BreakEvenTabState extends ConsumerState<BreakEvenTab> {
                     : 0,
               ),
         );
+    if (reveal) revealFinancialResult(ref, _resultKey);
   }
 
   @override
@@ -162,7 +165,7 @@ class _BreakEvenTabState extends ConsumerState<BreakEvenTab> {
         ),
         if (result != null) ...[
           const SizedBox(height: AppSpacing.md),
-          FinancialResultCard(result: result),
+          FinancialResultCard(key: _resultKey, result: result),
         ],
       ],
     );

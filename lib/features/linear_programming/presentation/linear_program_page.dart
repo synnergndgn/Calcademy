@@ -13,7 +13,7 @@ import 'package:calcademy/features/linear_programming/presentation/linear_progra
 import 'package:calcademy/features/linear_programming/presentation/linear_program_draft.dart';
 import 'package:calcademy/features/linear_programming/presentation/lp_graph_view.dart';
 import 'package:calcademy/features/linear_programming/presentation/simplex_steps_page.dart';
-import 'package:calcademy/features/optimization/presentation/optimization_result_auto_scroll.dart';
+import 'package:calcademy/core/widgets/result_auto_scroll.dart';
 import 'package:calcademy/features/optimization/presentation/widgets/constraint_relation_options.dart';
 import 'package:calcademy/features/optimization/presentation/widgets/responsive_constraint_card.dart';
 import 'package:calcademy/features/saved_calculations/application/adapters/optimization_saved_adapter.dart';
@@ -363,7 +363,7 @@ class _LinearProgramPageState extends ConsumerState<LinearProgramPage> {
           .read(linearProgramWorkspaceProvider.notifier)
           .solve(program, savedId: _activeSavedId);
       if (!mounted) return;
-      scheduleOptimizationResultAutoScroll(_resultSectionKey);
+      scheduleResultAutoScroll(_resultSectionKey);
     } on Object {
       if (!mounted) return;
       ScaffoldMessenger.of(

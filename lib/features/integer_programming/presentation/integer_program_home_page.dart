@@ -8,7 +8,7 @@ import 'package:calcademy/features/integer_programming/presentation/integer_mode
 import 'package:calcademy/features/integer_programming/presentation/integer_program_controller.dart';
 import 'package:calcademy/features/integer_programming/presentation/integer_program_draft.dart';
 import 'package:calcademy/features/integer_programming/presentation/integer_solution_page.dart';
-import 'package:calcademy/features/optimization/presentation/optimization_result_auto_scroll.dart';
+import 'package:calcademy/core/widgets/result_auto_scroll.dart';
 import 'package:calcademy/l10n/app_localizations.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -131,7 +131,7 @@ class _IntegerProgramHomePageState
           .read(integerProgramWorkspaceProvider.notifier)
           .solve(program, savedId: _activeSavedId);
       if (!mounted) return;
-      scheduleOptimizationResultAutoScroll(_resultSectionKey);
+      scheduleResultAutoScroll(_resultSectionKey);
     } on Object {
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
