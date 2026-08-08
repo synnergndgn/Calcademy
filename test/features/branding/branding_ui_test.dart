@@ -224,7 +224,12 @@ void main() {
   testWidgets('about shows the official logo and brand information', (
     tester,
   ) async {
-    await tester.pumpWidget(_localizedApp(home: const AboutPage()));
+    // About reads the premium-surface gate, so it needs a scope. Branding is
+    // identical in both configurations; the gate only decides whether the
+    // assistant section renders.
+    await tester.pumpWidget(
+      ProviderScope(child: _localizedApp(home: const AboutPage())),
+    );
     await tester.pumpAndSettle();
 
     expect(find.byKey(const Key('calcademyLogoMark')), findsOneWidget);
