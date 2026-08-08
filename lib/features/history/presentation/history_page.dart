@@ -1,3 +1,5 @@
+import 'package:calcademy/core/widgets/page_body.dart';
+import 'package:calcademy/app/theme/app_spacing.dart';
 import 'package:calcademy/core/widgets/empty_state.dart';
 import 'package:calcademy/features/history/domain/calculation_record.dart';
 import 'package:calcademy/features/history/presentation/history_controller.dart';
@@ -49,44 +51,56 @@ class _HistoryPageState extends ConsumerState<HistoryPage> {
               title: context.l10n.t('noHistory'),
               body: context.l10n.t('noHistoryBody'),
             )
-          : Column(
-              children: [
-                Padding(
-                  padding: const EdgeInsets.fromLTRB(16, 8, 16, 12),
-                  child: TextField(
-                    decoration: InputDecoration(
-                      prefixIcon: const Icon(Icons.search_rounded),
-                      hintText: context.l10n.t('searchHistory'),
+          : PageBody(
+              child: Column(
+                children: [
+                  Padding(
+                    padding: const EdgeInsets.fromLTRB(
+                      AppSpacing.md,
+                      AppSpacing.xs,
+                      AppSpacing.md,
+                      AppSpacing.sm,
                     ),
-                    onChanged: (value) => setState(() => query = value),
+                    child: TextField(
+                      decoration: InputDecoration(
+                        prefixIcon: const Icon(Icons.search_rounded),
+                        hintText: context.l10n.t('searchHistory'),
+                      ),
+                      onChanged: (value) => setState(() => query = value),
+                    ),
                   ),
-                ),
-                Expanded(
-                  child: ListView(
-                    padding: const EdgeInsets.fromLTRB(16, 0, 16, 24),
-                    children: [
-                      for (final group in groups.entries) ...[
-                        Padding(
-                          padding: const EdgeInsets.fromLTRB(4, 16, 4, 8),
-                          child: Text(
-                            group.key,
-                            style: Theme.of(context).textTheme.titleMedium
-                                ?.copyWith(fontWeight: FontWeight.bold),
+                  Expanded(
+                    child: ListView(
+                      padding: PageBody.scrollPadding(context, top: 0),
+                      children: [
+                        for (final group in groups.entries) ...[
+                          Padding(
+                            padding: const EdgeInsets.fromLTRB(
+                              AppSpacing.xxs,
+                              AppSpacing.md,
+                              AppSpacing.xxs,
+                              AppSpacing.xs,
+                            ),
+                            child: Text(
+                              group.key,
+                              style: Theme.of(context).textTheme.titleMedium
+                                  ?.copyWith(fontWeight: FontWeight.bold),
+                            ),
                           ),
-                        ),
-                        Card(
-                          child: Column(
-                            children: [
-                              for (final record in group.value)
-                                _HistoryTile(record: record),
-                            ],
+                          Card(
+                            child: Column(
+                              children: [
+                                for (final record in group.value)
+                                  _HistoryTile(record: record),
+                              ],
+                            ),
                           ),
-                        ),
+                        ],
                       ],
-                    ],
+                    ),
                   ),
-                ),
-              ],
+                ],
+              ),
             ),
       floatingActionButton: FloatingActionButton.extended(
         onPressed: () => context.push('/calculator'),

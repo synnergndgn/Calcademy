@@ -1,3 +1,5 @@
+import 'package:calcademy/core/widgets/page_body.dart';
+import 'package:calcademy/app/theme/app_spacing.dart';
 import 'package:calcademy/app/ads/consent_providers.dart';
 import 'package:calcademy/app/premium/premium_surface.dart';
 import 'package:calcademy/features/history/presentation/history_controller.dart';
@@ -19,178 +21,185 @@ class SettingsPage extends ConsumerWidget {
     final premiumSurface = ref.watch(premiumSurfaceEnabledProvider);
     return Scaffold(
       appBar: AppBar(title: Text(context.l10n.t('settings'))),
-      body: ListView(
-        padding: const EdgeInsets.fromLTRB(16, 8, 16, 28),
-        children: [
-          _Heading(context.l10n.t('theme')),
-          SegmentedButton<ThemeMode>(
-            segments: [
-              ButtonSegment(
-                value: ThemeMode.system,
-                label: Text(context.l10n.t('system')),
-                icon: const Icon(Icons.brightness_auto_rounded),
-              ),
-              ButtonSegment(
-                value: ThemeMode.light,
-                label: Text(context.l10n.t('light')),
-                icon: const Icon(Icons.light_mode_rounded),
-              ),
-              ButtonSegment(
-                value: ThemeMode.dark,
-                label: Text(context.l10n.t('dark')),
-                icon: const Icon(Icons.dark_mode_rounded),
-              ),
-            ],
-            selected: {settings.themeMode},
-            onSelectionChanged: (value) => controller.setThemeMode(value.first),
-          ),
-          _Heading(context.l10n.t('language')),
-          SegmentedButton<String>(
-            segments: [
-              ButtonSegment(
-                value: 'tr',
-                label: Text(context.l10n.t('turkish')),
-              ),
-              ButtonSegment(
-                value: 'en',
-                label: Text(context.l10n.t('english')),
-              ),
-            ],
-            selected: {settings.languageCode},
-            onSelectionChanged: (value) => controller.setLanguage(value.first),
-          ),
-          _Heading(context.l10n.t('defaultAngle')),
-          SegmentedButton<AngleMode>(
-            segments: [
-              ButtonSegment(
-                value: AngleMode.degrees,
-                label: Text(context.l10n.t('degrees')),
-              ),
-              ButtonSegment(
-                value: AngleMode.radians,
-                label: Text(context.l10n.t('radians')),
-              ),
-            ],
-            selected: {settings.angleMode},
-            onSelectionChanged: (value) => controller.setAngleMode(value.first),
-          ),
-          const SizedBox(height: 16),
-          Card(
-            child: Column(
-              children: [
-                SwitchListTile(
-                  title: Text(context.l10n.t('haptics')),
-                  secondary: const Icon(Icons.vibration_rounded),
-                  value: settings.hapticsEnabled,
-                  onChanged: controller.setHaptics,
+      body: PageBody(
+        child: ListView(
+          padding: PageBody.scrollPadding(context, top: AppSpacing.xs),
+          children: [
+            _Heading(context.l10n.t('theme')),
+            SegmentedButton<ThemeMode>(
+              segments: [
+                ButtonSegment(
+                  value: ThemeMode.system,
+                  label: Text(context.l10n.t('system')),
+                  icon: const Icon(Icons.brightness_auto_rounded),
                 ),
-                SwitchListTile(
-                  title: Text(context.l10n.t('keySound')),
-                  secondary: const Icon(Icons.volume_up_outlined),
-                  value: settings.keySoundEnabled,
-                  onChanged: controller.setKeySound,
+                ButtonSegment(
+                  value: ThemeMode.light,
+                  label: Text(context.l10n.t('light')),
+                  icon: const Icon(Icons.light_mode_rounded),
                 ),
-                SwitchListTile(
-                  title: Text(context.l10n.t('scientificNotation')),
-                  secondary: const Icon(Icons.science_outlined),
-                  value: settings.scientificNotation,
-                  onChanged: controller.setScientificNotation,
-                ),
-                ListTile(
-                  leading: const Icon(Icons.pin_outlined),
-                  title: Text(context.l10n.t('precision')),
-                  subtitle: Slider(
-                    value: settings.decimalPrecision.toDouble(),
-                    min: 4,
-                    max: 15,
-                    divisions: 11,
-                    label: '${settings.decimalPrecision}',
-                    onChanged: (value) =>
-                        controller.setPrecision(value.round()),
-                  ),
-                  trailing: Text('${settings.decimalPrecision}'),
+                ButtonSegment(
+                  value: ThemeMode.dark,
+                  label: Text(context.l10n.t('dark')),
+                  icon: const Icon(Icons.dark_mode_rounded),
                 ),
               ],
+              selected: {settings.themeMode},
+              onSelectionChanged: (value) =>
+                  controller.setThemeMode(value.first),
             ),
-          ),
-          _Heading(context.l10n.t('data')),
-          Card(
-            child: Column(
-              children: [
-                if (premiumSurface) ...[
-                  ListTile(
-                    key: const Key('settings-account-tile'),
-                    leading: const Icon(Icons.account_circle_outlined),
-                    title: Text(context.l10n.t('account')),
-                    subtitle: Text(context.l10n.t('coreToolsNoAccount')),
-                    trailing: const Icon(Icons.chevron_right_rounded),
-                    onTap: () => context.push('/account'),
+            _Heading(context.l10n.t('language')),
+            SegmentedButton<String>(
+              segments: [
+                ButtonSegment(
+                  value: 'tr',
+                  label: Text(context.l10n.t('turkish')),
+                ),
+                ButtonSegment(
+                  value: 'en',
+                  label: Text(context.l10n.t('english')),
+                ),
+              ],
+              selected: {settings.languageCode},
+              onSelectionChanged: (value) =>
+                  controller.setLanguage(value.first),
+            ),
+            _Heading(context.l10n.t('defaultAngle')),
+            SegmentedButton<AngleMode>(
+              segments: [
+                ButtonSegment(
+                  value: AngleMode.degrees,
+                  label: Text(context.l10n.t('degrees')),
+                ),
+                ButtonSegment(
+                  value: AngleMode.radians,
+                  label: Text(context.l10n.t('radians')),
+                ),
+              ],
+              selected: {settings.angleMode},
+              onSelectionChanged: (value) =>
+                  controller.setAngleMode(value.first),
+            ),
+            const SizedBox(height: 16),
+            Card(
+              child: Column(
+                children: [
+                  SwitchListTile(
+                    title: Text(context.l10n.t('haptics')),
+                    secondary: const Icon(Icons.vibration_rounded),
+                    value: settings.hapticsEnabled,
+                    onChanged: controller.setHaptics,
+                  ),
+                  SwitchListTile(
+                    title: Text(context.l10n.t('keySound')),
+                    secondary: const Icon(Icons.volume_up_outlined),
+                    value: settings.keySoundEnabled,
+                    onChanged: controller.setKeySound,
+                  ),
+                  SwitchListTile(
+                    title: Text(context.l10n.t('scientificNotation')),
+                    secondary: const Icon(Icons.science_outlined),
+                    value: settings.scientificNotation,
+                    onChanged: controller.setScientificNotation,
                   ),
                   ListTile(
-                    key: const Key('settings-premium-tile'),
-                    leading: const Icon(Icons.workspace_premium_outlined),
-                    title: Text(context.l10n.t('calcademyPremium')),
-                    subtitle: Text(context.l10n.t('freePlan')),
-                    trailing: const Icon(Icons.chevron_right_rounded),
-                    onTap: () => context.push('/premium'),
+                    leading: const Icon(Icons.pin_outlined),
+                    title: Text(context.l10n.t('precision')),
+                    subtitle: Slider(
+                      value: settings.decimalPrecision.toDouble(),
+                      min: 4,
+                      max: 15,
+                      divisions: 11,
+                      label: '${settings.decimalPrecision}',
+                      onChanged: (value) =>
+                          controller.setPrecision(value.round()),
+                    ),
+                    trailing: Text('${settings.decimalPrecision}'),
                   ),
                 ],
-                // Required alongside a consent flow: users who were asked must
-                // be able to reopen the choice. UMP reports when that applies,
-                // so this stays hidden where no consent was ever gathered.
-                if (ref.watch(adConsentStateProvider).privacyOptionsRequired)
+              ),
+            ),
+            _Heading(context.l10n.t('data')),
+            Card(
+              child: Column(
+                children: [
+                  if (premiumSurface) ...[
+                    ListTile(
+                      key: const Key('settings-account-tile'),
+                      leading: const Icon(Icons.account_circle_outlined),
+                      title: Text(context.l10n.t('account')),
+                      subtitle: Text(context.l10n.t('coreToolsNoAccount')),
+                      trailing: const Icon(Icons.chevron_right_rounded),
+                      onTap: () => context.push('/account'),
+                    ),
+                    ListTile(
+                      key: const Key('settings-premium-tile'),
+                      leading: const Icon(Icons.workspace_premium_outlined),
+                      title: Text(context.l10n.t('calcademyPremium')),
+                      subtitle: Text(context.l10n.t('freePlan')),
+                      trailing: const Icon(Icons.chevron_right_rounded),
+                      onTap: () => context.push('/premium'),
+                    ),
+                  ],
+                  // Required alongside a consent flow: users who were asked must
+                  // be able to reopen the choice. UMP reports when that applies,
+                  // so this stays hidden where no consent was ever gathered.
+                  if (ref.watch(adConsentStateProvider).privacyOptionsRequired)
+                    ListTile(
+                      key: const Key('settings-privacy-options-tile'),
+                      leading: const Icon(Icons.privacy_tip_outlined),
+                      title: Text(context.l10n.t('adPrivacyOptions')),
+                      subtitle: Text(
+                        context.l10n.t('adPrivacyOptionsSubtitle'),
+                      ),
+                      trailing: const Icon(Icons.chevron_right_rounded),
+                      onTap: () => ref
+                          .read(adConsentStateProvider.notifier)
+                          .showPrivacyOptions(),
+                    ),
                   ListTile(
-                    key: const Key('settings-privacy-options-tile'),
-                    leading: const Icon(Icons.privacy_tip_outlined),
-                    title: Text(context.l10n.t('adPrivacyOptions')),
-                    subtitle: Text(context.l10n.t('adPrivacyOptionsSubtitle')),
+                    leading: const Icon(Icons.delete_sweep_outlined),
+                    title: Text(context.l10n.t('clearHistory')),
+                    onTap: () => _confirm(
+                      context,
+                      context.l10n.t('clearHistoryQuestion'),
+                      () => ref.read(historyProvider.notifier).clear(),
+                    ),
+                  ),
+                  ListTile(
+                    leading: const Icon(Icons.bookmark_remove_outlined),
+                    title: Text(context.l10n.t('clearSaved')),
+                    onTap: () => _confirm(
+                      context,
+                      context.l10n.t('clearSavedQuestion'),
+                      () => ref.read(savedProvider.notifier).clear(),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            _Heading(context.l10n.t('about')),
+            Card(
+              child: Column(
+                children: [
+                  ListTile(
+                    leading: const Icon(Icons.info_outline_rounded),
+                    title: Text(context.l10n.t('about')),
                     trailing: const Icon(Icons.chevron_right_rounded),
-                    onTap: () => ref
-                        .read(adConsentStateProvider.notifier)
-                        .showPrivacyOptions(),
+                    onTap: () => context.push('/about'),
                   ),
-                ListTile(
-                  leading: const Icon(Icons.delete_sweep_outlined),
-                  title: Text(context.l10n.t('clearHistory')),
-                  onTap: () => _confirm(
-                    context,
-                    context.l10n.t('clearHistoryQuestion'),
-                    () => ref.read(historyProvider.notifier).clear(),
+                  ListTile(
+                    leading: const Icon(Icons.privacy_tip_outlined),
+                    title: Text(context.l10n.t('privacy')),
+                    subtitle: Text(context.l10n.t('privacyBody')),
+                    trailing: const Icon(Icons.chevron_right_rounded),
+                    onTap: () => context.push('/about'),
                   ),
-                ),
-                ListTile(
-                  leading: const Icon(Icons.bookmark_remove_outlined),
-                  title: Text(context.l10n.t('clearSaved')),
-                  onTap: () => _confirm(
-                    context,
-                    context.l10n.t('clearSavedQuestion'),
-                    () => ref.read(savedProvider.notifier).clear(),
-                  ),
-                ),
-              ],
+                ],
+              ),
             ),
-          ),
-          _Heading(context.l10n.t('about')),
-          Card(
-            child: Column(
-              children: [
-                ListTile(
-                  leading: const Icon(Icons.info_outline_rounded),
-                  title: Text(context.l10n.t('about')),
-                  trailing: const Icon(Icons.chevron_right_rounded),
-                  onTap: () => context.push('/about'),
-                ),
-                ListTile(
-                  leading: const Icon(Icons.privacy_tip_outlined),
-                  title: Text(context.l10n.t('privacy')),
-                  subtitle: Text(context.l10n.t('privacyBody')),
-                  trailing: const Icon(Icons.chevron_right_rounded),
-                  onTap: () => context.push('/about'),
-                ),
-              ],
-            ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }
@@ -225,7 +234,12 @@ class _Heading extends StatelessWidget {
   final String text;
   @override
   Widget build(BuildContext context) => Padding(
-    padding: const EdgeInsets.fromLTRB(4, 24, 4, 10),
+    padding: const EdgeInsets.fromLTRB(
+      AppSpacing.xxs,
+      AppSpacing.xl,
+      AppSpacing.xxs,
+      AppSpacing.xs,
+    ),
     child: Text(
       text,
       style: Theme.of(

@@ -1,3 +1,4 @@
+import 'package:calcademy/core/widgets/page_body.dart';
 import 'package:calcademy/app/app_metadata.dart';
 import 'package:calcademy/app/theme/app_spacing.dart';
 import 'package:calcademy/core/widgets/calcademy_logo.dart';
@@ -22,186 +23,188 @@ class AboutPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) => Scaffold(
     appBar: AppBar(title: Text(context.l10n.t('aboutLegal'))),
-    body: ListView(
-      key: const Key('about-legal-scroll'),
-      padding: EdgeInsets.fromLTRB(
-        AppSpacing.md,
-        AppSpacing.md,
-        AppSpacing.md,
-        MediaQuery.paddingOf(context).bottom + AppSpacing.xxl,
-      ),
-      children: [
-        Center(
-          child: ConstrainedBox(
-            constraints: const BoxConstraints(maxWidth: 720),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                Card(
-                  child: Padding(
-                    padding: const EdgeInsets.all(AppSpacing.xxl),
-                    child: Column(
-                      children: [
-                        const CalcademyLogo(
-                          size: 80,
-                          showWordmark: true,
-                          showTagline: true,
-                          direction: Axis.vertical,
-                        ),
-                        const SizedBox(height: AppSpacing.xl),
-                        Text(
-                          context.l10n.t('aboutBody'),
-                          textAlign: TextAlign.center,
-                          style: Theme.of(context).textTheme.bodyLarge,
-                        ),
+    body: PageBody(
+      child: ListView(
+        key: const Key('about-legal-scroll'),
+        // viewPadding, not padding: inside a Scaffold body the bottom inset is
+        // already consumed, so the old reading returned zero and the
+        // gesture-bar clearance silently disappeared.
+        padding: PageBody.scrollPadding(context, bottom: AppSpacing.xxl),
+        children: [
+          Center(
+            child: ConstrainedBox(
+              constraints: const BoxConstraints(maxWidth: 720),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  Card(
+                    child: Padding(
+                      padding: const EdgeInsets.all(AppSpacing.xxl),
+                      child: Column(
+                        children: [
+                          const CalcademyLogo(
+                            size: 80,
+                            showWordmark: true,
+                            showTagline: true,
+                            direction: Axis.vertical,
+                          ),
+                          const SizedBox(height: AppSpacing.xl),
+                          Text(
+                            context.l10n.t('aboutBody'),
+                            textAlign: TextAlign.center,
+                            style: Theme.of(context).textTheme.bodyLarge,
+                          ),
+                          const SizedBox(height: AppSpacing.md),
+                          Semantics(
+                            label:
+                                '${context.l10n.t('versionLabel')} ${AppMetadata.versionName}',
+                            child: Chip(
+                              key: const Key('about-version'),
+                              avatar: const Icon(Icons.info_outline_rounded),
+                              label: Text(
+                                '${context.l10n.t('versionLabel')} '
+                                '${AppMetadata.versionName} '
+                                '(${AppMetadata.versionCode})',
+                              ),
+                            ),
+                          ),
+                          const SizedBox(height: AppSpacing.sm),
+                          OutlinedButton.icon(
+                            key: const Key('copy-app-info-action'),
+                            onPressed: () => _copyAppInfo(context),
+                            icon: const Icon(Icons.copy_rounded),
+                            label: Text(context.l10n.t('copyAppInfo')),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: AppSpacing.xl),
+                  _AboutSection(
+                    sectionKey: const Key('about-ai-assistant-section'),
+                    title: context.l10n.t('aiAssistantTitle'),
+                    icon: Icons.auto_awesome_outlined,
+                    children: [
+                      Text(
+                        context.l10n.t('aiAssistantAboutNotice'),
+                        style: Theme.of(context).textTheme.bodyLarge,
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: AppSpacing.xl),
+                  _AboutSection(
+                    sectionKey: const Key('about-privacy-section'),
+                    title: context.l10n.t('dataHandling'),
+                    icon: Icons.privacy_tip_outlined,
+                    children: [
+                      Text(
+                        context.l10n.t('privacyPolicyBody'),
+                        style: Theme.of(context).textTheme.bodyLarge,
+                      ),
+                      const SizedBox(height: AppSpacing.md),
+                      _InformationRow(
+                        icon: Icons.storage_rounded,
+                        title: context.l10n.t('localStorage'),
+                        body: context.l10n.t('localStorageBody'),
+                      ),
+                      const SizedBox(height: AppSpacing.md),
+                      _InformationRow(
+                        icon: Icons.ads_click_outlined,
+                        title: context.l10n.t('adsDisclosure'),
+                        body: context.l10n.t('adsDisclosureBody'),
+                      ),
+                      if (AppMetadata.parsePublicHttpsUrl(privacyPolicyUrl)
+                          case final Uri privacyPolicyUri) ...[
                         const SizedBox(height: AppSpacing.md),
-                        Semantics(
-                          label:
-                              '${context.l10n.t('versionLabel')} ${AppMetadata.versionName}',
-                          child: Chip(
-                            key: const Key('about-version'),
-                            avatar: const Icon(Icons.info_outline_rounded),
+                        SizedBox(
+                          width: double.infinity,
+                          child: OutlinedButton.icon(
+                            key: const Key('open-privacy-policy-action'),
+                            onPressed: () =>
+                                _openPrivacyPolicy(context, privacyPolicyUri),
+                            icon: const Icon(Icons.open_in_new_rounded),
                             label: Text(
-                              '${context.l10n.t('versionLabel')} '
-                              '${AppMetadata.versionName} '
-                              '(${AppMetadata.versionCode})',
+                              context.l10n.t('openPrivacyPolicy'),
+                              textAlign: TextAlign.center,
                             ),
                           ),
                         ),
-                        const SizedBox(height: AppSpacing.sm),
-                        OutlinedButton.icon(
-                          key: const Key('copy-app-info-action'),
-                          onPressed: () => _copyAppInfo(context),
-                          icon: const Icon(Icons.copy_rounded),
-                          label: Text(context.l10n.t('copyAppInfo')),
-                        ),
                       ],
-                    ),
-                  ),
-                ),
-                const SizedBox(height: AppSpacing.xl),
-                _AboutSection(
-                  sectionKey: const Key('about-ai-assistant-section'),
-                  title: context.l10n.t('aiAssistantTitle'),
-                  icon: Icons.auto_awesome_outlined,
-                  children: [
-                    Text(
-                      context.l10n.t('aiAssistantAboutNotice'),
-                      style: Theme.of(context).textTheme.bodyLarge,
-                    ),
-                  ],
-                ),
-                const SizedBox(height: AppSpacing.xl),
-                _AboutSection(
-                  sectionKey: const Key('about-privacy-section'),
-                  title: context.l10n.t('dataHandling'),
-                  icon: Icons.privacy_tip_outlined,
-                  children: [
-                    Text(
-                      context.l10n.t('privacyPolicyBody'),
-                      style: Theme.of(context).textTheme.bodyLarge,
-                    ),
-                    const SizedBox(height: AppSpacing.md),
-                    _InformationRow(
-                      icon: Icons.storage_rounded,
-                      title: context.l10n.t('localStorage'),
-                      body: context.l10n.t('localStorageBody'),
-                    ),
-                    const SizedBox(height: AppSpacing.md),
-                    _InformationRow(
-                      icon: Icons.ads_click_outlined,
-                      title: context.l10n.t('adsDisclosure'),
-                      body: context.l10n.t('adsDisclosureBody'),
-                    ),
-                    if (AppMetadata.parsePublicHttpsUrl(privacyPolicyUrl)
-                        case final Uri privacyPolicyUri) ...[
                       const SizedBox(height: AppSpacing.md),
-                      SizedBox(
-                        width: double.infinity,
-                        child: OutlinedButton.icon(
-                          key: const Key('open-privacy-policy-action'),
-                          onPressed: () =>
-                              _openPrivacyPolicy(context, privacyPolicyUri),
-                          icon: const Icon(Icons.open_in_new_rounded),
-                          label: Text(
-                            context.l10n.t('openPrivacyPolicy'),
-                            textAlign: TextAlign.center,
+                      Wrap(
+                        spacing: AppSpacing.xs,
+                        runSpacing: AppSpacing.xs,
+                        children: [
+                          _PrivacyFlag(
+                            icon: Icons.offline_bolt_outlined,
+                            label: context.l10n.t('localFirst'),
                           ),
+                          _PrivacyFlag(
+                            icon: Icons.ads_click_outlined,
+                            label: context.l10n.t('adSupported'),
+                          ),
+                          _PrivacyFlag(
+                            icon: Icons.analytics_outlined,
+                            label: context.l10n.t('noAnalytics'),
+                          ),
+                          _PrivacyFlag(
+                            icon: Icons.cloud_off_outlined,
+                            label: context.l10n.t('noCloudSync'),
+                          ),
+                          _PrivacyFlag(
+                            icon: Icons.person_off_outlined,
+                            label: context.l10n.t('noAccount'),
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: AppSpacing.xl),
+                  _AboutSection(
+                    sectionKey: const Key('about-legal-section'),
+                    title: context.l10n.t('educationalUse'),
+                    icon: Icons.school_outlined,
+                    children: [
+                      _InformationRow(
+                        icon: Icons.calculate_outlined,
+                        title: context.l10n.t('educationalUse'),
+                        body: context.l10n.t('educationalUseBody'),
+                      ),
+                      const Divider(height: AppSpacing.xxl),
+                      _InformationRow(
+                        icon: Icons.account_balance_outlined,
+                        title: context.l10n.t('financialDisclaimer'),
+                        body: context.l10n.t('financialDisclaimerBody'),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: AppSpacing.xl),
+                  _AboutSection(
+                    title: context.l10n.t('openSourceLicenses'),
+                    icon: Icons.code_rounded,
+                    children: [
+                      ListTile(
+                        contentPadding: EdgeInsets.zero,
+                        leading: const Icon(Icons.code_rounded),
+                        title: Text(context.l10n.t('openSourceLicenses')),
+                        subtitle: Text(
+                          context.l10n.t('openSourceLicensesBody'),
+                        ),
+                        trailing: const Icon(Icons.chevron_right_rounded),
+                        onTap: () => showLicensePage(
+                          context: context,
+                          applicationName: AppMetadata.appName,
+                          applicationVersion: AppMetadata.versionName,
                         ),
                       ),
                     ],
-                    const SizedBox(height: AppSpacing.md),
-                    Wrap(
-                      spacing: AppSpacing.xs,
-                      runSpacing: AppSpacing.xs,
-                      children: [
-                        _PrivacyFlag(
-                          icon: Icons.offline_bolt_outlined,
-                          label: context.l10n.t('localFirst'),
-                        ),
-                        _PrivacyFlag(
-                          icon: Icons.ads_click_outlined,
-                          label: context.l10n.t('adSupported'),
-                        ),
-                        _PrivacyFlag(
-                          icon: Icons.analytics_outlined,
-                          label: context.l10n.t('noAnalytics'),
-                        ),
-                        _PrivacyFlag(
-                          icon: Icons.cloud_off_outlined,
-                          label: context.l10n.t('noCloudSync'),
-                        ),
-                        _PrivacyFlag(
-                          icon: Icons.person_off_outlined,
-                          label: context.l10n.t('noAccount'),
-                        ),
-                      ],
-                    ),
-                  ],
-                ),
-                const SizedBox(height: AppSpacing.xl),
-                _AboutSection(
-                  sectionKey: const Key('about-legal-section'),
-                  title: context.l10n.t('educationalUse'),
-                  icon: Icons.school_outlined,
-                  children: [
-                    _InformationRow(
-                      icon: Icons.calculate_outlined,
-                      title: context.l10n.t('educationalUse'),
-                      body: context.l10n.t('educationalUseBody'),
-                    ),
-                    const Divider(height: AppSpacing.xxl),
-                    _InformationRow(
-                      icon: Icons.account_balance_outlined,
-                      title: context.l10n.t('financialDisclaimer'),
-                      body: context.l10n.t('financialDisclaimerBody'),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: AppSpacing.xl),
-                _AboutSection(
-                  title: context.l10n.t('openSourceLicenses'),
-                  icon: Icons.code_rounded,
-                  children: [
-                    ListTile(
-                      contentPadding: EdgeInsets.zero,
-                      leading: const Icon(Icons.code_rounded),
-                      title: Text(context.l10n.t('openSourceLicenses')),
-                      subtitle: Text(context.l10n.t('openSourceLicensesBody')),
-                      trailing: const Icon(Icons.chevron_right_rounded),
-                      onTap: () => showLicensePage(
-                        context: context,
-                        applicationName: AppMetadata.appName,
-                        applicationVersion: AppMetadata.versionName,
-                      ),
-                    ),
-                  ],
-                ),
-              ],
+                  ),
+                ],
+              ),
             ),
           ),
-        ),
-      ],
+        ],
+      ),
     ),
   );
 

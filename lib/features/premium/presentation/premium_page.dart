@@ -72,7 +72,7 @@ class _PremiumPageState extends ConsumerState<PremiumPage> {
                   AppBreakpoints.pagePadding(constraints.maxWidth).left,
                   AppSpacing.md,
                   AppBreakpoints.pagePadding(constraints.maxWidth).right,
-                  MediaQuery.paddingOf(context).bottom + AppSpacing.xxl,
+                  MediaQuery.viewPaddingOf(context).bottom + AppSpacing.xxl,
                 ),
                 children: [
                   _StatusCard(

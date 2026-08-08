@@ -1,3 +1,4 @@
+import 'package:calcademy/core/widgets/page_body.dart';
 import 'package:calcademy/app/ads/ad_banner.dart';
 import 'package:calcademy/app/theme/app_spacing.dart';
 import 'package:calcademy/core/widgets/empty_state.dart';
@@ -47,13 +48,17 @@ class SavedPage extends StatelessWidget {
             ],
           ),
         ),
-        body: const TabBarView(
-          children: [
-            _UnifiedSavedResultsTab(),
-            _SavedGraphsTab(),
-            _SavedMatricesTab(),
-            _SavedOptimizationsTab(),
-          ],
+        // Constrained once here rather than in each of the four tabs: they all
+        // scroll lists that would otherwise run edge to edge on a tablet.
+        body: const PageBody(
+          child: TabBarView(
+            children: [
+              _UnifiedSavedResultsTab(),
+              _SavedGraphsTab(),
+              _SavedMatricesTab(),
+              _SavedOptimizationsTab(),
+            ],
+          ),
         ),
         // Anchored banner below the tab content. Zero-height until an ad
         // loads, so it never pushes or clips the saved lists.
@@ -85,7 +90,7 @@ class _SavedOptimizationsTab extends ConsumerWidget {
       );
     }
     return ListView.builder(
-      padding: const EdgeInsets.all(AppSpacing.md),
+      padding: PageBody.scrollPadding(context),
       itemCount: items.length,
       itemBuilder: (context, index) {
         final item = items[index];
@@ -346,7 +351,7 @@ class _SavedMatricesTab extends ConsumerWidget {
             body: context.l10n.t('matrixNoSavedBody'),
           )
         : ListView.builder(
-            padding: const EdgeInsets.all(AppSpacing.md),
+            padding: PageBody.scrollPadding(context),
             itemCount: operations.length,
             itemBuilder: (context, index) => _SavedMatrixCard(
               operation: operations[index],
@@ -594,7 +599,7 @@ class _SavedGraphsTab extends ConsumerWidget {
             body: context.l10n.t('graphNoSavedBody'),
           )
         : ListView.builder(
-            padding: const EdgeInsets.all(AppSpacing.md),
+            padding: PageBody.scrollPadding(context),
             itemCount: graphs.length,
             itemBuilder: (context, index) => _SavedGraphCard(
               graph: graphs[index],

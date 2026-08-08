@@ -256,8 +256,8 @@ void main() {
     expect(AppMetadata.adsStatus, 'admob-banner');
     expect(AppMetadata.analyticsStatus, 'not-included');
     expect(AppMetadata.cloudSyncStatus, 'not-included');
-    expect(AppMetadata.versionName, '1.8.0');
-    expect(AppMetadata.buildNumber, 20);
+    expect(AppMetadata.versionName, '1.9.0');
+    expect(AppMetadata.buildNumber, 21);
     expect(
       AppMetadata.privacyPolicyUrl,
       'https://gundev.dev/gizlilik/calcademy',

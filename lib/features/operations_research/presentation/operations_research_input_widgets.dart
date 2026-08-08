@@ -24,13 +24,17 @@ class OrCountSelector extends StatelessWidget {
     mainAxisSize: MainAxisSize.min,
     children: [
       Flexible(child: Text('$label: $value')),
+      // The label carries the meaning here — a screen reader would otherwise
+      // announce two unnamed buttons and no way to tell them apart.
       IconButton(
+        tooltip: '$label −',
         visualDensity: VisualDensity.compact,
         onPressed: value <= minimum ? null : () => onChanged(value - 1),
         icon: const Icon(Icons.remove_circle_outline),
       ),
       IconButton(
         key: increaseKey,
+        tooltip: '$label +',
         visualDensity: VisualDensity.compact,
         onPressed: value >= maximum ? null : () => onChanged(value + 1),
         icon: const Icon(Icons.add_circle_outline),

@@ -1,3 +1,4 @@
+import 'package:calcademy/core/widgets/page_body.dart';
 import 'package:calcademy/app/theme/app_spacing.dart';
 import 'package:calcademy/core/widgets/result_action_bar.dart';
 import 'package:calcademy/features/matrix/data/matrix_repository.dart';
@@ -125,34 +126,36 @@ class _MatrixHomePageState extends ConsumerState<MatrixHomePage> {
           ),
         ],
       ),
-      body: ListView(
-        padding: const EdgeInsets.all(AppSpacing.md),
-        children: [
-          _IntroCard(onExample: _applyExample),
-          const SizedBox(height: AppSpacing.md),
-          _OperationSelector(onSelected: _selectOperation),
-          const SizedBox(height: AppSpacing.md),
-          _MatrixInputs(
-            key: ValueKey(_editorRevision),
-            matrixA: _matrixA,
-            matrixB: _matrixB,
-            initialA: _initialA,
-            initialB: _initialB,
-            scalar: _scalar,
-            rowOne: _rowOne,
-            rowTwo: _rowTwo,
-          ),
-          const SizedBox(height: AppSpacing.md),
-          FilledButton.icon(
-            key: const ValueKey('matrix-calculate'),
-            onPressed: _calculate,
-            icon: const Icon(Icons.calculate_outlined),
-            label: Text(context.l10n.t('matrixCalculate')),
-          ),
-          const SizedBox(height: AppSpacing.lg),
-          _MatrixResultPanel(onNewOperation: _newOperation),
-          const SizedBox(height: AppSpacing.xxl),
-        ],
+      body: PageBody(
+        child: ListView(
+          padding: PageBody.scrollPadding(context),
+          children: [
+            _IntroCard(onExample: _applyExample),
+            const SizedBox(height: AppSpacing.md),
+            _OperationSelector(onSelected: _selectOperation),
+            const SizedBox(height: AppSpacing.md),
+            _MatrixInputs(
+              key: ValueKey(_editorRevision),
+              matrixA: _matrixA,
+              matrixB: _matrixB,
+              initialA: _initialA,
+              initialB: _initialB,
+              scalar: _scalar,
+              rowOne: _rowOne,
+              rowTwo: _rowTwo,
+            ),
+            const SizedBox(height: AppSpacing.md),
+            FilledButton.icon(
+              key: const ValueKey('matrix-calculate'),
+              onPressed: _calculate,
+              icon: const Icon(Icons.calculate_outlined),
+              label: Text(context.l10n.t('matrixCalculate')),
+            ),
+            const SizedBox(height: AppSpacing.lg),
+            _MatrixResultPanel(onNewOperation: _newOperation),
+            const SizedBox(height: AppSpacing.xxl),
+          ],
+        ),
       ),
     );
   }
