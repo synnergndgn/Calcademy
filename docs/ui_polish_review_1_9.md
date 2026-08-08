@@ -5,7 +5,7 @@ changes, no billing, auth, or ad-behaviour changes.
 
 ## What the audit actually found
 
-Two real defects and one consistency gap. The rest of the app was already in
+Two real defects and two consistency gaps. The rest of the app was already in
 better shape than expected — 33 pages carried only two icon buttons without an
 accessible label, and the design tokens were widely used.
 
@@ -33,7 +33,37 @@ tablet while Home, Assistant, Premium, Formula, and the account screens stayed
 centred. On a 1024 px-wide device that is the difference between a readable
 column and a full-width line of text.
 
-### 3. Hardcoded spacing literals
+### 3. Only two of seven tools revealed their result
+
+Linear and Integer Programming scrolled the result into view after a solve.
+Matrix, Statistics, Calculus, Equation Solver, and the Financial Calculator did
+not — and on a phone every one of them puts its result below the fold, so
+pressing Calculate looked like nothing had happened.
+
+The helper was already generic in substance, only in the wrong place and under
+an optimization-specific name. It moved to
+`lib/core/widgets/result_auto_scroll.dart` as `scheduleResultAutoScroll`, with
+the 320 ms duration and 0.08 alignment as named constants instead of literals.
+LP/IP behaviour is unchanged — same call, same timing.
+
+**Success is not "no exception thrown."** The statistics, financial, and
+calculus controllers all catch validation errors and store a *failure result*
+rather than throwing, so a caller that scrolled whenever `calculate()` returned
+normally would yank the viewport on every typo. Each feature therefore gets a
+small `reveal…Result` helper next to its controller, which reads the stored
+result back and decides. The equation solver spells failure three different ways
+across its three slots; "no real roots" and "contradiction" are mathematical
+answers, not input errors, so those do reveal.
+
+Restoring a saved calculation replays the solve as the page opens. Scrolling
+there would animate the viewport during the entry transition, so those call
+sites pass `reveal: false` — the only reason the flag exists.
+
+The three equation solver tabs now `await` their controller call. It already
+returned a `Future` and was being dropped; the result has to be in state before
+we can ask whether it succeeded.
+
+### 4. Hardcoded spacing literals
 
 `fromLTRB(16, 8, 16, 28)`, `fromLTRB(4, 24, 4, 10)`, `fromLTRB(16, 0, 16, 24)`
 sat next to `AppSpacing` constants that already expressed the same values.
@@ -65,13 +95,13 @@ full-width text field is hard to scan.
 | Formula Library | None | — | — | ✅ | ✅ | ✅ |
 | Formula Detail | None | — | — | ✅ | ✅ | ✅ |
 | Graph Plotter | None | — | — | ✅ | ✅ | ✅ |
-| Matrix | Unconstrained body | Wrapped in `PageBody`, `scrollPadding` | — | ✅ | ✅ | ✅ |
-| Equation Solver | None | — | — | ✅ | ✅ | ✅ |
-| Calculus | None | — | — | ✅ | ✅ | ✅ |
-| Statistics | None | — | — | ✅ | ✅ | ✅ |
-| Financial Calculator | None | — | — | ✅ | ✅ | ✅ |
+| Matrix | Unconstrained body; result never revealed | Wrapped in `PageBody`, `scrollPadding`; auto-scroll on success | `execute()` returns false on failure — no scroll then | ✅ | ✅ | ✅ |
+| Equation Solver | Result never revealed | Auto-scroll on success; three tabs now await their solve | Failure spelled three ways across three slots | ✅ | ✅ | ✅ |
+| Calculus | Result never revealed | Auto-scroll on success | Restore replays the solve without scrolling | ✅ | ✅ | ✅ |
+| Statistics | Result never revealed | Auto-scroll on success | Controller stores failures instead of throwing | ✅ | ✅ | ✅ |
+| Financial Calculator | Result never revealed | Auto-scroll on success | Same failure-as-result shape as Statistics | ✅ | ✅ | ✅ |
 | OR | Two stepper icon buttons had no accessible label | Tooltips derived from the field label | — | ✅ | ✅ | ✅ |
-| LP / IP | Sub-pages unconstrained | **Not changed** — see remaining limitations | Deep-navigation screens, varied body shapes | ✅ | ✅ | ✅ |
+| LP / IP | Sub-pages unconstrained | **Not changed**; auto-scroll helper moved to `core/widgets`, behaviour identical | Deep-navigation screens, varied body shapes | ✅ | ✅ | ✅ |
 | AI Assistant | None | — | Local-only; no ads, no backend | ✅ | ✅ | ✅ |
 | Premium | Bottom inset read as zero | `viewPaddingOf` | State hierarchy unchanged | ✅ | ✅ | ✅ |
 | Account | None | — | — | ✅ | ✅ | ✅ |
@@ -106,6 +136,16 @@ account surface compiled out. 130 assertions.
 This matters more than a targeted assertion would: a layout overflow throws
 during paint, so a page that merely *renders* is proving the thing that broke.
 
+`test/app/result_auto_scroll_test.dart` pins the reveal in **both** directions:
+a valid calculation moves the viewport, an invalid one leaves it at zero. The
+negative case is the one worth locking down — scrolling away from the field the
+user is trying to fix is worse than not scrolling at all, and nothing else in
+the suite would notice it. The Matrix case additionally proves the result panel
+sits inside the lazy list's build window; an unbuilt target has no context and
+the helper would silently do nothing.
+
+Suite total: 830, up from 819.
+
 ## Known remaining UI limitations
 
 - **LP/IP sub-pages are still unconstrained.** Branch tree, model editor, model
@@ -116,6 +156,10 @@ during paint, so a page that merely *renders* is proving the thing that broke.
   Nothing is known to break, but nothing verifies it either.
 - **Text scale above 1.3 is untested.** Android allows up to 2.0. The existing
   Home and About tests cover 2.0 for those two pages only.
+- **Auto-scroll is not verified on hardware.** A test viewport has no keyboard
+  and no gesture bar. The animation is worth watching once on a device, in
+  particular on Statistics where the result replaces the same card the input
+  sits in.
 - **`AppBreakpoints.pagePadding` returns raw 24/16** rather than `AppSpacing`
   constants. Cosmetic, and changing it would touch every page's geometry.
 
@@ -136,6 +180,9 @@ inset. Recommended before release:
   stay reachable.
 - Settings, Saved, and History on a tablet — content should be centred, not
   edge to edge.
+- Calculate on Matrix, Statistics, Calculus, Equation Solver, and the Financial
+  Calculator with the keyboard up — the result should come into view, and a
+  deliberate typo should leave the viewport where it is.
 
 ## Production readiness
 
