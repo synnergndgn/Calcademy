@@ -50,6 +50,9 @@ class BranchNodeDetailsSheet extends StatelessWidget {
   }) => showModalBottomSheet<void>(
     context: context,
     isScrollControlled: true,
+    // The sheet can be dragged to full height, where an edge-to-edge window
+    // would otherwise put its top edge behind the status bar.
+    useSafeArea: true,
     builder: (_) => BranchNodeDetailsSheet(node: node, program: program),
   );
 
