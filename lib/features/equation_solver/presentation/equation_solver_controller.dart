@@ -118,8 +118,10 @@ class EquationWorkspaceController extends Notifier<EquationWorkspaceState> {
 void revealEquationResult(WidgetRef ref, GlobalKey resultKey) {
   final state = ref.read(equationWorkspaceProvider);
   final succeeded =
-      (state.singleResult != null && state.singleResult is! EquationSolveFailure) ||
-      (state.systemResult != null && state.systemResult is! LinearSystemInvalid) ||
+      (state.singleResult != null &&
+          state.singleResult is! EquationSolveFailure) ||
+      (state.systemResult != null &&
+          state.systemResult is! LinearSystemInvalid) ||
       (state.methodResult != null && state.methodResult!.failure == null);
   if (!succeeded) return;
   scheduleResultAutoScroll(resultKey);

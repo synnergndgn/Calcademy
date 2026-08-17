@@ -1,8 +1,10 @@
-import 'package:calcademy/app/theme/app_colors.dart';
-import 'package:calcademy/app/theme/app_radius.dart';
+import 'package:calcademy/app/theme/app_breakpoints.dart';
+import 'package:calcademy/app/theme/app_spacing.dart';
+import 'package:calcademy/core/widgets/calcademy_design.dart';
 import 'package:calcademy/features/calculator/domain/calculator_error.dart';
 import 'package:calcademy/features/calculator/presentation/calculator_controller.dart';
 import 'package:calcademy/features/calculator/presentation/calculator_keypad.dart';
+import 'package:calcademy/features/history/presentation/history_controller.dart';
 import 'package:calcademy/features/saved_calculations/application/adapters/calculator_saved_adapter.dart';
 import 'package:calcademy/features/saved_calculations/presentation/save_result_action.dart';
 import 'package:calcademy/features/settings/domain/app_settings.dart';
@@ -63,66 +65,75 @@ class _CalculatorPageState extends ConsumerState<CalculatorPage> {
   }
 
   @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: Text(context.l10n.t('calculator')),
-        actions: [
-          const _AngleModeButton(),
-          IconButton(
-            tooltip: context.l10n.t('history'),
-            onPressed: () => context.push('/history'),
-            icon: const Icon(Icons.history_rounded),
-          ),
-          _CalculatorCopyMenu(onCopy: _copy),
-        ],
+  Widget build(BuildContext context) => CalcademyScaffold(
+    maxContentWidth: AppBreakpoints.maxContentWidth,
+    title: Text(context.l10n.t('calculator')),
+    actions: [
+      const _AngleModeButton(),
+      IconButton(
+        tooltip: context.l10n.t('history'),
+        onPressed: () => context.push('/history'),
+        icon: const Icon(Icons.history_rounded),
       ),
-      body: SafeArea(
-        child: Center(
-          child: ConstrainedBox(
-            constraints: const BoxConstraints(maxWidth: 760),
-            child: CallbackShortcuts(
-              bindings: {
-                const SingleActivator(LogicalKeyboardKey.escape): _clear,
-                const SingleActivator(LogicalKeyboardKey.delete): _clear,
-              },
-              child: ListView(
-                padding: const EdgeInsets.fromLTRB(16, 8, 16, 24),
-                children: [
-                  TextField(
-                    key: const Key('expressionField'),
-                    controller: _textController,
-                    focusNode: _focusNode,
-                    readOnly: true,
-                    showCursor: true,
-                    minLines: 2,
-                    maxLines: 4,
-                    textAlign: TextAlign.end,
-                    style: Theme.of(context).textTheme.headlineSmall,
-                    decoration: InputDecoration(
-                      hintText: context.l10n.t('expressionHint'),
-                    ),
-                    onChanged: ref
-                        .read(calculatorProvider.notifier)
-                        .setExpression,
-                    onSubmitted: (_) => _evaluate(),
-                  ),
-                  const SizedBox(height: 12),
-                  _CalculatorResultPanel(onCopy: _copy, onUse: _replaceText),
-                  const SizedBox(height: 16),
-                  CalculatorKeypad(
-                    onKey: _handleKey,
-                    onBackspace: _backspace,
-                    onClear: _clear,
-                  ),
-                ],
+      _CalculatorCopyMenu(onCopy: _copy),
+    ],
+    body: SafeArea(
+      child: CallbackShortcuts(
+        bindings: {
+          const SingleActivator(LogicalKeyboardKey.escape): _clear,
+          const SingleActivator(LogicalKeyboardKey.delete): _clear,
+        },
+        child: LayoutBuilder(
+          builder: (context, constraints) {
+            final expanded = constraints.maxWidth >= AppBreakpoints.expanded;
+            final calculator = _CalculatorWorkspace(
+              textController: _textController,
+              focusNode: _focusNode,
+              onChanged: ref.read(calculatorProvider.notifier).setExpression,
+              onSubmitted: (_) => _evaluate(),
+              resultPanel: _CalculatorResultPanel(
+                onCopy: _copy,
+                onUse: _replaceText,
               ),
-            ),
-          ),
+              keypad: RepaintBoundary(
+                child: CalculatorKeypad(
+                  onKey: _handleKey,
+                  onBackspace: _backspace,
+                  onClear: _clear,
+                ),
+              ),
+            );
+            return ListView(
+              padding: const EdgeInsets.fromLTRB(16, 8, 16, 24),
+              children: [
+                if (expanded) ...[
+                  StudyHeader(
+                    compact: true,
+                    eyebrow: context.l10n.t('calculatorWorkspaceEyebrow'),
+                    title: context.l10n.t('calculatorWorkspaceTitle'),
+                    subtitle: context.l10n.t('calculatorWorkspaceBody'),
+                    formula: 'f(x) → result',
+                  ),
+                  const SizedBox(height: AppSpacing.md),
+                ],
+                if (expanded)
+                  Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Expanded(flex: 3, child: calculator),
+                      const SizedBox(width: AppSpacing.xl),
+                      const Expanded(flex: 2, child: _CalculatorNotebookPane()),
+                    ],
+                  )
+                else
+                  calculator,
+              ],
+            );
+          },
         ),
       ),
-    );
-  }
+    ),
+  );
 
   Future<void> _handleKey(String key) async {
     if (key == '=') {
@@ -197,9 +208,7 @@ class _CalculatorPageState extends ConsumerState<CalculatorPage> {
     _focusNode.requestFocus();
   }
 
-  void _replaceText(String text) {
-    _setTextAndSelection(text, text.length);
-  }
+  void _replaceText(String text) => _setTextAndSelection(text, text.length);
 
   void _setTextAndSelection(
     String text,
@@ -224,6 +233,104 @@ class _CalculatorPageState extends ConsumerState<CalculatorPage> {
         context,
       ).showSnackBar(SnackBar(content: Text(context.l10n.t('copied'))));
     }
+  }
+}
+
+class _CalculatorWorkspace extends StatelessWidget {
+  const _CalculatorWorkspace({
+    required this.textController,
+    required this.focusNode,
+    required this.onChanged,
+    required this.onSubmitted,
+    required this.resultPanel,
+    required this.keypad,
+  });
+
+  final TextEditingController textController;
+  final FocusNode focusNode;
+  final ValueChanged<String> onChanged;
+  final ValueChanged<String> onSubmitted;
+  final Widget resultPanel;
+  final Widget keypad;
+
+  @override
+  Widget build(BuildContext context) => Column(
+    crossAxisAlignment: CrossAxisAlignment.stretch,
+    children: [
+      ExpressionDisplay(
+        controller: textController,
+        focusNode: focusNode,
+        hintText: context.l10n.t('expressionHint'),
+        onChanged: onChanged,
+        onSubmitted: onSubmitted,
+      ),
+      const SizedBox(height: AppSpacing.sm),
+      resultPanel,
+      const SizedBox(height: AppSpacing.md),
+      keypad,
+    ],
+  );
+}
+
+class _CalculatorNotebookPane extends ConsumerWidget {
+  const _CalculatorNotebookPane();
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final records = ref.watch(historyProvider).take(5).toList(growable: false);
+    final colors = Theme.of(context).colorScheme;
+    return Container(
+      padding: const EdgeInsets.all(AppSpacing.lg),
+      decoration: BoxDecoration(
+        color: colors.surfaceContainerLowest,
+        border: Border(left: BorderSide(color: colors.tertiary, width: 3)),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          SectionLabel(
+            title: context.l10n.t('recent'),
+            icon: Icons.history_rounded,
+          ),
+          const SizedBox(height: AppSpacing.md),
+          if (records.isEmpty)
+            Text(
+              context.l10n.t('noRecent'),
+              style: Theme.of(
+                context,
+              ).textTheme.bodyMedium?.copyWith(color: colors.onSurfaceVariant),
+            )
+          else
+            for (final record in records)
+              InkWell(
+                onTap: () => context.push(
+                  '/calculator?expression='
+                  '${Uri.encodeQueryComponent(record.expression)}',
+                ),
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(vertical: AppSpacing.sm),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
+                      Text(
+                        record.expression,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: const TextStyle(fontFamily: 'monospace'),
+                      ),
+                      Text(
+                        '= ${record.result}',
+                        textAlign: TextAlign.end,
+                        style: Theme.of(context).textTheme.titleMedium
+                            ?.copyWith(color: colors.primary),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+        ],
+      ),
+    );
   }
 }
 
@@ -296,76 +403,33 @@ class _CalculatorResultPanel extends ConsumerWidget {
         ),
       ),
     );
-    final theme = Theme.of(context);
-    final colors = theme.colorScheme;
     final errorText = panelState.error == null
         ? null
         : _errorText(context, panelState.error!);
-    return Container(
-      key: const Key('resultPanel'),
-      constraints: const BoxConstraints(minHeight: 112),
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: errorText == null
-            ? colors.primaryContainer
-            : colors.errorContainer,
-        borderRadius: AppRadius.card,
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          Row(
-            children: [
-              Text(context.l10n.t('result'), style: theme.textTheme.labelLarge),
-              if (errorText == null && panelState.hasResult) ...[
-                const SizedBox(width: 8),
-                const DecoratedBox(
-                  decoration: BoxDecoration(
-                    color: AppColors.dataPoint,
-                    shape: BoxShape.circle,
-                  ),
-                  child: SizedBox.square(dimension: 8),
+    return ResultPanel(
+      label: context.l10n.t('result'),
+      value: panelState.result,
+      error: errorText,
+      actions: panelState.hasResult
+          ? [
+              IconButton(
+                tooltip: context.l10n.t('copyResult'),
+                onPressed: () => onCopy(panelState.result),
+                icon: const Icon(Icons.copy_rounded),
+              ),
+              if (panelState.lastRecord case final record?)
+                SaveResultAction(
+                  buttonKey: const Key('calculator-save-calculation'),
+                  draft: CalculatorSavedAdapter.fromRecord(record),
+                  compact: true,
                 ),
-              ],
-            ],
-          ),
-          const SizedBox(height: 4),
-          SelectableText(
-            errorText ?? (panelState.hasResult ? panelState.result : '—'),
-            key: const Key('resultText'),
-            textAlign: TextAlign.end,
-            style: theme.textTheme.headlineMedium?.copyWith(
-              color: errorText == null
-                  ? colors.onPrimaryContainer
-                  : colors.onErrorContainer,
-            ),
-          ),
-          if (panelState.hasResult) ...[
-            const SizedBox(height: 8),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.end,
-              children: [
-                IconButton(
-                  tooltip: context.l10n.t('copyResult'),
-                  onPressed: () => onCopy(panelState.result),
-                  icon: const Icon(Icons.copy_rounded),
-                ),
-                if (panelState.lastRecord case final record?)
-                  SaveResultAction(
-                    buttonKey: const Key('calculator-save-calculation'),
-                    draft: CalculatorSavedAdapter.fromRecord(record),
-                    compact: true,
-                  ),
-                IconButton(
-                  tooltip: context.l10n.t('useResult'),
-                  onPressed: () => onUse(panelState.result),
-                  icon: const Icon(Icons.call_made_rounded),
-                ),
-              ],
-            ),
-          ],
-        ],
-      ),
+              IconButton(
+                tooltip: context.l10n.t('useResult'),
+                onPressed: () => onUse(panelState.result),
+                icon: const Icon(Icons.call_made_rounded),
+              ),
+            ]
+          : const [],
     );
   }
 }

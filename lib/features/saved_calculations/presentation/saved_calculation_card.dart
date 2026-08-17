@@ -1,4 +1,5 @@
 import 'package:calcademy/app/theme/app_spacing.dart';
+import 'package:calcademy/core/widgets/calcademy_design.dart';
 import 'package:calcademy/features/saved_calculations/domain/saved_calculation.dart';
 import 'package:calcademy/l10n/app_localizations.dart';
 import 'package:flutter/material.dart';
@@ -27,9 +28,8 @@ class SavedCalculationCard extends StatelessWidget {
     final timestamp =
         '${material.formatCompactDate(localDate)} '
         '${material.formatTimeOfDay(TimeOfDay.fromDateTime(localDate))}';
-    return Card(
+    return NotebookSavedItem(
       key: ValueKey('saved-card-${item.id}'),
-      margin: const EdgeInsets.only(bottom: AppSpacing.sm),
       child: Padding(
         padding: const EdgeInsets.all(AppSpacing.md),
         child: Column(
@@ -95,8 +95,15 @@ class SavedCalculationCard extends StatelessWidget {
             const SizedBox(height: AppSpacing.xs),
             DecoratedBox(
               decoration: BoxDecoration(
-                color: Theme.of(context).colorScheme.surfaceContainerHighest,
-                borderRadius: BorderRadius.circular(12),
+                color: Theme.of(
+                  context,
+                ).colorScheme.primaryContainer.withValues(alpha: 0.45),
+                border: Border(
+                  left: BorderSide(
+                    color: Theme.of(context).colorScheme.primary,
+                    width: 2,
+                  ),
+                ),
               ),
               child: Padding(
                 padding: const EdgeInsets.all(AppSpacing.sm),

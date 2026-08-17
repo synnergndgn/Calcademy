@@ -51,13 +51,21 @@ class GraphRepository {
   final SharedPreferences preferences;
 
   List<SavedGraph> load() {
-    final source = preferences.getString(_savedGraphsKey);
-    if (source == null) return [];
     try {
-      return (jsonDecode(source) as List<Object?>)
-          .whereType<Map<String, Object?>>()
-          .map(SavedGraph.fromJson)
-          .toList();
+      final source = preferences.getString(_savedGraphsKey);
+      if (source == null) return [];
+      final decoded = jsonDecode(source);
+      if (decoded is! List) return [];
+      final graphs = <SavedGraph>[];
+      for (final item in decoded) {
+        try {
+          if (item is! Map) continue;
+          graphs.add(SavedGraph.fromJson(Map<String, Object?>.from(item)));
+        } on Object {
+          // Keep valid workspaces when one legacy record is unreadable.
+        }
+      }
+      return graphs;
     } on Object {
       return [];
     }

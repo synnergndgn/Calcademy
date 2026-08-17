@@ -22,22 +22,36 @@ class SettingsController extends Notifier<AppSettings> {
   AppSettings build() {
     final prefs = ref.watch(sharedPreferencesProvider);
     final deviceLanguage = PlatformDispatcher.instance.locale.languageCode;
-    final language =
-        prefs.getString(_languageKey) ?? (deviceLanguage == 'tr' ? 'tr' : 'en');
+    final storedLanguage = _safeRead(() => prefs.getString(_languageKey));
+    final language = storedLanguage == 'tr' || storedLanguage == 'en'
+        ? storedLanguage!
+        : (deviceLanguage == 'tr' ? 'tr' : 'en');
+    final storedTheme = _safeRead(() => prefs.getString(_themeKey));
+    final storedAngle = _safeRead(() => prefs.getString(_angleKey));
+    final storedPrecision = _safeRead(() => prefs.getInt(_precisionKey));
     return AppSettings(
       themeMode: ThemeMode.values.firstWhere(
-        (item) => item.name == prefs.getString(_themeKey),
+        (item) => item.name == storedTheme,
         orElse: () => ThemeMode.system,
       ),
       languageCode: language,
-      angleMode: prefs.getString(_angleKey) == AngleMode.radians.name
+      angleMode: storedAngle == AngleMode.radians.name
           ? AngleMode.radians
           : AngleMode.degrees,
-      hapticsEnabled: prefs.getBool(_hapticsKey) ?? true,
-      keySoundEnabled: prefs.getBool(_soundKey) ?? false,
-      decimalPrecision: prefs.getInt(_precisionKey) ?? 10,
-      scientificNotation: prefs.getBool(_scientificKey) ?? true,
+      hapticsEnabled: _safeRead(() => prefs.getBool(_hapticsKey)) ?? true,
+      keySoundEnabled: _safeRead(() => prefs.getBool(_soundKey)) ?? false,
+      decimalPrecision: (storedPrecision ?? 10).clamp(4, 15),
+      scientificNotation:
+          _safeRead(() => prefs.getBool(_scientificKey)) ?? true,
     );
+  }
+
+  T? _safeRead<T>(T? Function() read) {
+    try {
+      return read();
+    } on Object {
+      return null;
+    }
   }
 
   Future<void> setThemeMode(ThemeMode value) async {
@@ -46,8 +60,9 @@ class SettingsController extends Notifier<AppSettings> {
   }
 
   Future<void> setLanguage(String value) async {
-    state = state.copyWith(languageCode: value);
-    await ref.read(sharedPreferencesProvider).setString(_languageKey, value);
+    final language = value == 'tr' ? 'tr' : 'en';
+    state = state.copyWith(languageCode: language);
+    await ref.read(sharedPreferencesProvider).setString(_languageKey, language);
   }
 
   Future<void> setAngleMode(AngleMode value) async {
@@ -66,8 +81,9 @@ class SettingsController extends Notifier<AppSettings> {
   }
 
   Future<void> setPrecision(int value) async {
-    state = state.copyWith(decimalPrecision: value);
-    await ref.read(sharedPreferencesProvider).setInt(_precisionKey, value);
+    final precision = value.clamp(4, 15);
+    state = state.copyWith(decimalPrecision: precision);
+    await ref.read(sharedPreferencesProvider).setInt(_precisionKey, precision);
   }
 
   Future<void> setScientificNotation(bool value) async {

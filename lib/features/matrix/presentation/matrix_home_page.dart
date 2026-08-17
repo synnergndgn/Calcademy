@@ -154,10 +154,7 @@ class _MatrixHomePageState extends ConsumerState<MatrixHomePage> {
               label: Text(context.l10n.t('matrixCalculate')),
             ),
             const SizedBox(height: AppSpacing.lg),
-            _MatrixResultPanel(
-              key: _resultKey,
-              onNewOperation: _newOperation,
-            ),
+            _MatrixResultPanel(key: _resultKey, onNewOperation: _newOperation),
             const SizedBox(height: AppSpacing.xxl),
           ],
         ),

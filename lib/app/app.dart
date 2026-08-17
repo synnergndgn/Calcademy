@@ -1,5 +1,6 @@
 import 'package:calcademy/app/router.dart';
 import 'package:calcademy/app/theme/app_theme.dart';
+import 'package:calcademy/core/widgets/calcademy_design.dart';
 import 'package:calcademy/features/settings/presentation/settings_controller.dart';
 import 'package:calcademy/l10n/app_localizations.dart';
 import 'package:flutter/material.dart';
@@ -26,6 +27,10 @@ class CalcademyApp extends ConsumerWidget {
         GlobalWidgetsLocalizations.delegate,
         GlobalCupertinoLocalizations.delegate,
       ],
+      builder: (context, child) => GraphPaperBackground(
+        intensity: 0.72,
+        child: child ?? const SizedBox.shrink(),
+      ),
       routerConfig: appRouter,
     );
   }

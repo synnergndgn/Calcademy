@@ -38,6 +38,9 @@ class SavedGraph {
   };
 
   factory SavedGraph.fromJson(Map<String, Object?> json) {
+    final rawYMin = (json['manualYMin'] as num?)?.toDouble() ?? -10;
+    final rawYMax = (json['manualYMax'] as num?)?.toDouble() ?? 10;
+    final hasSafeYRange = GraphYRange.isValid(rawYMin, rawYMax);
     return SavedGraph(
       id: json['id']! as String,
       title: json['title']! as String,
@@ -49,8 +52,8 @@ class SavedGraph {
         Map<String, Object?>.from(json['range']! as Map),
       ),
       autoY: json['autoY'] as bool? ?? true,
-      manualYMin: (json['manualYMin'] as num?)?.toDouble() ?? -10,
-      manualYMax: (json['manualYMax'] as num?)?.toDouble() ?? 10,
+      manualYMin: hasSafeYRange ? rawYMin : -10,
+      manualYMax: hasSafeYRange ? rawYMax : 10,
       angleMode: json['angleMode'] == GraphAngleMode.degrees.name
           ? GraphAngleMode.degrees
           : GraphAngleMode.radians,

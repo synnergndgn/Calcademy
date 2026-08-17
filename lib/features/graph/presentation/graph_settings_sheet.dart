@@ -159,6 +159,7 @@ class _GraphSettingsPanelState extends ConsumerState<GraphSettingsPanel> {
                 children: [
                   Expanded(
                     child: TextField(
+                      key: const Key('graphYMin'),
                       controller: _yMin,
                       keyboardType: const TextInputType.numberWithOptions(
                         decimal: true,
@@ -172,6 +173,7 @@ class _GraphSettingsPanelState extends ConsumerState<GraphSettingsPanel> {
                   const SizedBox(width: AppSpacing.sm),
                   Expanded(
                     child: TextField(
+                      key: const Key('graphYMax'),
                       controller: _yMax,
                       keyboardType: const TextInputType.numberWithOptions(
                         decimal: true,

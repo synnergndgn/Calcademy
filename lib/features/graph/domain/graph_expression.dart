@@ -18,9 +18,12 @@ class GraphExpressionException implements Exception {
 class GraphExpressionCompiler {
   const GraphExpressionCompiler();
 
+  static const maxSourceLength = 256;
+
   GraphEvaluator compile(String source) {
     final normalized = _normalize(source);
     if (normalized.isEmpty ||
+        normalized.length > maxSourceLength ||
         RegExp(r'[^0-9a-zA-Z_+\-*/^().,\s]').hasMatch(normalized)) {
       throw const GraphExpressionException(GraphExpressionError.invalid);
     }
@@ -48,8 +51,16 @@ class GraphEvaluator {
     double x, {
     GraphAngleMode angleMode = GraphAngleMode.radians,
   }) {
-    final value = _root.evaluate(x, angleMode);
-    return value.isFinite ? value : double.nan;
+    if (!x.isFinite) return double.nan;
+    try {
+      final value = _root.evaluate(x, angleMode);
+      return value.isFinite ? value : double.nan;
+    } on Object {
+      // Operations such as floor(infinity) can throw before the root value is
+      // available. Evaluation is intentionally total from the graph engine's
+      // perspective: an invalid/domain/overflow result is simply undefined.
+      return double.nan;
+    }
   }
 }
 
@@ -307,6 +318,7 @@ class _BinaryNode extends _Node {
   double evaluate(double x, GraphAngleMode angleMode) {
     final leftValue = left.evaluate(x, angleMode);
     final rightValue = right.evaluate(x, angleMode);
+    if (!leftValue.isFinite || !rightValue.isFinite) return double.nan;
     return switch (operator) {
       '+' => leftValue + rightValue,
       '-' => leftValue - rightValue,
@@ -327,6 +339,7 @@ class _FunctionNode extends _Node {
   @override
   double evaluate(double x, GraphAngleMode angleMode) {
     final value = argument.evaluate(x, angleMode);
+    if (!value.isFinite) return double.nan;
     final radians = angleMode == GraphAngleMode.degrees
         ? value * math.pi / 180
         : value;

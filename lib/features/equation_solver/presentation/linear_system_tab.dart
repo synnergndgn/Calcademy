@@ -119,7 +119,9 @@ class _LinearSystemTabState extends ConsumerState<LinearSystemTab> {
       _solvedCoefficients = coefficients;
       _solvedRhs = rhs;
     });
-    await ref.read(equationWorkspaceProvider.notifier).solveSystem(coefficients, rhs);
+    await ref
+        .read(equationWorkspaceProvider.notifier)
+        .solveSystem(coefficients, rhs);
     if (!mounted || !reveal) return;
     revealEquationResult(ref, _resultKey);
   }

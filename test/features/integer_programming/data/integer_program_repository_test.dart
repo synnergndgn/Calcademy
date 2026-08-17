@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:calcademy/features/integer_programming/data/integer_program_repository.dart';
 import 'package:calcademy/features/integer_programming/domain/branch_and_bound_solver.dart';
 import 'package:calcademy/features/integer_programming/domain/integer_program_examples.dart';
@@ -66,6 +68,29 @@ void main() {
       await SharedPreferences.getInstance(),
     );
     expect(repository.load(), isEmpty);
+  });
+
+  test('repository preserves valid models beside a corrupt record', () async {
+    final date = DateTime(2026, 7, 17);
+    final valid = SavedIntegerProgram(
+      id: 'ip-valid',
+      title: 'Valid',
+      program: IntegerProgramExamples.knapsack,
+      result: null,
+      createdAt: date,
+      updatedAt: date,
+    );
+    SharedPreferences.setMockInitialValues({
+      IntegerProgramRepository.savedKey: jsonEncode([
+        {'id': 'corrupt'},
+        valid.toJson(),
+      ]),
+    });
+    final repository = IntegerProgramRepository(
+      await SharedPreferences.getInstance(),
+    );
+
+    expect(repository.load().map((item) => item.id), ['ip-valid']);
   });
 
   group('repository upsert behaviour', () {

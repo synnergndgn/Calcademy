@@ -118,6 +118,19 @@ void main() {
       );
     });
 
+    test('rejects excessively long expressions before parsing', () {
+      final expression = List.filled(300, '1').join('+');
+
+      expect(
+        () => engine.evaluate(expression),
+        throwsA(
+          predicate<CalculatorException>(
+            (error) => error.type == CalculatorErrorType.invalid,
+          ),
+        ),
+      );
+    });
+
     test('reports division by zero', () {
       expect(
         () => engine.evaluate('1 / 0'),

@@ -1,11 +1,5 @@
 import 'package:calcademy/app/navigation_shell.dart';
-import 'package:calcademy/features/account/presentation/account_page.dart';
-import 'package:calcademy/features/account/presentation/create_account_page.dart';
-import 'package:calcademy/features/account/presentation/delete_account_page.dart';
-import 'package:calcademy/features/account/presentation/sign_in_page.dart';
 import 'package:calcademy/features/calculator/presentation/calculator_page.dart';
-import 'package:calcademy/features/ai_assistant/presentation/ai_assistant_page.dart';
-import 'package:calcademy/features/camera_solver/presentation/camera_solver_page.dart';
 import 'package:calcademy/features/history/presentation/history_page.dart';
 import 'package:calcademy/features/graph/presentation/graph_page.dart';
 import 'package:calcademy/features/home/presentation/coming_soon_page.dart';
@@ -13,7 +7,6 @@ import 'package:calcademy/features/home/presentation/home_page.dart';
 import 'package:calcademy/features/home/presentation/splash_page.dart';
 import 'package:calcademy/features/matrix/presentation/matrix_home_page.dart';
 import 'package:calcademy/features/operations_research/presentation/operations_research_page.dart';
-import 'package:calcademy/features/premium/presentation/premium_page.dart';
 import 'package:calcademy/features/linear_programming/presentation/linear_program_page.dart';
 import 'package:calcademy/features/integer_programming/presentation/integer_program_home_page.dart';
 import 'package:calcademy/features/equation_solver/presentation/equation_solver_page.dart';
@@ -49,25 +42,6 @@ final appRouter = GoRouter(
           builder: (context, state) => const SettingsPage(),
         ),
       ],
-    ),
-    GoRoute(
-      path: '/assistant',
-      builder: (context, state) => const AiAssistantPage(),
-    ),
-    GoRoute(path: '/premium', builder: (context, state) => const PremiumPage()),
-    GoRoute(path: '/account', builder: (context, state) => const AccountPage()),
-    GoRoute(path: '/sign-in', builder: (context, state) => const SignInPage()),
-    GoRoute(
-      path: '/create-account',
-      builder: (context, state) => const CreateAccountPage(),
-    ),
-    GoRoute(
-      path: '/account/delete',
-      builder: (context, state) => const DeleteAccountPage(),
-    ),
-    GoRoute(
-      path: '/camera-solver',
-      builder: (context, state) => const CameraSolverPage(),
     ),
     GoRoute(
       path: '/calculator',

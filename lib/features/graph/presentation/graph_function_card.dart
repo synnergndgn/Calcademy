@@ -1,9 +1,11 @@
 import 'package:calcademy/app/theme/app_spacing.dart';
+import 'package:calcademy/features/graph/domain/graph_expression.dart';
 import 'package:calcademy/features/graph/presentation/graph_controller.dart';
 import 'package:calcademy/features/graph/presentation/graph_palette.dart';
 import 'package:calcademy/l10n/app_localizations.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter/services.dart';
 
 class GraphFunctionList extends ConsumerWidget {
   const GraphFunctionList({super.key});
@@ -153,6 +155,11 @@ class _GraphFunctionCardState extends ConsumerState<GraphFunctionCard> {
               controller: _controller,
               autocorrect: false,
               enableSuggestions: false,
+              inputFormatters: [
+                LengthLimitingTextInputFormatter(
+                  GraphExpressionCompiler.maxSourceLength,
+                ),
+              ],
               keyboardType: TextInputType.text,
               decoration: InputDecoration(
                 labelText: context.l10n.t('graphFunctionExpression'),

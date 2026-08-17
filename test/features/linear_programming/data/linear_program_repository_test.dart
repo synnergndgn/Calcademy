@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:calcademy/features/linear_programming/data/linear_program_repository.dart';
 import 'package:calcademy/features/linear_programming/domain/linear_program_result.dart';
 import 'package:calcademy/features/linear_programming/domain/lp_examples.dart';
@@ -40,5 +42,29 @@ void main() {
       await SharedPreferences.getInstance(),
     );
     expect(repository.load(), isEmpty);
+  });
+
+  test('repository preserves valid models beside a corrupt record', () async {
+    final date = DateTime(2026, 7, 17);
+    final valid = SavedLinearProgram(
+      id: 'lp-valid',
+      title: 'Valid',
+      program: LpExamples.productMix,
+      status: LinearProgramStatus.optimal,
+      objectiveValue: 10,
+      createdAt: date,
+      updatedAt: date,
+    );
+    SharedPreferences.setMockInitialValues({
+      LinearProgramRepository.savedKey: jsonEncode([
+        {'id': 'corrupt'},
+        valid.toJson(),
+      ]),
+    });
+    final repository = LinearProgramRepository(
+      await SharedPreferences.getInstance(),
+    );
+
+    expect(repository.load().map((item) => item.id), ['lp-valid']);
   });
 }

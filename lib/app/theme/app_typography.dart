@@ -7,18 +7,22 @@ abstract final class AppTypography {
         : Typography.material2021().white;
     return base.copyWith(
       displaySmall: base.displaySmall?.copyWith(
-        fontWeight: FontWeight.w600,
-        letterSpacing: -0.6,
+        fontWeight: FontWeight.w700,
+        letterSpacing: -1.1,
       ),
       headlineMedium: base.headlineMedium?.copyWith(
         fontWeight: FontWeight.w600,
         letterSpacing: -0.25,
       ),
-      headlineSmall: base.headlineSmall?.copyWith(fontWeight: FontWeight.w600),
+      headlineSmall: base.headlineSmall?.copyWith(
+        fontWeight: FontWeight.w700,
+        letterSpacing: -0.35,
+      ),
       titleLarge: base.titleLarge?.copyWith(fontWeight: FontWeight.w600),
       titleMedium: base.titleMedium?.copyWith(fontWeight: FontWeight.w600),
       bodyLarge: base.bodyLarge?.copyWith(height: 1.45),
       bodyMedium: base.bodyMedium?.copyWith(height: 1.4),
+      labelLarge: base.labelLarge?.copyWith(fontWeight: FontWeight.w600),
     );
   }
 }

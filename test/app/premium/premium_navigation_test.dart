@@ -65,6 +65,7 @@ void main() {
       await tester.pumpAndSettle();
     }
     await tester.ensureVisible(tile);
+    await tester.pumpAndSettle();
     await tester.tap(tile.hitTestable());
     await tester.pumpAndSettle();
 

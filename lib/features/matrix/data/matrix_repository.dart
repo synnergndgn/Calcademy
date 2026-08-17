@@ -52,13 +52,23 @@ class MatrixRepository {
   final SharedPreferences preferences;
 
   List<SavedMatrixOperation> load() {
-    final source = preferences.getString(savedMatricesKey);
-    if (source == null) return [];
     try {
-      return (jsonDecode(source) as List<Object?>)
-          .whereType<Map<String, Object?>>()
-          .map(SavedMatrixOperation.fromJson)
-          .toList();
+      final source = preferences.getString(savedMatricesKey);
+      if (source == null) return [];
+      final decoded = jsonDecode(source);
+      if (decoded is! List) return [];
+      final operations = <SavedMatrixOperation>[];
+      for (final item in decoded) {
+        try {
+          if (item is! Map) continue;
+          operations.add(
+            SavedMatrixOperation.fromJson(Map<String, Object?>.from(item)),
+          );
+        } on Object {
+          // Keep valid operations when one legacy record is unreadable.
+        }
+      }
+      return operations;
     } on Object {
       return [];
     }

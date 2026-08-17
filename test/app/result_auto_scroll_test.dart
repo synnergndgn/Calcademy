@@ -50,18 +50,12 @@ Future<void> _pump(WidgetTester tester, Widget page) async {
   await tester.pumpAndSettle();
 }
 
-/// The furthest-scrolled viewport on screen. A page may host more than one
-/// (a horizontal chip strip, a nested list), so the vertical one that actually
-/// moved is the maximum.
-double _offset(WidgetTester tester) => tester
-    .stateList<ScrollableState>(find.byType(Scrollable))
-    .map((state) => state.position.pixels)
-    .fold<double>(0, (best, pixels) => pixels > best ? pixels : best);
-
-double _positionOffset(WidgetTester tester, Finder scrollView) =>
-    tester.state<ScrollableState>(
+double _positionOffset(WidgetTester tester, Finder scrollView) => tester
+    .state<ScrollableState>(
       find.descendant(of: scrollView, matching: find.byType(Scrollable)).first,
-    ).position.pixels;
+    )
+    .position
+    .pixels;
 
 void main() {
   group('the shared helper', () {
@@ -71,7 +65,10 @@ void main() {
         MaterialApp(
           home: SingleChildScrollView(
             child: Column(
-              children: [const SizedBox(height: 2000), Container(key: key)],
+              children: [
+                const SizedBox(height: 2000),
+                Container(key: key),
+              ],
             ),
           ),
         ),

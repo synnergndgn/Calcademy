@@ -91,11 +91,7 @@ abstract final class GraphSavedAdapter {
         final yRange = Map<String, Object?>.from(rawYRange);
         final yMin = (yRange['min'] as num?)?.toDouble();
         final yMax = (yRange['max'] as num?)?.toDouble();
-        if (yMin == null ||
-            yMax == null ||
-            !yMin.isFinite ||
-            !yMax.isFinite ||
-            yMin >= yMax) {
+        if (yMin == null || yMax == null || !GraphYRange.isValid(yMin, yMax)) {
           return null;
         }
         manualYMin = yMin;

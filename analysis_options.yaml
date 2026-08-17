@@ -9,6 +9,26 @@
 # packages, and plugins designed to encourage good coding practices.
 include: package:flutter_lints/flutter.yaml
 
+# Dormant product experiments are retained as source reference but are not
+# linked into the offline, accountless, ad-supported release application.
+analyzer:
+  exclude:
+    - lib/app/auth/**
+    - lib/app/billing/**
+    - lib/app/config/app_config.dart
+    - lib/app/premium/**
+    - lib/features/account/**
+    - lib/features/ai_assistant/**
+    - lib/features/camera_solver/**
+    - lib/features/premium/**
+    - test/app/auth/**
+    - test/app/billing/**
+    - test/app/premium/**
+    - test/app/ai_assistant_routing_test.dart
+    - test/app/ads/ai_assistant_ad_placement_test.dart
+    - test/app/ads/premium_ad_entitlement_test.dart
+    - test/features/ai_assistant/**
+
 linter:
   # The lint rules applied to this project can be customized in the
   # section below to disable rules from the `package:flutter_lints/flutter.yaml`

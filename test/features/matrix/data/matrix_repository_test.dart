@@ -37,6 +37,19 @@ void main() {
     expect((decoded.result as ScalarMatrixResult).value, 5);
   });
 
+  test('load skips a corrupt matrix while preserving valid records', () async {
+    final valid = _saved('matrix-valid', 'Valid');
+    SharedPreferences.setMockInitialValues({
+      MatrixRepository.savedMatricesKey: jsonEncode([
+        {'id': 'corrupt'},
+        valid.toJson(),
+      ]),
+    });
+    final repository = MatrixRepository(await SharedPreferences.getInstance());
+
+    expect(repository.load().map((item) => item.id), ['matrix-valid']);
+  });
+
   test('matrix writes preserve calculator and graph preference keys', () async {
     SharedPreferences.setMockInitialValues({
       'calculator.saved': 'calculator-data',

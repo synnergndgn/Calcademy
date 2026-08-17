@@ -18,10 +18,10 @@ class LocalCalculationRepository {
   static const _savedKey = 'calculator.saved';
 
   List<CalculationRecord> loadHistory() =>
-      _decode(_historyKey).map(CalculationRecord.fromJson).toList();
+      _decode(_historyKey, CalculationRecord.fromJson);
 
   List<SavedCalculation> loadSaved() =>
-      _decode(_savedKey).map(SavedCalculation.fromJson).toList();
+      _decode(_savedKey, SavedCalculation.fromJson);
 
   Future<void> saveHistory(List<CalculationRecord> records) =>
       preferences.setString(
@@ -35,16 +35,29 @@ class LocalCalculationRepository {
         jsonEncode(records.map((item) => item.toJson()).toList()),
       );
 
-  List<Map<String, Object?>> _decode(String key) {
-    final source = preferences.getString(key);
-    if (source == null) return [];
+  List<T> _decode<T>(
+    String key,
+    T Function(Map<String, Object?> json) fromJson,
+  ) {
     try {
-      final items = jsonDecode(source) as List<Object?>;
-      return items
-          .whereType<Map<String, Object?>>()
-          .map(Map<String, Object?>.from)
-          .toList();
-    } on FormatException {
+      final source = preferences.getString(key);
+      if (source == null) return [];
+      final decoded = jsonDecode(source);
+      if (decoded is! List) return [];
+      final items = <T>[];
+      for (final item in decoded) {
+        try {
+          if (item is! Map) continue;
+          items.add(fromJson(Map<String, Object?>.from(item)));
+        } on Object {
+          // Preserve every valid record when an older or partially corrupted
+          // payload contains an item that can no longer be decoded.
+        }
+      }
+      return items;
+    } on Object {
+      // Local preference corruption or a legacy value of the wrong type must
+      // not prevent the app from starting.
       return [];
     }
   }

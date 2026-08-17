@@ -53,16 +53,23 @@ class IntegerProgramRepository {
   final SharedPreferences preferences;
 
   List<SavedIntegerProgram> load() {
-    final source = preferences.getString(savedKey);
-    if (source == null) return [];
     try {
-      return (jsonDecode(source) as List<Object?>)
-          .map(
-            (item) => SavedIntegerProgram.fromJson(
-              Map<String, Object?>.from(item! as Map),
-            ),
-          )
-          .toList();
+      final source = preferences.getString(savedKey);
+      if (source == null) return [];
+      final decoded = jsonDecode(source);
+      if (decoded is! List) return [];
+      final programs = <SavedIntegerProgram>[];
+      for (final item in decoded) {
+        try {
+          if (item is! Map) continue;
+          programs.add(
+            SavedIntegerProgram.fromJson(Map<String, Object?>.from(item)),
+          );
+        } on Object {
+          // Keep valid models when one legacy record is unreadable.
+        }
+      }
+      return programs;
     } on Object {
       return [];
     }

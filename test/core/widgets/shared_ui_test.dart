@@ -1,4 +1,5 @@
 import 'package:calcademy/app/theme/app_theme.dart';
+import 'package:calcademy/core/widgets/calcademy_design.dart';
 import 'package:calcademy/core/widgets/empty_state.dart';
 import 'package:calcademy/core/widgets/result_action_bar.dart';
 import 'package:calcademy/core/widgets/section_header.dart';
@@ -35,6 +36,38 @@ void main() {
     );
     expect(find.text('Mathematics'), findsOneWidget);
     expect(find.byIcon(Icons.calculate_rounded), findsOneWidget);
+  });
+
+  testWidgets('compact module action never squeezes Open workspace', (
+    tester,
+  ) async {
+    await tester.pumpWidget(
+      _app(
+        const Align(
+          alignment: Alignment.topLeft,
+          child: SizedBox(
+            width: 138,
+            child: ProfessionalModuleCard(
+              compact: true,
+              module: AcademyModule(
+                id: 'compact-workspace',
+                titleKey: 'formulaLibraryTitle',
+                descriptionKey: 'formulaLibrarySubtitle',
+                icon: Icons.menu_book_rounded,
+                category: AcademyModuleCategory.workspace,
+                route: '/formulas',
+                available: true,
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+
+    final action = tester.widget<Text>(find.text('Open'));
+    expect(action.maxLines, 1);
+    expect(find.text('Open workspace'), findsNothing);
+    expect(tester.takeException(), isNull);
   });
 
   testWidgets('shared empty, section, and status states render semantics', (
@@ -103,6 +136,67 @@ void main() {
       greaterThanOrEqualTo(48),
     );
     expect(tester.takeException(), isNull);
+  });
+
+  testWidgets('academic primitives reflow at 320px and 200 percent text', (
+    tester,
+  ) async {
+    tester.view.physicalSize = const Size(320, 900);
+    tester.view.devicePixelRatio = 1;
+    tester.platformDispatcher.textScaleFactorTestValue = 2;
+    addTearDown(tester.view.resetPhysicalSize);
+    addTearDown(tester.view.resetDevicePixelRatio);
+    addTearDown(tester.platformDispatcher.clearTextScaleFactorTestValue);
+
+    await tester.pumpWidget(
+      _app(
+        SingleChildScrollView(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              StudyHeader(
+                eyebrow: 'Workspace',
+                title: 'A long academic workspace title',
+                subtitle: 'Supporting copy remains readable without clipping.',
+                formula: 'f(x) → result',
+                trailing: FilledButton(
+                  onPressed: () {},
+                  child: const Text('Open notebook'),
+                ),
+              ),
+              ToolDock(
+                items: [
+                  for (var index = 0; index < 5; index++)
+                    ToolDockItem(
+                      key: Key('dock-$index'),
+                      icon: Icons.calculate_outlined,
+                      label: 'Long tool label $index',
+                      onTap: () {},
+                    ),
+                ],
+              ),
+              SectionHeader(
+                title: 'Responsive section',
+                subtitle: 'A subtitle that may occupy multiple lines.',
+                trailing: OutlinedButton(
+                  onPressed: () {},
+                  child: const Text('View all results'),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+    await tester.pumpAndSettle();
+
+    expect(tester.takeException(), isNull);
+    for (var index = 0; index < 5; index++) {
+      final rect = tester.getRect(find.byKey(Key('dock-$index')));
+      expect(rect.left, greaterThanOrEqualTo(0));
+      expect(rect.right, lessThanOrEqualTo(320));
+      expect(rect.height, greaterThanOrEqualTo(48));
+    }
   });
 }
 

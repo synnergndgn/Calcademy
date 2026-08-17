@@ -1,13 +1,12 @@
 import 'package:calcademy/app/ads/ad_banner.dart';
 import 'package:calcademy/app/theme/app_breakpoints.dart';
-import 'package:calcademy/app/theme/app_radius.dart';
 import 'package:calcademy/app/theme/app_spacing.dart';
+import 'package:calcademy/core/widgets/calcademy_design.dart';
 import 'package:calcademy/core/widgets/calcademy_logo.dart';
 import 'package:calcademy/core/widgets/empty_state.dart';
 import 'package:calcademy/core/widgets/section_header.dart';
 import 'package:calcademy/features/history/domain/calculation_record.dart';
 import 'package:calcademy/features/history/presentation/history_controller.dart';
-import 'package:calcademy/app/premium/premium_surface.dart';
 import 'package:calcademy/features/home/models/academy_module.dart';
 import 'package:calcademy/features/home/presentation/widgets/professional_module_card.dart';
 import 'package:calcademy/features/settings/presentation/settings_controller.dart';
@@ -37,8 +36,7 @@ class _HomePageState extends ConsumerState<HomePage> {
   Widget build(BuildContext context) {
     final recent = ref.watch(historyProvider).take(3).toList(growable: false);
     final query = _searchController.text.trim().toLowerCase();
-    final premiumSurface = ref.watch(premiumSurfaceEnabledProvider);
-    final modules = visibleAcademyModules(premiumSurface: premiumSurface);
+    final modules = academyModules;
     final matchingModules = modules
         .where(
           (module) =>
@@ -55,21 +53,17 @@ class _HomePageState extends ConsumerState<HomePage> {
         .toList();
     final hasResults = matchingModules.isNotEmpty;
     final quickAccess = [
-      for (final id in visibleQuickAccessModuleIds(
-        premiumSurface: premiumSurface,
-      ))
+      for (final id in visibleQuickAccessModuleIds())
         modules.firstWhere((module) => module.id == id),
     ];
 
-    return Scaffold(
-      appBar: AppBar(
-        title: const _HomeBrand(),
-        actions: const [
-          _AboutButton(),
-          _ThemeButton(),
-          SizedBox(width: AppSpacing.xs),
-        ],
-      ),
+    return CalcademyScaffold(
+      title: const _HomeBrand(),
+      actions: const [
+        _AboutButton(),
+        _ThemeButton(),
+        SizedBox(width: AppSpacing.xs),
+      ],
       // Low-intrusion anchored banner below the module grid. Renders nothing
       // until an ad loads, so it never affects layout in tests or offline.
       bottomNavigationBar: const AdBanner(),
@@ -126,13 +120,11 @@ class _HomePageState extends ConsumerState<HomePage> {
                           ),
                           const SizedBox(height: AppSpacing.lg),
                           if (!hasResults)
-                            Card(
-                              child: EmptyState(
-                                key: const Key('home-search-empty'),
-                                icon: Icons.search_off_rounded,
-                                title: context.l10n.t('homeNoResultsTitle'),
-                                body: context.l10n.t('homeNoResultsBody'),
-                              ),
+                            EmptyState(
+                              key: const Key('home-search-empty'),
+                              icon: Icons.search_off_rounded,
+                              title: context.l10n.t('homeNoResultsTitle'),
+                              body: context.l10n.t('homeNoResultsBody'),
                             )
                           else ...[
                             for (final category in AcademyModuleCategory.values)
@@ -241,48 +233,12 @@ class _HeroCard extends StatelessWidget {
   const _HeroCard();
 
   @override
-  Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    final colors = theme.colorScheme;
-    return DecoratedBox(
-      decoration: BoxDecoration(
-        color: colors.primaryContainer,
-        borderRadius: AppRadius.hero,
-        border: Border.all(color: colors.outlineVariant),
-      ),
-      child: Padding(
-        padding: const EdgeInsets.all(AppSpacing.lg),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              context.l10n.t('homeHeroEyebrow').toUpperCase(),
-              style: theme.textTheme.labelMedium?.copyWith(
-                color: colors.primary,
-                letterSpacing: 1,
-              ),
-            ),
-            const SizedBox(height: AppSpacing.xxs),
-            Text(
-              context.l10n.t('welcome'),
-              style: theme.textTheme.headlineSmall?.copyWith(
-                color: colors.onPrimaryContainer,
-              ),
-            ),
-            const SizedBox(height: AppSpacing.xxs),
-            Text(
-              context.l10n.t('welcomeBody'),
-              maxLines: 2,
-              overflow: TextOverflow.ellipsis,
-              style: theme.textTheme.bodyMedium?.copyWith(
-                color: colors.onPrimaryContainer,
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
+  Widget build(BuildContext context) => StudyHeader(
+    eyebrow: context.l10n.t('homeHeroEyebrow'),
+    title: context.l10n.t('homeReadyTitle'),
+    subtitle: context.l10n.t('welcomeBody'),
+    formula: 'Think  ·  Calculate  ·  Remember',
+  );
 }
 
 class _ModuleSearchField extends StatelessWidget {
@@ -323,68 +279,76 @@ class _QuickAccessGrid extends StatelessWidget {
   final List<AcademyModule> modules;
 
   @override
-  Widget build(BuildContext context) => LayoutBuilder(
-    builder: (context, constraints) {
-      final columns = constraints.maxWidth >= AppBreakpoints.expanded ? 6 : 3;
-      final textScale = MediaQuery.textScalerOf(context).scale(1);
-      final width =
-          (constraints.maxWidth - AppSpacing.xs * (columns - 1)) / columns;
-      return Wrap(
-        key: const Key('home-quick-access'),
-        spacing: AppSpacing.xs,
-        runSpacing: AppSpacing.xs,
-        children: [
-          for (final module in modules)
-            SizedBox(
-              width: width,
-              height: textScale > 1.3 ? 136 : 104,
-              child: _QuickAccessTile(module: module),
-            ),
-        ],
-      );
-    },
-  );
-}
-
-class _QuickAccessTile extends StatelessWidget {
-  const _QuickAccessTile({required this.module});
-
-  final AcademyModule module;
-
-  @override
   Widget build(BuildContext context) {
-    final colors = Theme.of(context).colorScheme;
-    final title = context.l10n.t(module.titleKey);
-    return Semantics(
-      button: true,
-      label: title,
-      child: Card(
-        key: Key('quick-access-${module.id}'),
-        margin: EdgeInsets.zero,
-        clipBehavior: Clip.antiAlias,
-        child: InkWell(
+    final moduleItems = {
+      for (final module in modules)
+        module.id: ToolDockItem(
+          key: Key('quick-access-${module.id}'),
+          icon: module.icon,
+          label: context.l10n.t(module.titleKey),
           onTap: () => context.push(module.route!),
-          child: Padding(
-            padding: const EdgeInsets.all(AppSpacing.xs),
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Icon(module.icon, color: colors.primary, size: 28),
-                const SizedBox(height: AppSpacing.xs),
-                Text(
-                  title,
-                  maxLines: 2,
-                  overflow: TextOverflow.ellipsis,
-                  textAlign: TextAlign.center,
-                  style: Theme.of(context).textTheme.labelMedium?.copyWith(
-                    fontWeight: FontWeight.w600,
-                  ),
-                ),
-              ],
-            ),
-          ),
         ),
+    };
+    moduleItems.remove('calculator');
+    final items = <ToolDockItem>[
+      ToolDockItem(
+        key: const Key('quick-access-calculator'),
+        icon: Icons.calculate_rounded,
+        label: context.l10n.t('calculator'),
+        onTap: () => context.push('/calculator'),
       ),
+      ToolDockItem(
+        key: const Key('quick-access-history'),
+        icon: Icons.history_rounded,
+        label: context.l10n.t('history'),
+        onTap: () => context.push('/history'),
+      ),
+      if (moduleItems.remove('saved') case final saved?)
+        saved
+      else
+        ToolDockItem(
+          key: const Key('quick-access-saved'),
+          icon: Icons.bookmarks_rounded,
+          label: context.l10n.t('saved'),
+          onTap: () => context.push('/saved'),
+        ),
+      ToolDockItem(
+        key: const Key('quick-access-settings'),
+        icon: Icons.tune_rounded,
+        label: context.l10n.t('settings'),
+        onTap: () => context.push('/settings'),
+      ),
+      ToolDockItem(
+        key: const Key('quick-access-about'),
+        icon: Icons.school_outlined,
+        label: context.l10n.t('about'),
+        onTap: () => context.push('/about'),
+      ),
+      ...moduleItems.values,
+    ];
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final perRow = constraints.maxWidth >= AppBreakpoints.expanded
+            ? items.length
+            : 5;
+        final groups = <List<ToolDockItem>>[];
+        for (var index = 0; index < items.length; index += perRow) {
+          final end = index + perRow < items.length
+              ? index + perRow
+              : items.length;
+          groups.add(items.sublist(index, end));
+        }
+        return Column(
+          key: const Key('home-quick-access'),
+          children: [
+            for (var index = 0; index < groups.length; index++) ...[
+              ToolDock(items: groups[index]),
+              if (index != groups.length - 1)
+                const SizedBox(height: AppSpacing.xs),
+            ],
+          ],
+        );
+      },
     );
   }
 }
@@ -477,7 +441,9 @@ class _ResponsiveModuleGrid extends StatelessWidget {
           for (final module in modules)
             SizedBox(
               width: width,
-              child: ProfessionalModuleCard(module: module, compact: true),
+              child: RepaintBoundary(
+                child: ProfessionalModuleCard(module: module, compact: true),
+              ),
             ),
         ],
       );
@@ -493,33 +459,29 @@ class _RecentCalculations extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     if (records.isEmpty) {
-      return Card(
-        child: EmptyState(
-          icon: Icons.history_toggle_off_rounded,
-          title: context.l10n.t('noRecentTitle'),
-          body: context.l10n.t('noRecent'),
-        ),
+      return EmptyState(
+        icon: Icons.history_toggle_off_rounded,
+        title: context.l10n.t('noRecentTitle'),
+        body: context.l10n.t('noRecent'),
       );
     }
-    return Card(
-      clipBehavior: Clip.antiAlias,
-      child: Column(
-        children: [
-          for (final item in records)
-            ListTile(
-              title: Text(
-                item.expression,
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
-              ),
-              subtitle: Text('= ${item.result}'),
-              trailing: const Icon(Icons.arrow_forward_rounded),
-              onTap: () => context.push(
-                '/calculator?expression=${Uri.encodeQueryComponent(item.expression)}',
-              ),
+    return Column(
+      children: [
+        for (var index = 0; index < records.length; index++)
+          TimelineCalculationItem(
+            expression: records[index].expression,
+            result: records[index].result,
+            metadata: records[index].angleMode.name == 'degrees'
+                ? 'DEG'
+                : 'RAD',
+            isLast: index == records.length - 1,
+            actions: const [],
+            onTap: () => context.push(
+              '/calculator?expression='
+              '${Uri.encodeQueryComponent(records[index].expression)}',
             ),
-        ],
-      ),
+          ),
+      ],
     );
   }
 }

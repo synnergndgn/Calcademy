@@ -7,7 +7,10 @@
     <application
         android:label="Calcademy"
         android:name="${applicationName}"
-        android:icon="@mipmap/ic_launcher">
+        android:icon="@mipmap/ic_launcher"
+        android:allowBackup="false"
+        android:fullBackupContent="@xml/backup_rules"
+        android:dataExtractionRules="@xml/data_extraction_rules">
         <!-- Google AdMob *application* id (tilde form). A missing or malformed
              value crashes the Mobile Ads SDK at init, so it is kept in sync with
              AdConfig.androidAppId in lib/app/ads/ad_config.dart. The banner

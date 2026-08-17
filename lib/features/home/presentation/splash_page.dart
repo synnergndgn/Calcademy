@@ -1,6 +1,7 @@
-import 'package:calcademy/app/theme/app_radius.dart';
 import 'package:calcademy/app/theme/app_spacing.dart';
 import 'package:calcademy/core/widgets/calcademy_logo.dart';
+import 'package:calcademy/core/widgets/calcademy_design.dart';
+import 'package:calcademy/l10n/app_localizations.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
@@ -35,14 +36,8 @@ class _SplashPageState extends State<SplashPage>
   Widget build(BuildContext context) {
     final colors = Theme.of(context).colorScheme;
     return Scaffold(
-      body: DecoratedBox(
-        decoration: BoxDecoration(
-          gradient: LinearGradient(
-            begin: Alignment.topCenter,
-            end: Alignment.bottomCenter,
-            colors: [colors.surface, colors.primaryContainer],
-          ),
-        ),
+      body: GraphPaperBackground(
+        intensity: 1.3,
         child: SafeArea(
           child: Center(
             child: SingleChildScrollView(
@@ -66,15 +61,41 @@ class _SplashPageState extends State<SplashPage>
                       vertical: AppSpacing.xxl,
                     ),
                     decoration: BoxDecoration(
-                      color: colors.surface.withValues(alpha: 0.88),
-                      borderRadius: AppRadius.hero,
-                      border: Border.all(color: colors.outlineVariant),
+                      gradient: LinearGradient(
+                        begin: Alignment.topLeft,
+                        end: Alignment.bottomRight,
+                        colors: [
+                          colors.surface.withValues(alpha: 0.96),
+                          colors.primaryContainer.withValues(alpha: 0.72),
+                        ],
+                      ),
+                      border: Border(
+                        left: BorderSide(color: colors.primary, width: 4),
+                        bottom: BorderSide(color: colors.outlineVariant),
+                      ),
                     ),
-                    child: const CalcademyLogo(
-                      size: 112,
-                      showWordmark: true,
-                      showTagline: true,
-                      direction: Axis.vertical,
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        const CalcademyLogo(
+                          size: 112,
+                          showWordmark: true,
+                          showTagline: true,
+                          direction: Axis.vertical,
+                        ),
+                        const SizedBox(height: AppSpacing.xl),
+                        Container(width: 72, height: 2, color: colors.tertiary),
+                        const SizedBox(height: AppSpacing.md),
+                        Text(
+                          context.l10n.t('launchTagline'),
+                          textAlign: TextAlign.center,
+                          style: Theme.of(context).textTheme.labelLarge
+                              ?.copyWith(
+                                color: colors.onSurfaceVariant,
+                                letterSpacing: 1.1,
+                              ),
+                        ),
+                      ],
                     ),
                   ),
                 ),

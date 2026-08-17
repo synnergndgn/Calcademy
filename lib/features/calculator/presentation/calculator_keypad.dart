@@ -1,4 +1,4 @@
-import 'package:calcademy/app/theme/app_radius.dart';
+import 'package:calcademy/core/widgets/calcademy_design.dart';
 import 'package:flutter/material.dart';
 
 class CalculatorKeypad extends StatelessWidget {
@@ -81,34 +81,19 @@ class CalculatorKeypad extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    final colors = theme.colorScheme;
-    final standardTextStyle = theme.textTheme.titleMedium?.copyWith(
-      color: colors.onSurface,
-      fontWeight: FontWeight.w500,
-    );
-    final operatorTextStyle = theme.textTheme.titleMedium?.copyWith(
-      color: colors.onSecondaryContainer,
-      fontWeight: FontWeight.w700,
-    );
-    final primaryTextStyle = operatorTextStyle?.copyWith(
-      color: colors.onPrimary,
-    );
-    final scientificTextStyle = standardTextStyle?.copyWith(
-      color: colors.onPrimaryContainer,
-    );
-    final destructiveTextStyle = standardTextStyle?.copyWith(
-      color: colors.onErrorContainer,
-    );
     return LayoutBuilder(
       builder: (context, constraints) {
-        final ratio = constraints.maxWidth > 600 ? 1.75 : 1.15;
+        final compact = constraints.maxWidth < 360;
+        final columns = compact ? 5 : 6;
+        final ratio = constraints.maxWidth > 600
+            ? 1.75
+            : (compact ? 1.0 : 1.15);
         return GridView.builder(
           shrinkWrap: true,
           physics: const NeverScrollableScrollPhysics(),
           itemCount: keys.length,
           gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-            crossAxisCount: 6,
+            crossAxisCount: columns,
             mainAxisSpacing: 7,
             crossAxisSpacing: 7,
             childAspectRatio: ratio,
@@ -119,51 +104,28 @@ class CalculatorKeypad extends StatelessWidget {
             final isDestructive = key == 'AC' || key == '⌫';
             final isOperator = _operatorKeys.contains(key);
             final isScientific = _scientificKeys.contains(key);
-            return Semantics(
-              button: true,
-              label: _semanticLabel(key),
-              child: Material(
-                color: isPrimary
-                    ? colors.primary
-                    : isDestructive
-                    ? colors.errorContainer
-                    : isOperator
-                    ? colors.secondaryContainer
-                    : isScientific
-                    ? colors.primaryContainer.withValues(alpha: 0.58)
-                    : colors.surfaceContainerHigh,
-                borderRadius: AppRadius.control,
-                child: InkWell(
-                  borderRadius: AppRadius.control,
-                  onTap: () {
-                    if (key == 'AC') {
-                      onClear();
-                    } else if (key == '⌫') {
-                      onBackspace();
-                    } else {
-                      onKey(key);
-                    }
-                  },
-                  onLongPress: key == '⌫' ? onClear : null,
-                  child: Center(
-                    child: FittedBox(
-                      fit: BoxFit.scaleDown,
-                      child: Text(
-                        key,
-                        style: isPrimary
-                            ? primaryTextStyle
-                            : isDestructive
-                            ? destructiveTextStyle
-                            : isOperator
-                            ? operatorTextStyle
-                            : isScientific
-                            ? scientificTextStyle
-                            : standardTextStyle,
-                      ),
-                    ),
-                  ),
-                ),
-              ),
+            return SoftCalculatorKey(
+              label: key,
+              semanticLabel: _semanticLabel(key),
+              kind: isPrimary
+                  ? CalculatorKeyKind.primary
+                  : isDestructive
+                  ? CalculatorKeyKind.action
+                  : isOperator
+                  ? CalculatorKeyKind.operator
+                  : isScientific
+                  ? CalculatorKeyKind.scientific
+                  : CalculatorKeyKind.number,
+              onTap: () {
+                if (key == 'AC') {
+                  onClear();
+                } else if (key == '⌫') {
+                  onBackspace();
+                } else {
+                  onKey(key);
+                }
+              },
+              onLongPress: key == '⌫' ? onClear : null,
             );
           },
         );

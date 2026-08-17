@@ -1,4 +1,3 @@
-import 'package:calcademy/app/premium/premium_surface.dart';
 import 'package:calcademy/app/theme/app_theme.dart';
 import 'package:calcademy/core/services/preferences.dart';
 import 'package:calcademy/features/home/presentation/home_page.dart';
@@ -67,50 +66,8 @@ void main() {
       findsOneWidget,
     );
     expect(find.byKey(const Key('quick-access-saved')), findsOneWidget);
-    expect(find.byKey(const Key('quick-access-ai-assistant')), findsOneWidget);
+    expect(find.byKey(const Key('quick-access-ai-assistant')), findsNothing);
     expect(find.text('Quick access'), findsOneWidget);
-  });
-
-  testWidgets('search finds AI Assistant with Turkish help terms', (
-    tester,
-  ) async {
-    await _pumpHome(tester);
-
-    for (final query in [
-      'ai',
-      'assistant',
-      'asistan',
-      'yardım',
-      'çözüm',
-      'problem',
-    ]) {
-      await tester.enterText(
-        find.byKey(const Key('home-module-search')),
-        query,
-      );
-      await tester.pump();
-      expect(find.byKey(const Key('module-card-ai-assistant')), findsOneWidget);
-    }
-  });
-
-  testWidgets('search finds Premium and Camera Solver placeholders', (
-    tester,
-  ) async {
-    await _pumpHome(tester);
-
-    await tester.enterText(
-      find.byKey(const Key('home-module-search')),
-      'premium',
-    );
-    await tester.pump();
-    expect(find.byKey(const Key('module-card-premium')), findsOneWidget);
-
-    await tester.enterText(
-      find.byKey(const Key('home-module-search')),
-      'kamera',
-    );
-    await tester.pump();
-    expect(find.byKey(const Key('module-card-camera-solver')), findsOneWidget);
   });
 
   testWidgets('search exposes Saved as a home module', (tester) async {
@@ -226,9 +183,6 @@ void main() {
       ProviderScope(
         overrides: [
           sharedPreferencesProvider.overrideWithValue(preferences),
-          // Home is exercised here as the full product surface; the
-          // ad-supported build is covered in free_build_surface_test.
-          premiumSurfaceEnabledProvider.overrideWithValue(true),
         ],
         child: _app(routerConfig: router),
       ),
@@ -289,9 +243,6 @@ Future<void> _pumpHome(WidgetTester tester, {bool dark = false}) async {
     ProviderScope(
       overrides: [
         sharedPreferencesProvider.overrideWithValue(preferences),
-        // Home is exercised here as the full product surface; the
-        // ad-supported build is covered in free_build_surface_test.
-        premiumSurfaceEnabledProvider.overrideWithValue(true),
       ],
       child: _app(home: const HomePage(), dark: dark),
     ),

@@ -2,6 +2,7 @@ import 'package:calcademy/core/widgets/page_body.dart';
 import 'package:calcademy/app/app_metadata.dart';
 import 'package:calcademy/app/theme/app_spacing.dart';
 import 'package:calcademy/core/widgets/calcademy_logo.dart';
+import 'package:calcademy/core/widgets/calcademy_design.dart';
 import 'package:calcademy/core/widgets/section_header.dart';
 import 'package:calcademy/l10n/app_localizations.dart';
 import 'package:flutter/material.dart';
@@ -21,8 +22,8 @@ class AboutPage extends StatelessWidget {
   final ExternalUrlLauncher? externalUrlLauncher;
 
   @override
-  Widget build(BuildContext context) => Scaffold(
-    appBar: AppBar(title: Text(context.l10n.t('aboutLegal'))),
+  Widget build(BuildContext context) => CalcademyScaffold(
+    title: Text(context.l10n.t('aboutLegal')),
     body: PageBody(
       child: ListView(
         key: const Key('about-legal-scroll'),
@@ -37,7 +38,7 @@ class AboutPage extends StatelessWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
-                  Card(
+                  NotebookSavedItem(
                     child: Padding(
                       padding: const EdgeInsets.all(AppSpacing.xxl),
                       child: Column(
@@ -49,6 +50,15 @@ class AboutPage extends StatelessWidget {
                             direction: Axis.vertical,
                           ),
                           const SizedBox(height: AppSpacing.xl),
+                          Text(
+                            context.l10n.t('aboutManifesto'),
+                            textAlign: TextAlign.center,
+                            style: Theme.of(context).textTheme.headlineSmall
+                                ?.copyWith(
+                                  color: Theme.of(context).colorScheme.primary,
+                                ),
+                          ),
+                          const SizedBox(height: AppSpacing.sm),
                           Text(
                             context.l10n.t('aboutBody'),
                             textAlign: TextAlign.center,
@@ -80,16 +90,14 @@ class AboutPage extends StatelessWidget {
                     ),
                   ),
                   const SizedBox(height: AppSpacing.xl),
-                  _AboutSection(
-                    sectionKey: const Key('about-ai-assistant-section'),
-                    title: context.l10n.t('aiAssistantTitle'),
-                    icon: Icons.auto_awesome_outlined,
-                    children: [
-                      Text(
-                        context.l10n.t('aiAssistantAboutNotice'),
-                        style: Theme.of(context).textTheme.bodyLarge,
-                      ),
-                    ],
+                  NotebookSavedItem(
+                    key: const Key('about-ai-assistant-section'),
+                    accent: Theme.of(context).colorScheme.outline,
+                    child: ListTile(
+                      leading: const Icon(Icons.science_outlined),
+                      title: Text(context.l10n.t('futureTools')),
+                      subtitle: Text(context.l10n.t('futureToolsPassiveBody')),
+                    ),
                   ),
                   const SizedBox(height: AppSpacing.xl),
                   _AboutSection(
@@ -269,7 +277,8 @@ class _AboutSection extends StatelessWidget {
     children: [
       SectionHeader(title: title, icon: icon),
       const SizedBox(height: AppSpacing.sm),
-      Card(
+      NotebookSavedItem(
+        accent: Theme.of(context).colorScheme.primary,
         child: Padding(
           padding: const EdgeInsets.all(AppSpacing.md),
           child: Column(

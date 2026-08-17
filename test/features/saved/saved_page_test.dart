@@ -5,7 +5,9 @@ import 'package:calcademy/core/services/preferences.dart';
 import 'package:calcademy/features/graph/data/graph_repository.dart';
 import 'package:calcademy/features/graph/domain/graph_expression.dart';
 import 'package:calcademy/features/graph/domain/graph_function.dart';
+import 'package:calcademy/features/graph/domain/graph_point.dart';
 import 'package:calcademy/features/graph/domain/graph_range.dart';
+import 'package:calcademy/features/graph/domain/graph_sampler.dart';
 import 'package:calcademy/features/graph/domain/saved_graph.dart';
 import 'package:calcademy/features/graph/presentation/graph_controller.dart';
 import 'package:calcademy/features/graph/presentation/graph_page.dart';
@@ -194,7 +196,10 @@ Future<ProviderContainer> _pumpSaved(
   addTearDown(router.dispose);
   await tester.pumpWidget(
     ProviderScope(
-      overrides: [sharedPreferencesProvider.overrideWithValue(preferences)],
+      overrides: [
+        sharedPreferencesProvider.overrideWithValue(preferences),
+        graphSamplerProvider.overrideWithValue(_SynchronousGraphSampler()),
+      ],
       child: MaterialApp.router(
         theme: AppTheme.light(),
         locale: const Locale('en'),
@@ -211,6 +216,27 @@ Future<ProviderContainer> _pumpSaved(
   );
   await tester.pumpAndSettle();
   return ProviderScope.containerOf(tester.element(find.byType(SavedPage)));
+}
+
+class _SynchronousGraphSampler extends GraphSampler {
+  @override
+  Future<GraphSeries> sampleAsync({
+    required String functionId,
+    required GraphEvaluator evaluator,
+    required GraphRange range,
+    GraphAngleMode angleMode = GraphAngleMode.radians,
+    String? expressionKey,
+    double viewportWidth = 720,
+    double viewportHeight = 390,
+  }) async => sample(
+    functionId: functionId,
+    evaluator: evaluator,
+    range: range,
+    angleMode: angleMode,
+    expressionKey: expressionKey,
+    viewportWidth: viewportWidth,
+    viewportHeight: viewportHeight,
+  );
 }
 
 SavedGraph _graph(String id, String title) => SavedGraph(

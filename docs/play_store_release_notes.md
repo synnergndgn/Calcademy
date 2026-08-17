@@ -3,6 +3,20 @@
 Play Console allows 500 characters per language. Paste the block for each
 language exactly as written; both are within the limit.
 
+## Calcademy 1.9.4 (28)
+
+### Türkçe
+
+```
+Grafik çizimi ve manuel eksen sınırları daha hızlı ve güvenli hale getirildi. Üstel, logaritmik, trigonometrik ve asimptotlu fonksiyonlarda taşma ve tanımsız değerler artık kontrollü işleniyor. Hızlı aralık değişikliklerinde gereksiz hesaplamalar azaltıldı; geçersiz X/Y girişleri grafiği bozmadan açıklayıcı geri bildirim gösteriyor. Ana ekran, hesap makinesi, kayıtlı çalışmalar ve ayarlar genelinde arayüz iyileştirmeleri yapıldı.
+```
+
+### English
+
+```
+Graph rendering and manual axis bounds are now faster and safer. Overflow and undefined values in exponential, logarithmic, trigonometric, and asymptotic functions are handled gracefully. Rapid range changes trigger less redundant work, while invalid X/Y input shows clear feedback without disrupting the graph. This release also refines the Home, Calculator, Saved work, and Settings interfaces.
+```
+
 ## Calcademy 1.8.0 (20)
 
 The first release of the ad-supported product: no account, no subscription, no

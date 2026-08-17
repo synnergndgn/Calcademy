@@ -37,4 +37,29 @@ void main() {
     expect(container.read(settingsProvider).angleMode, AngleMode.radians);
     expect(preferences.getString('settings.angle'), 'radians');
   });
+
+  test('corrupt and out-of-range settings fall back safely', () async {
+    SharedPreferences.setMockInitialValues({
+      'settings.theme': 'unknown',
+      'settings.language': 'de',
+      'settings.angle': 'unknown',
+      'settings.precision': 999,
+    });
+    final preferences = await SharedPreferences.getInstance();
+    final container = ProviderContainer(
+      overrides: [sharedPreferencesProvider.overrideWithValue(preferences)],
+    );
+    addTearDown(container.dispose);
+
+    final settings = container.read(settingsProvider);
+    expect(settings.themeMode, ThemeMode.system);
+    expect(settings.languageCode, isIn(['tr', 'en']));
+    expect(settings.angleMode, AngleMode.degrees);
+    expect(settings.decimalPrecision, 15);
+
+    await container.read(settingsProvider.notifier).setLanguage('invalid');
+    await container.read(settingsProvider.notifier).setPrecision(-100);
+    expect(container.read(settingsProvider).languageCode, 'en');
+    expect(container.read(settingsProvider).decimalPrecision, 4);
+  });
 }

@@ -3,9 +3,14 @@ import 'package:calcademy/features/calculator/domain/calculator_error.dart';
 class ExpressionValidator {
   const ExpressionValidator();
 
+  static const maxExpressionLength = 512;
+
   void validate(String expression) {
     if (expression.trim().isEmpty) {
       throw const CalculatorException(CalculatorErrorType.empty);
+    }
+    if (expression.length > maxExpressionLength) {
+      throw const CalculatorException(CalculatorErrorType.invalid);
     }
     if (RegExp(r'[^0-9a-zA-Z_+\-*/^().,!%\s]').hasMatch(expression)) {
       throw const CalculatorException(CalculatorErrorType.invalid);

@@ -1,4 +1,5 @@
 import 'dart:collection';
+import 'dart:isolate';
 import 'dart:math' as math;
 
 import 'package:calcademy/features/graph/domain/graph_expression.dart';
@@ -16,6 +17,8 @@ class GraphSampler {
     this.cacheCapacity = 24,
   });
 
+  static const maxDrawableMagnitude = 1e12;
+
   final int minInitialSegments;
   final int maxInitialSegments;
   final int maxDepth;
@@ -24,6 +27,53 @@ class GraphSampler {
   final double pixelErrorTolerance;
   final int cacheCapacity;
   final LinkedHashMap<String, GraphSeries> _cache = LinkedHashMap();
+
+  Future<GraphSeries> sampleAsync({
+    required String functionId,
+    required GraphEvaluator evaluator,
+    required GraphRange range,
+    GraphAngleMode angleMode = GraphAngleMode.radians,
+    String? expressionKey,
+    double viewportWidth = 720,
+    double viewportHeight = 390,
+  }) async {
+    final cacheKey = expressionKey == null
+        ? null
+        : _cacheKey(
+            expressionKey,
+            range,
+            angleMode,
+            viewportWidth,
+            viewportHeight,
+          );
+    final cached = _readCache(cacheKey, functionId);
+    if (cached != null) return cached;
+
+    final request = _GraphSamplingRequest(
+      functionId: functionId,
+      evaluator: evaluator,
+      range: range,
+      angleMode: angleMode,
+      viewportWidth: viewportWidth,
+      viewportHeight: viewportHeight,
+      minInitialSegments: minInitialSegments,
+      maxInitialSegments: maxInitialSegments,
+      maxDepth: maxDepth,
+      maxPoints: maxPoints,
+      maxEvaluations: maxEvaluations,
+      pixelErrorTolerance: pixelErrorTolerance,
+    );
+    GraphSeries result;
+    try {
+      result = await Isolate.run(() => _sampleRequest(request));
+    } on UnsupportedError {
+      // Web runtimes without worker-isolate support retain the same bounded
+      // algorithm. Native platforms keep sampling away from the UI isolate.
+      result = _sampleRequest(request);
+    }
+    _storeCache(cacheKey, result);
+    return result;
+  }
 
   GraphSeries sample({
     required String functionId,
@@ -43,13 +93,8 @@ class GraphSampler {
             viewportWidth,
             viewportHeight,
           );
-    if (cacheKey != null) {
-      final cached = _cache.remove(cacheKey);
-      if (cached != null) {
-        _cache[cacheKey] = cached;
-        return cached.asCacheHit(functionId);
-      }
-    }
+    final cached = _readCache(cacheKey, functionId);
+    if (cached != null) return cached;
 
     final evaluationCache = <double, double?>{};
     var evaluationCount = 0;
@@ -58,7 +103,9 @@ class GraphSampler {
       if (evaluationCount >= maxEvaluations) return null;
       evaluationCount++;
       final value = evaluator.evaluate(x, angleMode: angleMode);
-      final result = value.isFinite && value.abs() <= 1e12 ? value : null;
+      final result = value.isFinite && value.abs() <= maxDrawableMagnitude
+          ? value
+          : null;
       evaluationCache[x] = result;
       return result;
     }
@@ -183,20 +230,43 @@ class GraphSampler {
     flush();
     final result = GraphSeries(
       functionId: functionId,
-      segments: List.unmodifiable(segments),
+      segments: List.unmodifiable(_limitSegments(segments, viewportWidth)),
       stats: GraphSamplingStats(
         evaluationCount: evaluationCount,
         generatedPointCount: raw.length,
         maxDepthReached: maxDepthReached,
       ),
     );
-    if (cacheKey != null) {
-      _cache[cacheKey] = result;
-      while (_cache.length > cacheCapacity) {
-        _cache.remove(_cache.keys.first);
-      }
-    }
+    _storeCache(cacheKey, result);
     return result;
+  }
+
+  GraphSeries? _readCache(String? cacheKey, String functionId) {
+    if (cacheKey == null) return null;
+    final cached = _cache.remove(cacheKey);
+    if (cached == null) return null;
+    _cache[cacheKey] = cached;
+    return cached.asCacheHit(functionId);
+  }
+
+  void _storeCache(String? cacheKey, GraphSeries result) {
+    if (cacheKey == null || cacheCapacity <= 0) return;
+    _cache[cacheKey] = result;
+    while (_cache.length > cacheCapacity) {
+      _cache.remove(_cache.keys.first);
+    }
+  }
+
+  List<GraphSegment> _limitSegments(
+    List<GraphSegment> segments,
+    double viewportWidth,
+  ) {
+    final limit = (viewportWidth / 3).round().clamp(64, 320);
+    if (segments.length <= limit) return segments;
+    return [
+      for (var index = 0; index < limit; index++)
+        segments[(index * (segments.length - 1) / (limit - 1)).round()],
+    ];
   }
 
   GraphYRange autoYRange(Iterable<GraphSeries> series) {
@@ -243,6 +313,54 @@ class GraphSampler {
   ) =>
       '${expression.trim()}|${range.min}|${range.max}|${angleMode.name}|'
       '${width.round()}|${height.round()}';
+}
+
+GraphSeries _sampleRequest(_GraphSamplingRequest request) =>
+    GraphSampler(
+      minInitialSegments: request.minInitialSegments,
+      maxInitialSegments: request.maxInitialSegments,
+      maxDepth: request.maxDepth,
+      maxPoints: request.maxPoints,
+      maxEvaluations: request.maxEvaluations,
+      pixelErrorTolerance: request.pixelErrorTolerance,
+      cacheCapacity: 0,
+    ).sample(
+      functionId: request.functionId,
+      evaluator: request.evaluator,
+      range: request.range,
+      angleMode: request.angleMode,
+      viewportWidth: request.viewportWidth,
+      viewportHeight: request.viewportHeight,
+    );
+
+class _GraphSamplingRequest {
+  const _GraphSamplingRequest({
+    required this.functionId,
+    required this.evaluator,
+    required this.range,
+    required this.angleMode,
+    required this.viewportWidth,
+    required this.viewportHeight,
+    required this.minInitialSegments,
+    required this.maxInitialSegments,
+    required this.maxDepth,
+    required this.maxPoints,
+    required this.maxEvaluations,
+    required this.pixelErrorTolerance,
+  });
+
+  final String functionId;
+  final GraphEvaluator evaluator;
+  final GraphRange range;
+  final GraphAngleMode angleMode;
+  final double viewportWidth;
+  final double viewportHeight;
+  final int minInitialSegments;
+  final int maxInitialSegments;
+  final int maxDepth;
+  final int maxPoints;
+  final int maxEvaluations;
+  final double pixelErrorTolerance;
 }
 
 class _SampleNode {

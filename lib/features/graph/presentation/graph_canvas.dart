@@ -7,6 +7,7 @@ import 'package:calcademy/features/graph/domain/graph_function.dart';
 import 'package:calcademy/features/graph/domain/graph_point.dart';
 import 'package:calcademy/features/graph/domain/graph_range.dart';
 import 'package:calcademy/features/graph/domain/graph_sampler.dart';
+import 'package:calcademy/features/graph/domain/graph_viewport_clipper.dart';
 import 'package:calcademy/features/graph/presentation/graph_controller.dart';
 import 'package:calcademy/features/graph/presentation/graph_palette.dart';
 import 'package:calcademy/l10n/app_localizations.dart';
@@ -24,6 +25,8 @@ class GraphCanvas extends ConsumerStatefulWidget {
 }
 
 class _GraphCanvasState extends ConsumerState<GraphCanvas> {
+  static const _viewportClipper = GraphViewportClipper();
+
   final _transformationController = TransformationController();
   int _lastResetRevision = -1;
 
@@ -107,6 +110,14 @@ class _GraphCanvasState extends ConsumerState<GraphCanvas> {
                           renderState.manualYMin,
                           renderState.manualYMax,
                         );
+                  final drawableSeries = [
+                    for (final item in visibleSeries)
+                      _viewportClipper.clip(
+                        series: item,
+                        xRange: renderState.range,
+                        yRange: yRange,
+                      ),
+                  ].where((item) => item.pointCount > 0).toList();
                   return Stack(
                     children: [
                       Positioned.fill(
@@ -126,7 +137,7 @@ class _GraphCanvasState extends ConsumerState<GraphCanvas> {
                                       child: LineChart(
                                         _chartData(
                                           context,
-                                          visibleSeries,
+                                          drawableSeries,
                                           visibleFunctions,
                                           renderState.range.min,
                                           renderState.range.max,

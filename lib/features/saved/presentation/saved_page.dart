@@ -2,6 +2,7 @@ import 'package:calcademy/core/widgets/page_body.dart';
 import 'package:calcademy/app/ads/ad_banner.dart';
 import 'package:calcademy/app/theme/app_spacing.dart';
 import 'package:calcademy/core/widgets/empty_state.dart';
+import 'package:calcademy/core/widgets/calcademy_design.dart';
 import 'package:calcademy/features/graph/data/graph_repository.dart';
 import 'package:calcademy/features/graph/domain/saved_graph.dart';
 import 'package:calcademy/features/history/domain/saved_calculation.dart';
@@ -50,14 +51,16 @@ class SavedPage extends StatelessWidget {
         ),
         // Constrained once here rather than in each of the four tabs: they all
         // scroll lists that would otherwise run edge to edge on a tablet.
-        body: const PageBody(
-          child: TabBarView(
-            children: [
-              _UnifiedSavedResultsTab(),
-              _SavedGraphsTab(),
-              _SavedMatricesTab(),
-              _SavedOptimizationsTab(),
-            ],
+        body: GraphPaperBackground(
+          child: PageBody(
+            child: const TabBarView(
+              children: [
+                _UnifiedSavedResultsTab(),
+                _SavedGraphsTab(),
+                _SavedMatricesTab(),
+                _SavedOptimizationsTab(),
+              ],
+            ),
           ),
         ),
         // Anchored banner below the tab content. Zero-height until an ad
@@ -117,7 +120,7 @@ class _SavedIntegerProgramCard extends ConsumerWidget {
     final uri =
         '/integer-programming?savedId=${Uri.encodeQueryComponent(model.id)}';
     final result = model.result;
-    return Card(
+    return NotebookSavedItem(
       margin: const EdgeInsets.only(bottom: AppSpacing.sm),
       child: InkWell(
         onTap: () => context.push(uri),
@@ -239,7 +242,7 @@ class _SavedOptimizationCard extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final uri =
         '/linear-programming?savedId=${Uri.encodeQueryComponent(model.id)}';
-    return Card(
+    return NotebookSavedItem(
       margin: const EdgeInsets.only(bottom: AppSpacing.sm),
       child: InkWell(
         onTap: () => context.push(uri),
@@ -405,7 +408,7 @@ class _SavedMatrixCard extends StatelessWidget {
       ScalarMatrixResult() => '',
       LinearSystemMatrixResult() => '',
     };
-    return Card(
+    return NotebookSavedItem(
       margin: const EdgeInsets.only(bottom: AppSpacing.sm),
       child: InkWell(
         onTap: () => context.push(
@@ -650,7 +653,7 @@ class _SavedGraphCard extends StatelessWidget {
         .where((item) => item.isNotEmpty)
         .join(' | ');
     final graphUri = '/graph?graphId=${Uri.encodeQueryComponent(graph.id)}';
-    return Card(
+    return NotebookSavedItem(
       margin: const EdgeInsets.only(bottom: AppSpacing.sm),
       child: InkWell(
         borderRadius: BorderRadius.circular(20),
@@ -746,8 +749,7 @@ class _SavedCard extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    return Card(
-      margin: const EdgeInsets.only(bottom: AppSpacing.sm),
+    return NotebookSavedItem(
       child: Padding(
         padding: const EdgeInsets.all(AppSpacing.md),
         child: Column(

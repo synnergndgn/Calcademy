@@ -12,6 +12,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 final graphProvider = NotifierProvider<GraphController, GraphState>(
   GraphController.new,
 );
+final graphSamplerProvider = Provider<GraphSampler>((ref) => GraphSampler());
 
 class GraphState {
   const GraphState({
@@ -105,15 +106,18 @@ const _unset = Object();
 class GraphController extends Notifier<GraphState> {
   static const maxFunctions = 5;
   static const debounceDuration = Duration(milliseconds: 320);
+  static const rangeDebounceDuration = Duration(milliseconds: 180);
 
   final _compiler = const GraphExpressionCompiler();
-  final _sampler = GraphSampler();
   final _compiled = <String, GraphEvaluator>{};
   final _debounces = <String, Timer>{};
+  Timer? _rangeDebounce;
   var _idCounter = 0;
   var _requestGeneration = 0;
   var _viewportWidth = 720.0;
   var _viewportHeight = 390.0;
+
+  GraphSampler get _sampler => ref.read(graphSamplerProvider);
 
   @override
   GraphState build() {
@@ -122,6 +126,7 @@ class GraphController extends Notifier<GraphState> {
       for (final timer in _debounces.values) {
         timer.cancel();
       }
+      _rangeDebounce?.cancel();
     });
     return const GraphState();
   }
@@ -171,6 +176,8 @@ class GraphController extends Notifier<GraphState> {
       isDirty: true,
     );
     _compiled.remove(id);
+    _rangeDebounce?.cancel();
+    _rangeDebounce = null;
     _debounces.remove(id)?.cancel();
     _debounces[id] = Timer(debounceDuration, () {
       _debounces.remove(id);
@@ -211,6 +218,10 @@ class GraphController extends Notifier<GraphState> {
       state = state.copyWith(rangeError: 'graphXRangeBounds');
       return false;
     }
+    if (max - min < GraphRange.minimumSpan) {
+      state = state.copyWith(rangeError: 'graphXRangeTooSmall');
+      return false;
+    }
     var manualMin = state.manualYMin;
     var manualMax = state.manualYMax;
     if (!state.autoY) {
@@ -219,14 +230,29 @@ class GraphController extends Notifier<GraphState> {
       if (parsedYMin == null ||
           parsedYMax == null ||
           !parsedYMin.isFinite ||
-          !parsedYMax.isFinite ||
-          parsedYMin >= parsedYMax) {
+          !parsedYMax.isFinite) {
         state = state.copyWith(rangeError: 'graphInvalidYRange');
+        return false;
+      }
+      if (parsedYMin >= parsedYMax) {
+        state = state.copyWith(rangeError: 'graphInvalidYRange');
+        return false;
+      }
+      if (!GraphYRange.isWithinLimits(parsedYMin, parsedYMax)) {
+        state = state.copyWith(rangeError: 'graphYRangeBounds');
+        return false;
+      }
+      if (!GraphYRange.hasSafeSpan(parsedYMin, parsedYMax)) {
+        state = state.copyWith(rangeError: 'graphYRangeTooSmall');
         return false;
       }
       manualMin = parsedYMin;
       manualMax = parsedYMax;
     }
+    final xChanged = min != state.range.min || max != state.range.max;
+    final yChanged =
+        !state.autoY &&
+        (manualMin != state.manualYMin || manualMax != state.manualYMax);
     state = state.copyWith(
       range: GraphRange(min: min, max: max),
       manualYMin: manualMin,
@@ -234,10 +260,19 @@ class GraphController extends Notifier<GraphState> {
       rangeError: null,
       inspectedX: null,
       inspectedValues: const {},
-      viewResetRevision: state.viewResetRevision + 1,
+      viewResetRevision: xChanged || yChanged
+          ? state.viewResetRevision + 1
+          : state.viewResetRevision,
       isDirty: true,
     );
-    _scheduleAll(compileMissing: true);
+    if (xChanged) {
+      _requestGeneration++;
+      _rangeDebounce?.cancel();
+      _rangeDebounce = Timer(rangeDebounceDuration, () {
+        _rangeDebounce = null;
+        _scheduleAll(compileMissing: false);
+      });
+    }
     return true;
   }
 
@@ -248,8 +283,10 @@ class GraphController extends Notifier<GraphState> {
 
   void setAngleMode(GraphAngleMode value) {
     if (state.angleMode == value) return;
+    _rangeDebounce?.cancel();
+    _rangeDebounce = null;
     state = state.copyWith(angleMode: value, inspectedX: null, isDirty: true);
-    _scheduleAll(compileMissing: true);
+    _scheduleAll(compileMissing: false);
   }
 
   void resetView() {
@@ -264,7 +301,12 @@ class GraphController extends Notifier<GraphState> {
       viewResetRevision: state.viewResetRevision + 1,
       isDirty: true,
     );
-    _scheduleAll(compileMissing: true);
+    _requestGeneration++;
+    _rangeDebounce?.cancel();
+    _rangeDebounce = Timer(rangeDebounceDuration, () {
+      _rangeDebounce = null;
+      _scheduleAll(compileMissing: false);
+    });
   }
 
   void setViewportSize(double width, double height) {
@@ -273,7 +315,15 @@ class GraphController extends Notifier<GraphState> {
     if (!widthChanged && !heightChanged) return;
     _viewportWidth = width;
     _viewportHeight = height;
+    // A layout notification commonly arrives while the first result is being
+    // published. Starting another request at that point can create a
+    // sampling/layout feedback loop; the bounded default density is already a
+    // safe first render, and the latest dimensions are retained for the next
+    // genuine viewport or expression update.
+    if (state.isSampling) return;
     if (state.functions.any((item) => item.expression.trim().isNotEmpty)) {
+      _rangeDebounce?.cancel();
+      _rangeDebounce = null;
       _scheduleAll(compileMissing: true);
     }
   }
@@ -286,7 +336,11 @@ class GraphController extends Notifier<GraphState> {
         x,
         angleMode: state.angleMode,
       );
-      values[function.id] = value?.isFinite == true ? value : null;
+      values[function.id] =
+          value?.isFinite == true &&
+              value!.abs() <= GraphSampler.maxDrawableMagnitude
+          ? value
+          : null;
     }
     state = state.copyWith(inspectedX: x, inspectedValues: values);
   }
@@ -371,6 +425,8 @@ class GraphController extends Notifier<GraphState> {
       timer.cancel();
     }
     _debounces.clear();
+    _rangeDebounce?.cancel();
+    _rangeDebounce = null;
   }
 
   Future<void> _scheduleAll({
@@ -406,7 +462,7 @@ class GraphController extends Notifier<GraphState> {
           _compiled[function.id] = evaluator;
         }
         if (evaluator == null) continue;
-        final sampled = _sampler.sample(
+        final sampled = await _sampler.sampleAsync(
           functionId: function.id,
           evaluator: evaluator,
           range: range,
@@ -422,7 +478,10 @@ class GraphController extends Notifier<GraphState> {
       } on GraphExpressionException catch (error) {
         _compiled.remove(function.id);
         errors[function.id] = _errorKey(error.error);
+      } on Object {
+        errors[function.id] = 'graphEvaluationFailed';
       }
+      if (!ref.mounted || generation != _requestGeneration) return;
     }
     if (!ref.mounted || generation != _requestGeneration) return;
     state = state.copyWith(

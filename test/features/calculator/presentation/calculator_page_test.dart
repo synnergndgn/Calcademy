@@ -148,6 +148,29 @@ void main() {
       ThemeMode.dark,
     );
   });
+
+  testWidgets('settings reflows theme previews at 320px and 200% text', (
+    tester,
+  ) async {
+    tester.view.physicalSize = const Size(320, 900);
+    tester.view.devicePixelRatio = 1;
+    tester.platformDispatcher.textScaleFactorTestValue = 2;
+    addTearDown(tester.view.resetPhysicalSize);
+    addTearDown(tester.view.resetDevicePixelRatio);
+    addTearDown(tester.platformDispatcher.clearTextScaleFactorTestValue);
+
+    await _pump(tester, const SettingsPage());
+    await tester.scrollUntilVisible(
+      find.text('System'),
+      180,
+      scrollable: find.byType(Scrollable).first,
+    );
+
+    expect(find.text('System'), findsOneWidget);
+    expect(find.text('Light'), findsOneWidget);
+    expect(find.text('Dark'), findsOneWidget);
+    expect(tester.takeException(), isNull);
+  });
 }
 
 Future<void> _tapKey(WidgetTester tester, String label) async {

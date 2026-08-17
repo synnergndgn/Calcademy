@@ -22,7 +22,6 @@ class AcademyModule {
     this.descriptionKey = 'plannedFeature',
     this.searchTerms = const [],
     this.available = false,
-    this.requiresPremiumSurface = false,
   });
 
   final String id;
@@ -33,71 +32,14 @@ class AcademyModule {
   final String descriptionKey;
   final List<String> searchTerms;
   final bool available;
-
-  /// Hidden entirely in the ad-supported build compiled without Supabase
-  /// config. See `premiumSurfaceEnabledProvider`.
-  final bool requiresPremiumSurface;
 }
 
-/// The modules a given build actually offers. Search, category filters, and
-/// quick access all read from this rather than the raw list, so a gated module
-/// cannot surface through any of them.
-List<AcademyModule> visibleAcademyModules({required bool premiumSurface}) =>
-    premiumSurface
-    ? academyModules
-    : academyModules
-          .where((module) => !module.requiresPremiumSurface)
-          .toList(growable: false);
-
-List<String> visibleQuickAccessModuleIds({required bool premiumSurface}) {
-  final visible = visibleAcademyModules(
-    premiumSurface: premiumSurface,
-  ).map((module) => module.id).toSet();
+List<String> visibleQuickAccessModuleIds() {
+  final visible = academyModules.map((module) => module.id).toSet();
   return quickAccessModuleIds.where(visible.contains).toList(growable: false);
 }
 
 const academyModules = [
-  AcademyModule(
-    id: 'premium',
-    titleKey: 'calcademyPremium',
-    icon: Icons.workspace_premium_rounded,
-    category: AcademyModuleCategory.workspace,
-    route: '/premium',
-    descriptionKey: 'premiumPageSubtitle',
-    searchTerms: ['premium', 'subscription', 'abonelik', 'reklamsız'],
-    available: true,
-    requiresPremiumSurface: true,
-  ),
-  AcademyModule(
-    id: 'camera-solver',
-    titleKey: 'cameraSolver',
-    icon: Icons.document_scanner_outlined,
-    category: AcademyModuleCategory.workspace,
-    route: '/camera-solver',
-    descriptionKey: 'cameraSolverComingSoon',
-    searchTerms: [
-      'camera',
-      'kamera',
-      'ocr',
-      'scan',
-      'tara',
-      'photo',
-      'fotoğraf',
-    ],
-    available: true,
-    requiresPremiumSurface: true,
-  ),
-  AcademyModule(
-    id: 'ai-assistant',
-    titleKey: 'aiAssistantTitle',
-    icon: Icons.auto_awesome_rounded,
-    category: AcademyModuleCategory.workspace,
-    route: '/assistant',
-    descriptionKey: 'aiAssistantSubtitle',
-    searchTerms: ['ai', 'assistant', 'asistan', 'yardım', 'çözüm', 'problem'],
-    available: true,
-    requiresPremiumSurface: true,
-  ),
   AcademyModule(
     id: 'formula-library',
     titleKey: 'formulaLibraryTitle',
@@ -269,7 +211,6 @@ const academyModules = [
 ];
 
 const quickAccessModuleIds = [
-  'ai-assistant',
   'calculator',
   'graphing',
   'matrices',

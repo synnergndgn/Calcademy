@@ -4,6 +4,9 @@ import 'package:calcademy/app/theme/app_theme.dart';
 import 'package:calcademy/core/services/preferences.dart';
 import 'package:calcademy/features/graph/data/graph_repository.dart';
 import 'package:calcademy/features/graph/domain/graph_expression.dart';
+import 'package:calcademy/features/graph/domain/graph_point.dart';
+import 'package:calcademy/features/graph/domain/graph_range.dart';
+import 'package:calcademy/features/graph/domain/graph_sampler.dart';
 import 'package:calcademy/features/graph/presentation/graph_controller.dart';
 import 'package:calcademy/features/graph/presentation/graph_page.dart';
 import 'package:calcademy/features/saved_calculations/data/saved_calculations_repository.dart';
@@ -27,7 +30,11 @@ void main() {
     const keys = [
       'graphXRangeOrder',
       'graphXRangeBounds',
+      'graphXRangeTooSmall',
       'graphXRangeHint',
+      'graphYRangeBounds',
+      'graphYRangeTooSmall',
+      'graphEvaluationFailed',
       'savedCalculationSaved',
     ];
     for (final key in keys) {
@@ -49,7 +56,7 @@ void main() {
     expect(find.text('No graph to display'), findsOneWidget);
 
     await tester.tap(find.byKey(const Key('addGraphFunction')));
-    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 1));
     final expressionField = find.byWidgetPredicate(
       (widget) =>
           widget is TextField &&
@@ -59,7 +66,7 @@ void main() {
 
     await tester.enterText(expressionField, 'x^2');
     await tester.pump(GraphController.debounceDuration);
-    await tester.pump();
+    await _settleGraphSampling(tester);
     final container = ProviderScope.containerOf(
       tester.element(find.byType(GraphPage)),
     );
@@ -69,7 +76,7 @@ void main() {
 
     await tester.enterText(expressionField, 'mystery(x)');
     await tester.pump(GraphController.debounceDuration);
-    await tester.pumpAndSettle();
+    await _settleGraphSampling(tester);
     expect(find.text('This function name is not recognized.'), findsOneWidget);
 
     await tester.tap(find.byTooltip('Delete function'));
@@ -145,7 +152,7 @@ void main() {
     );
     await tester.enterText(expressionField, 'x^2');
     await tester.pump(GraphController.debounceDuration);
-    await tester.pumpAndSettle();
+    await _settleGraphSampling(tester);
     expect(find.byType(LineChart), findsOneWidget);
     final legend = find.byKey(const Key('graph-legend-scroll'));
     expect(legend, findsOneWidget);
@@ -238,6 +245,8 @@ void main() {
     expect(container.read(graphProvider).rangeError, 'graphXRangeOrder');
     expect(controller.applyRange(xMin: '0', xMax: '0'), isFalse);
     expect(container.read(graphProvider).rangeError, 'graphXRangeOrder');
+    expect(controller.applyRange(xMin: '0', xMax: '0.0000001'), isFalse);
+    expect(container.read(graphProvider).rangeError, 'graphXRangeTooSmall');
     expect(controller.applyRange(xMin: 'abc', xMax: '10'), isFalse);
     expect(container.read(graphProvider).rangeError, 'graphInvalidRange');
     expect(controller.applyRange(xMin: '-20', xMax: '30'), isTrue);
@@ -303,9 +312,7 @@ void main() {
     controller.updateExpression(id, 'x^2');
     await Future<void>.delayed(GraphController.debounceDuration);
     controller.updateExpression(id, 'cos(x)');
-    await Future<void>.delayed(
-      GraphController.debounceDuration + const Duration(milliseconds: 30),
-    );
+    await _waitForGraphIdle(container);
 
     final state = container.read(graphProvider);
     final points = state.series[id]!.segments.expand((item) => item.points);
@@ -313,6 +320,66 @@ void main() {
       (left, right) => left.x.abs() < right.x.abs() ? left : right,
     );
     expect(nearestZero.y, closeTo(1, 0.01));
+    expect(state.isSampling, isFalse);
+  });
+
+  test('manual Y edits validate transient input without resampling', () async {
+    final preferences = await SharedPreferences.getInstance();
+    final container = ProviderContainer(
+      overrides: [sharedPreferencesProvider.overrideWithValue(preferences)],
+    );
+    addTearDown(container.dispose);
+    final controller = container.read(graphProvider.notifier);
+    controller.addFunction();
+    final id = container.read(graphProvider).functions.single.id;
+    controller.updateExpression(id, '(1/30)^x + e^(x/4)');
+    await Future<void>.delayed(
+      GraphController.debounceDuration + const Duration(milliseconds: 100),
+    );
+    final originalSeries = container.read(graphProvider).series[id];
+    expect(originalSeries, isNotNull);
+
+    controller.setAutoY(false);
+    for (final invalid in ['', '-', '.', '1e999']) {
+      expect(
+        controller.applyRange(
+          xMin: '-10',
+          xMax: '10',
+          yMin: invalid,
+          yMax: '10',
+        ),
+        isFalse,
+        reason: invalid,
+      );
+      expect(
+        identical(container.read(graphProvider).series[id], originalSeries),
+        isTrue,
+      );
+    }
+    expect(
+      controller.applyRange(xMin: '-10', xMax: '10', yMin: '10', yMax: '10'),
+      isFalse,
+    );
+    expect(
+      controller.applyRange(
+        xMin: '-10',
+        xMax: '10',
+        yMin: '-1e13',
+        yMax: '1e13',
+      ),
+      isFalse,
+    );
+    expect(container.read(graphProvider).rangeError, 'graphYRangeBounds');
+    expect(
+      controller.applyRange(xMin: '-10', xMax: '10', yMin: '-2', yMax: '20'),
+      isTrue,
+    );
+    await Future<void>.delayed(GraphController.rangeDebounceDuration);
+
+    final state = container.read(graphProvider);
+    expect(state.manualYMin, -2);
+    expect(state.manualYMax, 20);
+    expect(identical(state.series[id], originalSeries), isTrue);
     expect(state.isSampling, isFalse);
   });
 
@@ -332,9 +399,7 @@ void main() {
         final id = container.read(graphProvider).functions.last.id;
         controller.updateExpression(id, expression);
       }
-      await Future<void>.delayed(
-        GraphController.debounceDuration + const Duration(milliseconds: 50),
-      );
+      await _waitForGraphIdle(container);
 
       final state = container.read(graphProvider);
       expect(state.series, hasLength(5));
@@ -363,13 +428,26 @@ void main() {
         );
         await tester.enterText(expressionField, 'x^2');
         await tester.pump(GraphController.debounceDuration);
-        await tester.pumpAndSettle();
+        await _settleGraphSampling(tester);
 
         expect(find.byType(RepaintBoundary), findsWidgets);
         expect(find.textContaining('f₁:'), findsOneWidget);
         expect(tester.takeException(), isNull);
       },
     );
+  }
+}
+
+Future<void> _waitForGraphIdle(ProviderContainer container) async {
+  await Future<void>.delayed(
+    GraphController.debounceDuration + const Duration(milliseconds: 20),
+  );
+  final deadline = DateTime.now().add(const Duration(seconds: 10));
+  while (container.read(graphProvider).isSampling) {
+    if (DateTime.now().isAfter(deadline)) {
+      fail('Graph sampling did not become idle within 10 seconds.');
+    }
+    await Future<void>.delayed(const Duration(milliseconds: 20));
   }
 }
 
@@ -381,7 +459,10 @@ Future<void> _pumpGraph(
   final preferences = await SharedPreferences.getInstance();
   await tester.pumpWidget(
     ProviderScope(
-      overrides: [sharedPreferencesProvider.overrideWithValue(preferences)],
+      overrides: [
+        sharedPreferencesProvider.overrideWithValue(preferences),
+        graphSamplerProvider.overrideWithValue(_SynchronousGraphSampler()),
+      ],
       child: MaterialApp(
         theme: AppTheme.light(),
         darkTheme: AppTheme.dark(),
@@ -399,4 +480,50 @@ Future<void> _pumpGraph(
     ),
   );
   await tester.pumpAndSettle();
+  await _settleGraphSampling(tester);
+}
+
+class _SynchronousGraphSampler extends GraphSampler {
+  @override
+  Future<GraphSeries> sampleAsync({
+    required String functionId,
+    required GraphEvaluator evaluator,
+    required GraphRange range,
+    GraphAngleMode angleMode = GraphAngleMode.radians,
+    String? expressionKey,
+    double viewportWidth = 720,
+    double viewportHeight = 390,
+  }) async => sample(
+    functionId: functionId,
+    evaluator: evaluator,
+    range: range,
+    angleMode: angleMode,
+    expressionKey: expressionKey,
+    viewportWidth: viewportWidth,
+    viewportHeight: viewportHeight,
+  );
+}
+
+Future<void> _settleGraphSampling(WidgetTester tester) async {
+  var stableReads = 0;
+  GraphState? lastState;
+  for (var attempt = 0; attempt < 100; attempt++) {
+    await tester.pump(const Duration(milliseconds: 10));
+    final page = find.byType(GraphPage);
+    if (page.evaluate().isEmpty) return;
+    final state = ProviderScope.containerOf(
+      tester.element(page),
+    ).read(graphProvider);
+    lastState = state;
+    if (state.isSampling) {
+      stableReads = 0;
+    } else {
+      stableReads++;
+      if (stableReads >= 2) return;
+    }
+  }
+  fail(
+    'Graph sampling did not settle: ids=${lastState?.samplingIds}, '
+    'series=${lastState?.series.keys}, errors=${lastState?.functionErrors}.',
+  );
 }

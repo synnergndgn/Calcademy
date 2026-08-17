@@ -1,14 +1,7 @@
-import 'package:calcademy/app/premium/premium_surface.dart';
 import 'package:calcademy/app/theme/app_theme.dart';
 import 'package:calcademy/core/services/preferences.dart';
-import 'package:calcademy/features/account/presentation/account_page.dart';
-import 'package:calcademy/features/account/presentation/create_account_page.dart';
-import 'package:calcademy/features/account/presentation/delete_account_page.dart';
-import 'package:calcademy/features/account/presentation/sign_in_page.dart';
-import 'package:calcademy/features/ai_assistant/presentation/ai_assistant_page.dart';
 import 'package:calcademy/features/calculator/presentation/calculator_page.dart';
 import 'package:calcademy/features/calculus/presentation/calculus_page.dart';
-import 'package:calcademy/features/camera_solver/presentation/camera_solver_page.dart';
 import 'package:calcademy/features/equation_solver/presentation/equation_solver_page.dart';
 import 'package:calcademy/features/financial_calculator/presentation/financial_calculator_page.dart';
 import 'package:calcademy/features/formula_library/presentation/formula_library_page.dart';
@@ -19,7 +12,6 @@ import 'package:calcademy/features/integer_programming/presentation/integer_prog
 import 'package:calcademy/features/linear_programming/presentation/linear_program_page.dart';
 import 'package:calcademy/features/matrix/presentation/matrix_home_page.dart';
 import 'package:calcademy/features/operations_research/presentation/operations_research_page.dart';
-import 'package:calcademy/features/premium/presentation/premium_page.dart';
 import 'package:calcademy/features/saved/presentation/saved_page.dart';
 import 'package:calcademy/features/settings/presentation/about_page.dart';
 import 'package:calcademy/features/settings/presentation/settings_page.dart';
@@ -38,22 +30,14 @@ import 'package:shared_preferences/shared_preferences.dart';
 /// mis-nested wrapper or a padding regression, since an overflow throws during
 /// paint rather than failing a targeted assertion.
 ///
-/// Deliberately no `ProviderScope` overrides beyond preferences: the default
-/// `supabaseClientProvider` is null, which is exactly the shipped ad-supported
-/// configuration. If any page needed an account to render, it would fail here.
+/// Deliberately no `ProviderScope` overrides beyond preferences: this is the
+/// shipped offline, accountless, ad-supported configuration.
 const _pages = <String, Widget>{
   'Home': HomePage(),
   'Calculator': CalculatorPage(),
   'Saved': SavedPage(),
   'History': HistoryPage(),
   'Formula Library': FormulaLibraryPage(),
-  'AI Assistant': AiAssistantPage(),
-  'Camera Solver': CameraSolverPage(),
-  'Premium': PremiumPage(),
-  'Account': AccountPage(),
-  'Sign In': SignInPage(),
-  'Create Account': CreateAccountPage(),
-  'Delete Account': DeleteAccountPage(),
   'Settings': SettingsPage(),
   'About': AboutPage(),
   'Graph': GraphPage(),
@@ -73,7 +57,6 @@ Future<void> _pump(
   Size size = const Size(390, 844),
   double textScale = 1,
   bool dark = false,
-  bool premiumSurface = true,
   String locale = 'en',
 }) async {
   tester.view.physicalSize = size;
@@ -89,7 +72,6 @@ Future<void> _pump(
     ProviderScope(
       overrides: [
         sharedPreferencesProvider.overrideWithValue(preferences),
-        premiumSurfaceEnabledProvider.overrideWithValue(premiumSurface),
       ],
       child: MaterialApp(
         theme: AppTheme.light(),
@@ -165,8 +147,7 @@ void main() {
   });
 
   group('the ad-supported build needs no account', () {
-    // premiumSurface false is the shipped configuration: no Supabase config, so
-    // no account exists. Every calculation tool must still render.
+    // No account or backend exists. Every calculation tool must still render.
     const tools = <String, Widget>{
       'Home': HomePage(),
       'Calculator': CalculatorPage(),
@@ -186,7 +167,7 @@ void main() {
     };
     tools.forEach((name, page) {
       testWidgets('$name works without an account', (tester) async {
-        await _pump(tester, page, premiumSurface: false);
+        await _pump(tester, page);
         expect(tester.takeException(), isNull, reason: '$name threw');
       });
     });

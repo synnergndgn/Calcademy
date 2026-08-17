@@ -4,6 +4,7 @@ import 'package:calcademy/features/graph/domain/graph_expression.dart';
 import 'package:calcademy/features/graph/domain/graph_point.dart';
 import 'package:calcademy/features/graph/domain/graph_range.dart';
 import 'package:calcademy/features/graph/domain/graph_sampler.dart';
+import 'package:calcademy/features/graph/domain/graph_viewport_clipper.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {
@@ -48,6 +49,20 @@ void main() {
       expect(atan.evaluate(-100).isFinite, isTrue);
       expect(atan.evaluate(100).isFinite, isTrue);
     });
+
+    test(
+      'turns overflow and invalid intermediate operations into undefined',
+      () {
+        expect(compiler.compile('e^x').evaluate(1000), isNaN);
+        expect(compiler.compile('e^(x^2)').evaluate(100), isNaN);
+        expect(compiler.compile('exp(x)').evaluate(1000), isNaN);
+        expect(compiler.compile('floor(exp(x))').evaluate(1000), isNaN);
+        expect(compiler.compile('1/0').evaluate(0), isNaN);
+        expect(compiler.compile('tan(pi/2)').evaluate(0), isNaN);
+        expect(compiler.compile('e^x').evaluate(-1000), 0);
+        expect(compiler.compile('x').evaluate(double.infinity), isNaN);
+      },
+    );
 
     test('rejects unsupported variables and unknown functions', () {
       expect(
@@ -205,16 +220,136 @@ void main() {
       expect(second.stats.evaluationCount, 0);
       expect(changed.stats.fromCache, isFalse);
     });
+
+    test('samples the graph-engine regression set within safety limits', () {
+      const expressions = [
+        '(1/30)^x + e^(x/4)',
+        'e^x',
+        'e^(x^2)',
+        '1/x',
+        'tan(x)',
+        'log(x)',
+        'sqrt(x)',
+        'sin(100x)',
+        '1/(x-2)',
+        'x^10',
+      ];
+
+      for (final expression in expressions) {
+        final series = GraphSampler().sample(
+          functionId: expression,
+          evaluator: compiler.compile(expression),
+          range: const GraphRange(),
+          viewportWidth: 720,
+          viewportHeight: 390,
+        );
+        final points = series.segments.expand((segment) => segment.points);
+        expect(
+          points.every(
+            (point) =>
+                point.x.isFinite &&
+                point.y.isFinite &&
+                point.y.abs() <= GraphSampler.maxDrawableMagnitude,
+          ),
+          isTrue,
+          reason: expression,
+        );
+        expect(
+          series.stats.generatedPointCount,
+          lessThanOrEqualTo(3200),
+          reason: expression,
+        );
+        expect(
+          series.stats.evaluationCount,
+          lessThanOrEqualTo(6400),
+          reason: expression,
+        );
+      }
+    });
+
+    test(
+      'samples off-isolate and still reuses the parsed-expression cache',
+      () async {
+        final asyncSampler = GraphSampler();
+        final evaluator = compiler.compile('(1/30)^x + e^(x/4)');
+        final first = await asyncSampler.sampleAsync(
+          functionId: 'async',
+          evaluator: evaluator,
+          expressionKey: '(1/30)^x + e^(x/4)',
+          range: const GraphRange(),
+        );
+        final second = await asyncSampler.sampleAsync(
+          functionId: 'async',
+          evaluator: evaluator,
+          expressionKey: '(1/30)^x + e^(x/4)',
+          range: const GraphRange(),
+        );
+
+        expect(first.pointCount, greaterThan(0));
+        expect(second.stats.fromCache, isTrue);
+        expect(second.stats.evaluationCount, 0);
+      },
+    );
+  });
+
+  group('GraphViewportClipper', () {
+    const clipper = GraphViewportClipper();
+
+    test('keeps extreme finite coordinates out of the renderer', () {
+      const source = GraphSeries(
+        functionId: 'steep',
+        segments: [
+          GraphSegment([
+            GraphPoint(-1, -1e12),
+            GraphPoint(0, 0),
+            GraphPoint(1, 1e12),
+          ]),
+        ],
+      );
+      final clipped = clipper.clip(
+        series: source,
+        xRange: const GraphRange(),
+        yRange: const GraphYRange(-10, 10),
+      );
+
+      expect(clipped.pointCount, greaterThanOrEqualTo(2));
+      expect(
+        clipped.segments
+            .expand((segment) => segment.points)
+            .every((point) => point.y.abs() <= 11.6 + 1e-9),
+        isTrue,
+      );
+    });
+
+    test('drops segments fully outside the viewport', () {
+      const source = GraphSeries(
+        functionId: 'outside',
+        segments: [
+          GraphSegment([GraphPoint(-1, 1e9), GraphPoint(1, 1e9)]),
+        ],
+      );
+      final clipped = clipper.clip(
+        series: source,
+        xRange: const GraphRange(),
+        yRange: const GraphYRange(-10, 10),
+      );
+
+      expect(clipped.pointCount, 0);
+    });
   });
 
   group('GraphRange', () {
     test('validates bounds and preserves defaults', () {
       expect(GraphRange.isValid(-10, 10), isTrue);
       expect(GraphRange.isValid(10, -10), isFalse);
+      expect(GraphRange.isValid(0, GraphRange.minimumSpan / 2), isFalse);
       expect(GraphRange.isValid(-1001, 10), isFalse);
       expect(GraphRange.isValid(-10, 1001), isFalse);
       expect(const GraphRange().min, GraphRange.defaultMin);
       expect(const GraphRange().max, GraphRange.defaultMax);
+      expect(GraphYRange.isValid(-10, 10), isTrue);
+      expect(GraphYRange.isValid(-1e20, 10), isFalse);
+      expect(GraphYRange.isValid(1, 1 + 1e-13), isFalse);
     });
   });
 }
