@@ -4,11 +4,11 @@ import 'package:calcademy/app/app_metadata.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {
-  test('version is 1.9.4+28 everywhere', () async {
+  test('version is 1.9.4+29 everywhere', () async {
     final pubspec = await File('pubspec.yaml').readAsString();
-    expect(pubspec, contains('version: 1.9.4+28'));
+    expect(pubspec, contains('version: 1.9.4+29'));
     expect(AppMetadata.versionName, '1.9.4');
-    expect(AppMetadata.buildNumber, 28);
+    expect(AppMetadata.buildNumber, 29);
   });
 
   test(
@@ -67,12 +67,24 @@ void main() {
 
   test('auth config uses dart defines and no hardcoded credentials', () async {
     final config = await File('lib/app/config/app_config.dart').readAsString();
-    final main = await File('lib/main.dart').readAsString();
 
+    // The config file is retained for the dormant auth experiment, so it must
+    // keep reading its values from the environment and never carry a literal.
     expect(config, contains("String.fromEnvironment('SUPABASE_URL')"));
     expect(config, contains("String.fromEnvironment('SUPABASE_ANON_KEY')"));
-    expect(main, contains('if (AppConfig.isSupabaseConfigured)'));
-    expect(main, contains('supabaseClientProvider.overrideWithValue'));
+  });
+
+  test('the entrypoint does not wire Supabase into the shipped app', () async {
+    final main = await File('lib/main.dart').readAsString();
+
+    // Until 1.9.4+28 this test asserted the opposite, because main.dart did
+    // initialise Supabase when configured. The release removed that wiring and
+    // the published policy states there is no account client, so the assertion
+    // has to run the other way: a reintroduced initialisation would make the
+    // policy false without anything else failing.
+    expect(main, isNot(contains('AppConfig')));
+    expect(main, isNot(contains('supabaseClientProvider')));
+    expect(main, isNot(contains('Supabase')));
   });
 
   test(

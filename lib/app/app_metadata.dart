@@ -4,7 +4,7 @@ abstract final class AppMetadata {
   static const applicationId = 'com.aligundogan.calcademy';
   static const publisherName = 'Ali Gündoğan';
   static const versionName = '1.9.4';
-  static const buildNumber = 28;
+  static const buildNumber = 29;
   static const versionCode = buildNumber;
   static const tagline = 'Calculate. Visualize. Optimize. Learn.';
   static const shortDescription =
@@ -29,13 +29,16 @@ abstract final class AppMetadata {
   // Null values intentionally keep external actions hidden from the UI.
   static const String? contactEmail = null;
   static const String? repositoryUrl = null;
-  // Moved from GitHub Pages to the developer domain in 1.8.0. The old address
-  // must keep resolving: build 8 is on the closed track with that URL compiled
-  // in, and a store-declared policy link that 404s is a live problem for users
-  // who never update.
+  // Moved from GitHub Pages to the developer domain in 1.8.0+20. Builds 1.0.0+5
+  // through 1.7.0+18 have the old synnergndgn.github.io address compiled in and
+  // cannot be changed; every build from 1.8.0+20 on points here. The Play
+  // Console field is set separately and already names this URL, so the GitHub
+  // Pages copy only ever mattered to the in-app button of those older builds.
   static const String privacyPolicyUrl =
       'https://gundev.dev/gizlilik/calcademy';
-  static const privacyPolicyEffectiveDate = '2026-08-06';
+  // Must equal the date published on privacyPolicyUrl. Nothing renders this;
+  // it is the repository's record of which revision of the page shipped.
+  static const privacyPolicyEffectiveDate = '2026-08-12';
 
   static Uri? get privacyPolicyUri => parsePublicHttpsUrl(privacyPolicyUrl);
 

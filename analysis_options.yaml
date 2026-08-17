@@ -11,6 +11,11 @@ include: package:flutter_lints/flutter.yaml
 
 # Dormant product experiments are retained as source reference but are not
 # linked into the offline, accountless, ad-supported release application.
+#
+# test_dormant/ holds the dormant tests that cannot load at all since
+# supabase_flutter and in_app_purchase were dropped. It sits outside test/
+# because `flutter test` collects that directory wholesale and does not read
+# this list; see test_dormant/README.md.
 analyzer:
   exclude:
     - lib/app/auth/**
@@ -24,10 +29,9 @@ analyzer:
     - test/app/auth/**
     - test/app/billing/**
     - test/app/premium/**
-    - test/app/ai_assistant_routing_test.dart
     - test/app/ads/ai_assistant_ad_placement_test.dart
-    - test/app/ads/premium_ad_entitlement_test.dart
     - test/features/ai_assistant/**
+    - test_dormant/**
 
 linter:
   # The lint rules applied to this project can be customized in the

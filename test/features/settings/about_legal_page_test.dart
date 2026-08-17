@@ -257,7 +257,7 @@ void main() {
     expect(AppMetadata.analyticsStatus, 'not-included');
     expect(AppMetadata.cloudSyncStatus, 'not-included');
     expect(AppMetadata.versionName, '1.9.4');
-    expect(AppMetadata.buildNumber, 28);
+    expect(AppMetadata.buildNumber, 29);
     expect(
       AppMetadata.privacyPolicyUrl,
       'https://gundev.dev/gizlilik/calcademy',
@@ -279,7 +279,7 @@ void main() {
     );
     expect(AppMetadata.contactEmail, isNull);
     expect(AppMetadata.repositoryUrl, isNull);
-    expect(AppMetadata.privacyPolicyEffectiveDate, '2026-08-06');
+    expect(AppMetadata.privacyPolicyEffectiveDate, '2026-08-12');
   });
 
   test(
