@@ -126,6 +126,74 @@ void main() {
     expect(dashedBars.single.spots, hasLength(2));
   });
 
+  testWidgets('the tangent is clipped to the plot area', (tester) async {
+    await _pump(tester);
+    await tester.enterText(
+      find.byKey(const Key('calc-diff-function')),
+      'sin(x)',
+    );
+    await tester.enterText(find.byKey(const Key('calc-diff-point')), '1');
+    await tester.tap(find.byKey(const Key('calc-diff-solve')));
+    await tester.pumpAndSettle();
+    await _findByScrolling(tester, find.byKey(const Key('calc-diff-graph')));
+
+    final data = tester.widget<LineChart>(find.byType(LineChart)).data;
+    // The tangent spans the visible domain, so with a non-zero slope its
+    // endpoints leave the y-range; without clipping it kept painting over
+    // the result text above the graph.
+    final tangent = data.lineBarsData.firstWhere(
+      (bar) => bar.dashArray != null,
+    );
+    expect(
+      tangent.spots.where(
+        (spot) => spot.y < data.minY || spot.y > data.maxY,
+      ),
+      isNotEmpty,
+      reason: 'the sample the defect was found with must leave the y-range',
+    );
+    expect(
+      [
+        data.clipData.left,
+        data.clipData.top,
+        data.clipData.right,
+        data.clipData.bottom,
+      ],
+      everyElement(isTrue),
+    );
+  });
+
+  testWidgets('the shaded integral area is clipped to the plot area', (
+    tester,
+  ) async {
+    await _pump(tester);
+    await tester.tap(find.text('Integration'));
+    await tester.pumpAndSettle();
+    await tester.enterText(
+      find.byKey(const Key('calc-int-function')),
+      'sin(x)',
+    );
+    await tester.enterText(find.byKey(const Key('calc-int-lower')), '0');
+    await tester.enterText(find.byKey(const Key('calc-int-upper')), '3');
+    await tester.tap(find.byKey(const Key('calc-int-solve')));
+    await tester.pumpAndSettle();
+    await _findByScrolling(tester, find.byKey(const Key('calc-int-graph')));
+
+    final data = tester.widget<LineChart>(find.byType(LineChart)).data;
+    expect(
+      data.lineBarsData.where((bar) => bar.belowBarData.show),
+      hasLength(1),
+    );
+    expect(
+      [
+        data.clipData.left,
+        data.clipData.top,
+        data.clipData.right,
+        data.clipData.bottom,
+      ],
+      everyElement(isTrue),
+    );
+  });
+
   testWidgets('integration solve shows result and shaded area graph', (
     tester,
   ) async {

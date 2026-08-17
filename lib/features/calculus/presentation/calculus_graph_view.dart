@@ -152,6 +152,12 @@ class CalculusGraphView extends StatelessWidget {
               maxX: xScale.max,
               minY: yScale.min,
               maxY: yScale.max,
+              // The tangent spans the whole visible domain, so its endpoints
+              // routinely sit outside the y-range; without this the chart
+              // keeps painting them over the result text above the graph.
+              // Clipping the shaded integral area at the same time keeps it
+              // inside the frame when the curve leaves the y-range.
+              clipData: const FlClipData.all(),
               lineBarsData: [...curveBars, ...overlayBars],
               lineTouchData: const LineTouchData(enabled: false),
               titlesData: FlTitlesData(
