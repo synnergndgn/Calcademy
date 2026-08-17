@@ -199,14 +199,15 @@ class _EditableMatrixGridState extends State<EditableMatrixGrid> {
     );
   }
 
+  /// Seeds one controller per cell. Zero is written out like any other value:
+  /// blanking it made a loaded example look half-filled and left the cell
+  /// indistinguishable from one the user still has to type into.
   static List<List<TextEditingController>> _controllersFor(MatrixValue value) =>
       [
         for (final row in value.values)
           [
             for (final cell in row)
-              TextEditingController(
-                text: cell == 0 ? '' : formatMatrixNumber(cell),
-              ),
+              TextEditingController(text: formatMatrixNumber(cell)),
           ],
       ];
 
