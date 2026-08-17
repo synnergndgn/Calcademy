@@ -44,4 +44,29 @@ Use this as an operator runbook, together with [Screenshot Sample Data](screensh
 - [ ] Screenshot language matches the listing and caption.
 - [ ] Captions contain no superlative, guaranteed-accuracy, or financial-advice claim.
 
-Final screenshots are not generated until a controlled capture device/profile and release candidate are available.
+## Capture record — 2026-08-17
+
+The live sets in `store_assets/play_listing/` were captured against this build:
+
+| Item | Value |
+| --- | --- |
+| Build | `flutter build apk --release` (signed, R8) from `1.9.4+29`, tree at commit `c257e19` |
+| Phone profile | `Medium_Phone` AVD, 1080×2400 @420dpi, Android 15 (API 35) |
+| 7-inch profile | `Tunathic_Tablet7` AVD, 1200×1920 @320dpi, portrait |
+| 10-inch profile | `Tunathic_Tablet10` AVD, 1600×2560 @320dpi, rotated to portrait |
+| Locale / theme | English, light theme, font scale 1.0 |
+| Status bar | SystemUI demo mode: 12:30, battery 100%, Wi-Fi full, notifications hidden |
+| Network | Wi-Fi and mobile data disabled, so the AdMob banner never loads and no impression is served from an emulator |
+| Operator | Ali |
+
+Set contents (all values re-verified against [screenshots_sample_data.md](screenshots_sample_data.md)):
+
+- **Phone (8):** home · equation solver `x^2-5x+6=0` → 2, 3 · graphing `sin(x)`/`cos(x)` with manual Y −1.5…1.5 · calculus function analysis `x^3-3x` on [−3, 3] · statistics `1,2,3,4,5,8,13` · financial NPV → 41.32231405 · OR assignment 3×3 → total 9 · saved calculations
+- **7-inch and 10-inch (4 each):** home · matrix `A×B` → `[[4,4],[10,8]]` · graphing · OR assignment
+
+Framed listing designs live in `store_assets/play_listing/designs/` and are regenerated with
+`store_assets/tools/build_listing_designs.ps1`. That script pastes each screenshot at its native
+size — no scaling, cropping or recolouring — so the uploaded design always shows exactly what the
+app rendered. Upload either the raw set or the framed set, not both.
+
+Recapture whenever the UI changes materially, then update this record.

@@ -99,4 +99,7 @@ Use one coherent primary theme across the main sequence; theme notes above are c
 - [ ] Feature graphic, icon, and screenshots use a consistent owned brand palette.
 - [ ] Alt text describes meaningful visual content in plain language.
 
-Actual production artwork and screenshots remain outside this sprint; this document is their acceptance checklist.
+The English phone (8), 7-inch (4) and 10-inch (4) sets now exist under `store_assets/play_listing/`,
+with framed variants under `store_assets/play_listing/designs/`; see the capture record in
+[release_screenshot_checklist.md](release_screenshot_checklist.md). The Turkish localized sets and the
+feature-graphic/icon refresh are still outstanding, and this document stays their acceptance checklist.
