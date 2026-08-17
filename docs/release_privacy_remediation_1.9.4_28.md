@@ -107,3 +107,31 @@ Removing Billing/Supabase and disabling Android backup resolve the two code/arti
 1. Publish the corrected live policy in Turkish and English, including the verified no-backup posture and complete AdMob categories.
 
 The owner reports that the Play Console Data Safety form has been corrected. Preserve an export or screenshots of the submitted answers with the release evidence.
+
+## 1.9.4+29 rebuild (2026-08-17)
+
+The build 28 artifact above was produced from an uncommitted working tree, so
+it could not be reproduced from the repository. Everything it depended on is
+now committed, and the artifact was rebuilt from that committed state. Build 28
+is the approved production upload, so the rebuild takes the next versionCode.
+
+- Version: `1.9.4+29` (`versionName 1.9.4`, `versionCode 29`), confirmed in the
+  merged manifest rather than only in `pubspec.yaml`.
+- Size: `65,949,486` bytes (`62.9 MB` as reported by Flutter).
+- SHA-256: `8309585E62B952A57B8E3C6C2173B295ADE248BF2605AD02ED6724A3334D7477`.
+- Merged manifest permissions, exactly: `INTERNET`, `ACCESS_NETWORK_STATE`,
+  `com.google.android.gms.permission.AD_ID`, `ACCESS_ADSERVICES_AD_ID`,
+  `ACCESS_ADSERVICES_ATTRIBUTION`, `ACCESS_ADSERVICES_TOPICS`, `WAKE_LOCK`,
+  `FOREGROUND_SERVICE` — the set the published policy names, with nothing else.
+- Merged manifest contains `android:allowBackup="false"` and references both
+  packaged backup-rule resources.
+- No `com.android.vending.BILLING`, Billing component or Supabase marker.
+- `flutter analyze --no-pub`: no issues. `flutter test`: 733 passing, none
+  skipped or excluded at the runner level.
+
+The only behavioural difference from build 28 is none: the sole source change
+in the binary is the corrected `privacyPolicyEffectiveDate` constant, which
+nothing renders.
+
+Outstanding before upload: the published page still scopes itself to build 28
+and needs widening to builds 28–29 to match `docs/privacy_policy.md`.
