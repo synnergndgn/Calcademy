@@ -85,6 +85,55 @@ void main() {
     expect(find.text('No graph to display'), findsOneWidget);
   });
 
+  testWidgets('the automatic y-axis prints zero, not floating-point noise', (
+    tester,
+  ) async {
+    tester.view.physicalSize = const Size(900, 1200);
+    tester.view.devicePixelRatio = 1;
+    addTearDown(tester.view.resetPhysicalSize);
+    addTearDown(tester.view.resetDevicePixelRatio);
+    await _pumpGraph(tester);
+
+    for (final expression in ['sin(x)', 'cos(x)']) {
+      await tester.tap(find.byKey(const Key('addGraphFunction')));
+      await tester.pump(const Duration(milliseconds: 1));
+      await tester.enterText(
+        find
+            .byWidgetPredicate(
+              (widget) =>
+                  widget is TextField &&
+                  widget.decoration?.labelText == 'Function expression',
+            )
+            .last,
+        expression,
+      );
+      await tester.pump(GraphController.debounceDuration);
+      await _settleGraphSampling(tester);
+    }
+
+    final container = ProviderScope.containerOf(
+      tester.element(find.byType(GraphPage)),
+    );
+    expect(container.read(graphProvider).autoY, isTrue);
+
+    final labels = tester.widgetList<Text>(
+      find.descendant(of: find.byType(LineChart), matching: find.byType(Text)),
+    );
+
+    expect(labels, isNotEmpty);
+    expect(labels.map((text) => text.data), contains('0.0'));
+    expect(
+      labels.map((text) => text.data ?? '').where((data) => data.contains('e')),
+      isEmpty,
+      reason: 'the zero tick used to render as -2.8e-16',
+    );
+    expect(
+      labels.every((text) => text.maxLines == 1),
+      isTrue,
+      reason: 'an over-wide label used to wrap onto a second line',
+    );
+  });
+
   testWidgets('saved calculation route restores the archived graph config', (
     tester,
   ) async {

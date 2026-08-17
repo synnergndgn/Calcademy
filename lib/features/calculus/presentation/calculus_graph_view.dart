@@ -2,6 +2,7 @@ import 'dart:math' as math;
 
 import 'package:calcademy/app/theme/app_spacing.dart';
 import 'package:calcademy/features/calculus/presentation/calculus_axis_scale.dart';
+import 'package:calcademy/features/graph/domain/graph_axis_format.dart';
 import 'package:calcademy/features/graph/domain/graph_expression.dart';
 import 'package:calcademy/features/graph/domain/graph_range.dart';
 import 'package:calcademy/features/graph/domain/graph_sampler.dart';
@@ -171,12 +172,17 @@ class CalculusGraphView extends StatelessWidget {
                     minIncluded: false,
                     maxIncluded: false,
                     getTitlesWidget: (value, meta) {
-                      if (!yScale.shows(value)) return const SizedBox.shrink();
+                      final tick = snapAxisTick(value, yScale.interval);
+                      if (!yScale.shows(tick)) return const SizedBox.shrink();
                       return SideTitleWidget(
                         meta: meta,
                         space: AppSpacing.xs,
                         child: Text(
-                          _formatAxis(value, yScale.interval),
+                          _formatAxis(
+                            tick,
+                            interval: yScale.interval,
+                            span: yScale.max - yScale.min,
+                          ),
                           maxLines: 1,
                           overflow: TextOverflow.visible,
                           style: labelStyle,
@@ -193,12 +199,17 @@ class CalculusGraphView extends StatelessWidget {
                     minIncluded: false,
                     maxIncluded: false,
                     getTitlesWidget: (value, meta) {
-                      if (!xScale.shows(value)) return const SizedBox.shrink();
+                      final tick = snapAxisTick(value, xScale.interval);
+                      if (!xScale.shows(tick)) return const SizedBox.shrink();
                       return SideTitleWidget(
                         meta: meta,
                         space: AppSpacing.xs,
                         child: Text(
-                          _formatAxis(value, xScale.interval),
+                          _formatAxis(
+                            tick,
+                            interval: xScale.interval,
+                            span: xScale.max - xScale.min,
+                          ),
                           maxLines: 1,
                           style: labelStyle,
                         ),
@@ -225,8 +236,12 @@ class CalculusGraphView extends StatelessWidget {
     );
   }
 
-  static String _formatAxis(double value, double interval) {
-    if (value.abs() < interval * 1e-8) return '0';
+  static String _formatAxis(
+    double value, {
+    required double interval,
+    required double span,
+  }) {
+    if (isNegligibleOnAxis(value, span)) return '0';
     final magnitude = value.abs();
     if (magnitude >= 100000 || magnitude < 0.0001) {
       return value.toStringAsExponential(1);

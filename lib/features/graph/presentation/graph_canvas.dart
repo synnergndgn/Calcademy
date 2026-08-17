@@ -3,6 +3,7 @@ import 'dart:math' as math;
 import 'package:calcademy/app/theme/app_radius.dart';
 import 'package:calcademy/app/theme/app_spacing.dart';
 import 'package:calcademy/core/widgets/empty_state.dart';
+import 'package:calcademy/features/graph/domain/graph_axis_format.dart';
 import 'package:calcademy/features/graph/domain/graph_function.dart';
 import 'package:calcademy/features/graph/domain/graph_point.dart';
 import 'package:calcademy/features/graph/domain/graph_range.dart';
@@ -286,14 +287,18 @@ class _GraphCanvasState extends ConsumerState<GraphCanvas> {
             showTitles: true,
             interval: xInterval,
             reservedSize: 30,
-            getTitlesWidget: (value, meta) => SideTitleWidget(
-              meta: meta,
-              space: 4,
-              child: Text(
-                _formatAxis(value),
-                style: Theme.of(context).textTheme.labelSmall,
-              ),
-            ),
+            getTitlesWidget: (value, meta) {
+              final tick = snapAxisTick(value, xInterval);
+              return SideTitleWidget(
+                meta: meta,
+                space: 4,
+                child: Text(
+                  formatGraphAxisLabel(tick, span: maxX - minX),
+                  maxLines: 1,
+                  style: Theme.of(context).textTheme.labelSmall,
+                ),
+              );
+            },
           ),
         ),
         leftTitles: AxisTitles(
@@ -301,14 +306,29 @@ class _GraphCanvasState extends ConsumerState<GraphCanvas> {
             showTitles: true,
             interval: yInterval,
             reservedSize: 44,
-            getTitlesWidget: (value, meta) => SideTitleWidget(
-              meta: meta,
-              space: 4,
-              child: Text(
-                _formatAxis(value),
-                style: Theme.of(context).textTheme.labelSmall,
-              ),
-            ),
+            getTitlesWidget: (value, meta) {
+              final tick = snapAxisTick(value, yInterval);
+              // The outermost tick usually lands a hair inside the auto
+              // y-range, where its label would straddle the chart border.
+              if (!showsAxisLabel(
+                tick,
+                min: yRange.min,
+                max: yRange.max,
+                interval: yInterval,
+              )) {
+                return const SizedBox.shrink();
+              }
+              return SideTitleWidget(
+                meta: meta,
+                space: 4,
+                child: Text(
+                  formatGraphAxisLabel(tick, span: yRange.max - yRange.min),
+                  maxLines: 1,
+                  overflow: TextOverflow.visible,
+                  style: Theme.of(context).textTheme.labelSmall,
+                ),
+              );
+            },
           ),
         ),
       ),
@@ -355,13 +375,6 @@ class _GraphCanvasState extends ConsumerState<GraphCanvas> {
         ? 2
         : 5;
     return (step * magnitude).toDouble();
-  }
-
-  String _formatAxis(double value) {
-    if (value.abs() >= 1000 || (value != 0 && value.abs() < 0.01)) {
-      return value.toStringAsExponential(1);
-    }
-    return value.toStringAsFixed(value.abs() < 10 ? 1 : 0);
   }
 
   void _zoom(double factor) {
