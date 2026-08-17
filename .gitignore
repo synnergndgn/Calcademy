@@ -55,9 +55,12 @@ app.*.map.json
 /android/app/profile
 /android/app/release
 
-# Device logcat captures. These are large, machine-specific, and can contain
-# device/account identifiers, so they stay local. `crash_log.txt` predates this
-# rule and is kept deliberately as the 1.0.0+6 startup-crash evidence.
+# Device logcat captures. A full capture lists every installed package on the
+# device it was taken from, so it is personal data about the developer and
+# stays local — no exceptions. `crash_log.txt` was tracked until 1.9.4+28; the
+# Calcademy fault it held is preserved as
+# docs/startup_crash_evidence_1_0_0_6.md.
+crash_log.txt
 *_crash_log.txt
 admob_retry_*.txt
 admob_internal_*.txt
