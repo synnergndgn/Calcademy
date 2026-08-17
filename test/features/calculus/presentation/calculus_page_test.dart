@@ -73,6 +73,11 @@ void _setViewport(WidgetTester tester, Size size, {double scale = 1.0}) {
   addTearDown(tester.platformDispatcher.clearTextScaleFactorTestValue);
 }
 
+const _invalidNumberMessage = 'Enter a valid number.';
+
+String? _errorOf(WidgetTester tester, String key) =>
+    tester.widget<TextField>(find.byKey(Key(key))).decoration?.errorText;
+
 Future<void> _findByScrolling(WidgetTester tester, Finder finder) async {
   for (var i = 0; i < 8 && finder.evaluate().isEmpty; i++) {
     await tester.drag(find.byType(ListView).first, const Offset(0, -400));
@@ -83,6 +88,15 @@ Future<void> _findByScrolling(WidgetTester tester, Finder finder) async {
 }
 
 void main() {
+  test('the per-field number error has English and Turkish parity', () {
+    const english = AppLocalizations(Locale('en'));
+    const turkish = AppLocalizations(Locale('tr'));
+    const key = 'eqErrorFieldNumber';
+
+    expect(english.t(key), isNot(key), reason: 'English missing $key');
+    expect(turkish.t(key), isNot(key), reason: 'Turkish missing $key');
+  });
+
   testWidgets('page opens with the three calculus modes', (tester) async {
     await _pump(tester);
     expect(find.text('Calculus'), findsWidgets);
@@ -231,6 +245,68 @@ void main() {
       find.text('Simpson 1/3 requires an even subinterval count.'),
       findsOneWidget,
     );
+  });
+
+  testWidgets('an unparseable bound flags the bound, not the function', (
+    tester,
+  ) async {
+    await _pump(tester);
+    await tester.tap(find.text('Integration'));
+    await tester.pumpAndSettle();
+    await tester.enterText(
+      find.byKey(const Key('calc-int-function')),
+      'sin(x)',
+    );
+    await tester.enterText(find.byKey(const Key('calc-int-upper')), 'pi');
+    await tester.tap(find.byKey(const Key('calc-int-solve')));
+    await tester.pumpAndSettle();
+
+    expect(_errorOf(tester, 'calc-int-upper'), _invalidNumberMessage);
+    expect(_errorOf(tester, 'calc-int-function'), isNull);
+    expect(_errorOf(tester, 'calc-int-lower'), isNull);
+    expect(_errorOf(tester, 'calc-int-n'), isNull);
+
+    await tester.enterText(find.byKey(const Key('calc-int-upper')), '3');
+    await tester.tap(find.byKey(const Key('calc-int-solve')));
+    await tester.pumpAndSettle();
+
+    expect(_errorOf(tester, 'calc-int-upper'), isNull);
+  });
+
+  testWidgets('an unparseable step size flags the step size field', (
+    tester,
+  ) async {
+    await _pump(tester);
+    await tester.enterText(
+      find.byKey(const Key('calc-diff-function')),
+      'sin(x)',
+    );
+    await tester.enterText(find.byKey(const Key('calc-diff-step')), 'tiny');
+    await tester.tap(find.byKey(const Key('calc-diff-solve')));
+    await tester.pumpAndSettle();
+
+    expect(_errorOf(tester, 'calc-diff-step'), _invalidNumberMessage);
+    expect(_errorOf(tester, 'calc-diff-function'), isNull);
+    expect(_errorOf(tester, 'calc-diff-point'), isNull);
+  });
+
+  testWidgets('an unparseable analysis range flags the range field', (
+    tester,
+  ) async {
+    await _pump(tester);
+    await tester.tap(find.text('Function Analysis'));
+    await tester.pumpAndSettle();
+    await tester.enterText(
+      find.byKey(const Key('calc-analysis-function')),
+      'x^3 - 3x',
+    );
+    await tester.enterText(find.byKey(const Key('calc-analysis-max')), 'pi');
+    await tester.tap(find.byKey(const Key('calc-analysis-solve')));
+    await tester.pumpAndSettle();
+
+    expect(_errorOf(tester, 'calc-analysis-max'), _invalidNumberMessage);
+    expect(_errorOf(tester, 'calc-analysis-function'), isNull);
+    expect(_errorOf(tester, 'calc-analysis-min'), isNull);
   });
 
   testWidgets('function analysis lists roots and extrema', (tester) async {

@@ -1,4 +1,5 @@
 import 'package:calcademy/app/theme/app_spacing.dart';
+import 'package:calcademy/features/calculus/domain/calculus_input_field.dart';
 import 'package:calcademy/features/calculus/domain/calculus_limits.dart';
 import 'package:calcademy/features/calculus/domain/calculus_result.dart';
 import 'package:calcademy/features/calculus/presentation/calculus_controller.dart';
@@ -8,8 +9,6 @@ import 'package:calcademy/features/graph/domain/graph_expression.dart';
 import 'package:calcademy/features/graph/domain/graph_range.dart';
 import 'package:calcademy/features/matrix/domain/matrix_number_formatter.dart';
 import 'package:calcademy/features/saved_calculations/application/adapters/calculus_saved_adapter.dart';
-import 'package:calcademy/features/linear_programming/domain/linear_program.dart'
-    show parseLpNumber;
 import 'package:calcademy/l10n/app_localizations.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -35,7 +34,7 @@ class _IntegrationTabState extends ConsumerState<IntegrationTab> {
     text: '${CalculusLimits.defaultSubintervals}',
   );
   var _method = IntegrationMethod.simpson13;
-  String? _inputError;
+  CalculusInputField? _errorField;
 
   GraphEvaluator? _graphEvaluator;
   IntegralOverlay? _integral;
@@ -73,19 +72,21 @@ class _IntegrationTabState extends ConsumerState<IntegrationTab> {
   final _resultKey = GlobalKey();
 
   Future<void> _solve({bool reveal = true}) async {
-    final l10n = context.l10n;
     final double lower;
     final double upper;
     final int subintervals;
     try {
-      lower = parseLpNumber(_lower.text);
-      upper = parseLpNumber(_upper.text);
-      subintervals = int.parse(_subintervals.text.trim());
-    } on Object {
-      setState(() => _inputError = l10n.t('eqErrorInvalidNumber'));
+      lower = parseCalculusNumber(_lower.text, CalculusInputField.lowerBound);
+      upper = parseCalculusNumber(_upper.text, CalculusInputField.upperBound);
+      subintervals = parseCalculusInteger(
+        _subintervals.text,
+        CalculusInputField.subintervals,
+      );
+    } on CalculusInputException catch (error) {
+      setState(() => _errorField = error.field);
       return;
     }
-    setState(() => _inputError = null);
+    setState(() => _errorField = null);
     final function = _function.text;
     final method = _method;
     await ref.read(calculusWorkspaceProvider.notifier).run(() {
@@ -126,6 +127,10 @@ class _IntegrationTabState extends ConsumerState<IntegrationTab> {
     }
   }
 
+  /// The parse failure message, shown only on the field that produced it.
+  String? _errorFor(CalculusInputField field) =>
+      _errorField == field ? context.l10n.t('eqErrorFieldNumber') : null;
+
   @override
   Widget build(BuildContext context) {
     final l10n = context.l10n;
@@ -139,7 +144,6 @@ class _IntegrationTabState extends ConsumerState<IntegrationTab> {
           decoration: InputDecoration(
             labelText: l10n.t('eqFunctionLabel'),
             hintText: 'x^2',
-            errorText: _inputError,
           ),
         ),
         const SizedBox(height: AppSpacing.sm),
@@ -172,6 +176,8 @@ class _IntegrationTabState extends ConsumerState<IntegrationTab> {
                 decoration: InputDecoration(
                   labelText: l10n.t('eqLowerBound'),
                   isDense: true,
+                  errorText: _errorFor(CalculusInputField.lowerBound),
+                  errorMaxLines: 3,
                 ),
               ),
             ),
@@ -183,6 +189,8 @@ class _IntegrationTabState extends ConsumerState<IntegrationTab> {
                 decoration: InputDecoration(
                   labelText: l10n.t('eqUpperBound'),
                   isDense: true,
+                  errorText: _errorFor(CalculusInputField.upperBound),
+                  errorMaxLines: 3,
                 ),
               ),
             ),
@@ -194,6 +202,8 @@ class _IntegrationTabState extends ConsumerState<IntegrationTab> {
                 decoration: InputDecoration(
                   labelText: l10n.t('calcSubintervals'),
                   isDense: true,
+                  errorText: _errorFor(CalculusInputField.subintervals),
+                  errorMaxLines: 3,
                 ),
               ),
             ),
@@ -215,7 +225,7 @@ class _IntegrationTabState extends ConsumerState<IntegrationTab> {
               onPressed: () {
                 _function.clear();
                 setState(() {
-                  _inputError = null;
+                  _errorField = null;
                   _graphEvaluator = null;
                   _integral = null;
                 });

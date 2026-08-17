@@ -708,6 +708,7 @@ class AppLocalizations {
       'eqErrorUnknownVariable': 'Only the variable x is supported.',
       'eqErrorUnknownFunction': 'This function name is not recognized.',
       'eqErrorInvalidNumber': 'Enter valid numbers in every field.',
+      'eqErrorFieldNumber': 'Enter a valid number.',
       'eqErrorInvalidInterval':
           'The interval start must be a number smaller than its end.',
       'eqErrorInvalidBracket':
@@ -2012,6 +2013,7 @@ class AppLocalizations {
       'eqErrorUnknownVariable': 'Yalnızca x değişkeni desteklenir.',
       'eqErrorUnknownFunction': 'Bu fonksiyon adı tanınmıyor.',
       'eqErrorInvalidNumber': 'Her alana geçerli bir sayı girin.',
+      'eqErrorFieldNumber': 'Geçerli bir sayı girin.',
       'eqErrorInvalidInterval':
           'Aralık başlangıcı, bitişinden küçük bir sayı olmalıdır.',
       'eqErrorInvalidBracket':

@@ -1,11 +1,10 @@
 import 'package:calcademy/app/theme/app_spacing.dart';
+import 'package:calcademy/features/calculus/domain/calculus_input_field.dart';
 import 'package:calcademy/features/calculus/domain/calculus_limits.dart';
 import 'package:calcademy/features/calculus/presentation/calculus_controller.dart';
 import 'package:calcademy/features/calculus/presentation/calculus_result_card.dart';
 import 'package:calcademy/features/matrix/domain/matrix_number_formatter.dart';
 import 'package:calcademy/features/saved_calculations/application/adapters/calculus_saved_adapter.dart';
-import 'package:calcademy/features/linear_programming/domain/linear_program.dart'
-    show parseLpNumber;
 import 'package:calcademy/l10n/app_localizations.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -31,7 +30,7 @@ class _AnalysisTabState extends ConsumerState<AnalysisTab> {
   final _rangeMax = TextEditingController(
     text: '${CalculusLimits.defaultAnalysisMax.toInt()}',
   );
-  String? _inputError;
+  CalculusInputField? _errorField;
 
   @override
   void initState() {
@@ -62,17 +61,16 @@ class _AnalysisTabState extends ConsumerState<AnalysisTab> {
   final _resultKey = GlobalKey();
 
   Future<void> _solve({bool reveal = true}) async {
-    final l10n = context.l10n;
     final double min;
     final double max;
     try {
-      min = parseLpNumber(_rangeMin.text);
-      max = parseLpNumber(_rangeMax.text);
-    } on Object {
-      setState(() => _inputError = l10n.t('eqErrorInvalidNumber'));
+      min = parseCalculusNumber(_rangeMin.text, CalculusInputField.rangeMin);
+      max = parseCalculusNumber(_rangeMax.text, CalculusInputField.rangeMax);
+    } on CalculusInputException catch (error) {
+      setState(() => _errorField = error.field);
       return;
     }
-    setState(() => _inputError = null);
+    setState(() => _errorField = null);
     final function = _function.text;
     await ref
         .read(calculusWorkspaceProvider.notifier)
@@ -84,6 +82,10 @@ class _AnalysisTabState extends ConsumerState<AnalysisTab> {
     if (!mounted || !reveal) return;
     revealCalculusResult(ref, _resultKey);
   }
+
+  /// The parse failure message, shown only on the field that produced it.
+  String? _errorFor(CalculusInputField field) =>
+      _errorField == field ? context.l10n.t('eqErrorFieldNumber') : null;
 
   @override
   Widget build(BuildContext context) {
@@ -98,7 +100,6 @@ class _AnalysisTabState extends ConsumerState<AnalysisTab> {
           decoration: InputDecoration(
             labelText: l10n.t('eqFunctionLabel'),
             hintText: 'x^3 - 3x',
-            errorText: _inputError,
           ),
         ),
         const SizedBox(height: AppSpacing.xs),
@@ -116,6 +117,8 @@ class _AnalysisTabState extends ConsumerState<AnalysisTab> {
                 decoration: InputDecoration(
                   labelText: l10n.t('eqScanMin'),
                   isDense: true,
+                  errorText: _errorFor(CalculusInputField.rangeMin),
+                  errorMaxLines: 3,
                 ),
               ),
             ),
@@ -127,6 +130,8 @@ class _AnalysisTabState extends ConsumerState<AnalysisTab> {
                 decoration: InputDecoration(
                   labelText: l10n.t('eqScanMax'),
                   isDense: true,
+                  errorText: _errorFor(CalculusInputField.rangeMax),
+                  errorMaxLines: 3,
                 ),
               ),
             ),
@@ -147,7 +152,7 @@ class _AnalysisTabState extends ConsumerState<AnalysisTab> {
             OutlinedButton(
               onPressed: () {
                 _function.clear();
-                setState(() => _inputError = null);
+                setState(() => _errorField = null);
                 ref.read(calculusWorkspaceProvider.notifier).clear();
               },
               child: Text(l10n.t('eqClear')),
