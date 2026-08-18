@@ -1,6 +1,6 @@
 # Calcademy Privacy Policy
 
-**Status:** Current for Calcademy **1.9.4 (builds 28–29)**, the offline,
+**Status:** Current for Calcademy **1.9.4–1.9.5 (builds 28–30)**, the offline,
 accountless, ad-supported production release.
 
 **Developer/publisher name:** `Ali Gündoğan`
@@ -28,10 +28,16 @@ English. The two are maintained by hand and must be revised together.
 
 | Version | Distribution | Advertising and features |
 |---|---|---|
-| 1.9.4 (builds 28–29) | Google Play production | Google AdMob banner on Home and Saved, behind a UMP consent flow. No account, sign-in, subscription, remote AI or camera feature. |
-| 1.8.0 (build 20) and earlier | closed/internal testing, superseded | See the release history in Git. Those builds variously included an optional Supabase account client, the Play Billing foundation and an entitlement backend stub. **None of that is present in 1.9.4.** |
+| 1.9.5 (build 30) | Google Play production | Google AdMob banner on Home and Saved, behind a UMP consent flow. No account, sign-in, subscription, remote AI or camera feature. |
+| 1.9.4 (builds 28–29) | Google Play production, superseded by 1.9.5 | Same as above. |
+| 1.8.0 (build 20) and earlier | closed/internal testing, superseded | See the release history in Git. Those builds variously included an optional Supabase account client, the Play Billing foundation and an entitlement backend stub. **None of that is present in 1.9.4 or 1.9.5.** |
 
 Calculation, graph, matrix and optimization screens display no ads in any build.
+
+1.9.5 (build 30) is a corrective release: it fixes calculus and graph rendering
+defects, matrix cell input and the placement of the branch-and-bound node
+details sheet. It adds no permission, no third-party SDK and no new data
+processing over 1.9.4, so everything below holds identically for builds 28–30.
 
 ## What Calcademy does
 
@@ -52,8 +58,9 @@ SharedPreferences:
   attached to saved items.
 
 Calcademy does not upload this content to its own server and offers no account
-or cloud synchronization. The 1.9.4 Android configuration excludes application
-data from Android Auto Backup, cloud backup and device-to-device transfer.
+or cloud synchronization. The 1.9.4–1.9.5 Android configuration excludes
+application data from Android Auto Backup, cloud backup and device-to-device
+transfer.
 Uninstalling the app or clearing its storage through Android Settings removes
 on-device Calcademy data, and Calcademy cannot restore it.
 
@@ -155,10 +162,11 @@ inputs and numerical methods.
 
 ## Future features
 
-Calcademy 1.9.4 contains no Supabase, no account or sign-in, no in-app purchase
-or subscription, no remote AI, no camera and no analytics or crash-reporting
-SDK. Sources for several of these remain in the repository for reference but are
-excluded from the analyzer and are not linked into the release build; see
+Calcademy 1.9.4–1.9.5 contains no Supabase, no account or sign-in, no in-app
+purchase or subscription, no remote AI, no camera and no analytics or
+crash-reporting SDK. Sources for several of these remain in the repository
+for reference but are excluded from the analyzer and are not linked into the
+release build; see
 `docs/release_privacy_remediation_1.9.4_28.md`. If any of them is enabled in
 future, this policy and the Google Play Data Safety declarations must be updated
 before data processing begins and before that version is published. Where
@@ -191,18 +199,20 @@ of compliance.
 
 ## Türkçe özet
 
-Bu politika Calcademy **1.9.4 (sürüm 28–29)** için geçerlidir. Bu sürüm,
-çevrimdışı ve hesapsız çalışan hesaplama araçları ile Ana Sayfa ve Kayıtlı
-ekranlarında Google AdMob banner reklamları içerir. Supabase, hesap oluşturma
-veya oturum açma, uygulama içi satın alma/abonelik, uzaktan AI asistanı ve
-kamera erişimi bu sürümde etkin değildir.
+Bu politika Calcademy **1.9.4–1.9.5 (sürüm 28–30)** için geçerlidir. Bu
+sürümler, çevrimdışı ve hesapsız çalışan hesaplama araçları ile Ana Sayfa ve
+Kayıtlı ekranlarında Google AdMob banner reklamları içerir. Supabase, hesap
+oluşturma veya oturum açma, uygulama içi satın alma/abonelik, uzaktan AI
+asistanı ve kamera erişimi bu sürümlerde etkin değildir. 1.9.5 (sürüm 30) bir
+hata düzeltme sürümüdür; 1.9.4'e kıyasla yeni izin, ek üçüncü taraf SDK'sı veya
+yeni veri işleme getirmez.
 
 Hesaplamalar cihazda yapılır; ayarlar, geçmiş ve kaydedilen çalışmalar yalnızca
 uygulamanın yerel depolamasında tutulur. Calcademy bu içeriği kendi sunucusuna
 yüklemez ve bulut senkronizasyonu sunmaz. Uygulama verileri Android Auto Backup,
 bulut yedeklemesi ve cihazdan cihaza aktarım kapsamı dışında tutulur; uygulama
 kaldırıldığında veya Android Ayarlar üzerinden depolama temizlendiğinde
-cihazdaki veriler kalır ve Calcademy tarafından geri getirilemez.
+cihazdaki veriler kaldırılır ve Calcademy tarafından geri getirilemez.
 
 Google Mobile Ads SDK; reklam sunma, ölçüm/analiz, sıklık sınırlama ve
 sahtekârlığı önleme amaçlarıyla IP adresi, yaklaşık konum çıkarımı, uygulama
