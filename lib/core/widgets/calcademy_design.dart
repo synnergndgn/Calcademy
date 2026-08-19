@@ -3,6 +3,7 @@ import 'dart:math' as math;
 import 'package:calcademy/app/theme/app_breakpoints.dart';
 import 'package:calcademy/app/theme/app_radius.dart';
 import 'package:calcademy/app/theme/app_spacing.dart';
+import 'package:calcademy/l10n/app_localizations.dart';
 import 'package:flutter/material.dart';
 
 class CalcademyScaffold extends StatelessWidget {
@@ -151,7 +152,7 @@ class StudyHeader extends StatelessWidget {
             children: [
               if (eyebrow != null) ...[
                 Text(
-                  eyebrow!.toUpperCase(),
+                  context.upperCase(eyebrow!),
                   style: theme.textTheme.labelMedium?.copyWith(
                     color: colors.primary,
                     fontWeight: FontWeight.w700,
@@ -440,7 +441,7 @@ class ResultPanel extends StatelessWidget {
             children: [
               Expanded(
                 child: Text(
-                  label.toUpperCase(),
+                  context.upperCase(label),
                   style: theme.textTheme.labelMedium?.copyWith(
                     color: hasError ? colors.error : colors.primary,
                     fontWeight: FontWeight.w700,
@@ -881,7 +882,7 @@ class SectionLabel extends StatelessWidget {
         ],
         Expanded(
           child: Text(
-            title.toUpperCase(),
+            context.upperCase(title),
             style: Theme.of(context).textTheme.labelLarge?.copyWith(
               color: accent,
               fontWeight: FontWeight.w700,

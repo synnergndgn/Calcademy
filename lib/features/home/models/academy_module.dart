@@ -5,6 +5,7 @@ enum AcademyModuleCategory {
   optimization('categoryOptimization'),
   data('categoryDataStatistics'),
   finance('categoryFinance'),
+  practice('categoryPractice'),
   workspace('categoryWorkspace');
 
   const AcademyModuleCategory(this.localizationKey);
@@ -65,6 +66,25 @@ const academyModules = [
       'kaydedilen hesaplamalar',
       'kayıtlı',
       'favori',
+    ],
+    available: true,
+  ),
+  AcademyModule(
+    id: 'quiz',
+    titleKey: 'quiz',
+    icon: Icons.quiz_rounded,
+    category: AcademyModuleCategory.practice,
+    route: '/quiz',
+    descriptionKey: 'quizDescription',
+    searchTerms: [
+      'quiz',
+      'practice',
+      'alıştırma',
+      'test',
+      'soru',
+      'derivative',
+      'türev',
+      'integral',
     ],
     available: true,
   ),
@@ -211,6 +231,7 @@ const academyModules = [
 ];
 
 const quickAccessModuleIds = [
+  'quiz',
   'calculator',
   'graphing',
   'matrices',

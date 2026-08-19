@@ -12,6 +12,9 @@ import 'package:calcademy/features/integer_programming/presentation/integer_prog
 import 'package:calcademy/features/linear_programming/presentation/linear_program_page.dart';
 import 'package:calcademy/features/matrix/presentation/matrix_home_page.dart';
 import 'package:calcademy/features/operations_research/presentation/operations_research_page.dart';
+import 'package:calcademy/features/quiz/presentation/quiz_home_page.dart';
+import 'package:calcademy/features/quiz/presentation/quiz_mode_selection_page.dart';
+import 'package:calcademy/features/quiz/presentation/quiz_topic_page.dart';
 import 'package:calcademy/features/saved/presentation/saved_page.dart';
 import 'package:calcademy/features/settings/presentation/about_page.dart';
 import 'package:calcademy/features/settings/presentation/settings_page.dart';
@@ -49,6 +52,12 @@ const _pages = <String, Widget>{
   'Linear Programming': LinearProgramPage(),
   'Integer Programming': IntegerProgramHomePage(),
   'Operations Research': OperationsResearchPage(),
+  'Quiz Home': QuizHomePage(),
+  'Quiz Topics': QuizTopicPage(subjectId: 'calculus'),
+  'Quiz Mode': QuizModeSelectionPage(
+    subjectId: 'calculus',
+    topicId: 'basic-derivatives',
+  ),
 };
 
 Future<void> _pump(
@@ -70,9 +79,7 @@ Future<void> _pump(
   final preferences = await SharedPreferences.getInstance();
   await tester.pumpWidget(
     ProviderScope(
-      overrides: [
-        sharedPreferencesProvider.overrideWithValue(preferences),
-      ],
+      overrides: [sharedPreferencesProvider.overrideWithValue(preferences)],
       child: MaterialApp(
         theme: AppTheme.light(),
         darkTheme: AppTheme.dark(),
@@ -162,6 +169,7 @@ void main() {
       'Linear Programming': LinearProgramPage(),
       'Integer Programming': IntegerProgramHomePage(),
       'Operations Research': OperationsResearchPage(),
+      'Quiz': QuizHomePage(),
       'Settings': SettingsPage(),
       'About': AboutPage(),
     };

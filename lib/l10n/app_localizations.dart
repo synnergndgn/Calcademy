@@ -1305,6 +1305,74 @@ class AppLocalizations {
       'yesterday': 'Yesterday',
       'thisWeek': 'This week',
       'older': 'Earlier',
+      // Quiz module.
+      'quiz': 'Quiz',
+      'quizDescription': 'Drill memorization-heavy topics offline.',
+      'categoryPractice': 'Practice',
+      'categoryPracticeDescription':
+          'Rehearse the rules you need to recall on sight.',
+      'quizHomeEyebrow': 'Practice',
+      'quizHomeSubtitle': 'Ten questions at a time, fully offline.',
+      'quizChooseSubject': 'Choose a subject',
+      'quizSubjectLocked': 'Question bank in progress',
+      'quizChooseTopic': 'Choose a topic',
+      'quizAllTopics': 'All topics',
+      'quizAllTopicsDescription':
+          'Mix questions from every topic in this subject.',
+      'quizTopics': 'topics',
+      'quizQuestionsAvailable': 'questions available',
+      'quizChooseMode': 'Choose a mode',
+      'quizModeMultipleChoice': 'Multiple choice',
+      'quizModeMultipleChoiceDescription':
+          'Pick the correct answer from four options.',
+      'quizModeWritten': 'Written answer',
+      'quizModeWrittenDescription':
+          'Type the answer. Spacing and notation are forgiving.',
+      'quizFeedback': 'Feedback',
+      'quizFeedbackImmediate': 'After each question',
+      'quizFeedbackEndOfSession': 'At the end',
+      'quizStartSession': 'Start quiz',
+      'quizPromptDerivative': 'Find the derivative',
+      'quizPromptIntegral': 'Evaluate the integral',
+      'quizQuestionLabel': 'Question',
+      'quizAnswerHint': 'Type your answer',
+      'quizSubmit': 'Submit',
+      'quizNext': 'Next',
+      'quizSeeResult': 'See result',
+      'quizCorrect': 'Correct',
+      'quizIncorrect': 'Incorrect',
+      'quizAnswerRecorded': 'Answer recorded',
+      'quizCorrectAnswer': 'Correct answer',
+      'quizYourAnswer': 'Your answer',
+      'quizNoAnswer': 'No answer',
+      'quizExplanation': 'Explanation',
+      'quizNote': 'Note',
+      'quizNoteMissingConstant':
+          'Correct — remember to include + C for indefinite integrals.',
+      'quizExitTitle': 'Leave this quiz?',
+      'quizExitBody': 'Your progress in this session will be lost.',
+      'quizExitConfirm': 'Leave',
+      'quizResultTitle': 'Result',
+      'quizScore': 'Score',
+      'quizResultExcellent': 'Locked in. Move on to a harder topic.',
+      'quizResultGood': 'Close. One more pass should do it.',
+      'quizResultNeedsWork': 'Review the rules, then run it again.',
+      'quizReviewWrong': 'Review wrong answers',
+      'quizRetry': 'Try again',
+      'quizBackToTopics': 'Back to topics',
+      'quizReviewTitle': 'Review',
+      'quizReviewSubtitle':
+          'The questions you missed, with the rule behind each one.',
+      'quizAllCorrectTitle': 'Nothing to review',
+      'quizAllCorrectBody': 'You answered every question correctly.',
+      'quizNoSessionTitle': 'No quiz in progress',
+      'quizNoSessionBody': 'Start a quiz to see your result here.',
+      'quizNoQuestionsTitle': 'No questions yet',
+      'quizNoQuestionsBody':
+          'This topic has no questions for the selected mode.',
+      'quizDifficultyEasy': 'Easy',
+      'quizDifficultyMedium': 'Medium',
+      'quizDifficultyHard': 'Hard',
     },
     'tr': {
       'account': 'Hesap',
@@ -2609,6 +2677,72 @@ class AppLocalizations {
       'yesterday': 'Dün',
       'thisWeek': 'Bu hafta',
       'older': 'Daha önce',
+      // Quiz modülü.
+      'quiz': 'Testler',
+      'quizDescription': 'Ezber ağırlıklı konuları çevrimdışı çalışın.',
+      'categoryPractice': 'Alıştırma',
+      'categoryPracticeDescription':
+          'Görür görmez hatırlamanız gereken kuralları çalışın.',
+      'quizHomeEyebrow': 'Alıştırma',
+      'quizHomeSubtitle': 'Tamamen çevrimdışı, on soruluk oturumlar.',
+      'quizChooseSubject': 'Bir ders seçin',
+      'quizSubjectLocked': 'Soru bankası hazırlanıyor',
+      'quizChooseTopic': 'Bir konu seçin',
+      'quizAllTopics': 'Tüm konular',
+      'quizAllTopicsDescription': 'Bu dersteki tüm konulardan karışık sorular.',
+      'quizTopics': 'konu',
+      'quizQuestionsAvailable': 'soru mevcut',
+      'quizChooseMode': 'Bir mod seçin',
+      'quizModeMultipleChoice': 'Çoktan seçmeli',
+      'quizModeMultipleChoiceDescription':
+          'Dört seçenek arasından doğru cevabı seçin.',
+      'quizModeWritten': 'Yazılı cevap',
+      'quizModeWrittenDescription':
+          'Cevabı yazın. Boşluk ve gösterim farkları hoş görülür.',
+      'quizFeedback': 'Geri bildirim',
+      'quizFeedbackImmediate': 'Her sorudan sonra',
+      'quizFeedbackEndOfSession': 'Oturum sonunda',
+      'quizStartSession': 'Testi başlat',
+      'quizPromptDerivative': 'Türevi bulun',
+      'quizPromptIntegral': 'İntegrali hesaplayın',
+      'quizQuestionLabel': 'Soru',
+      'quizAnswerHint': 'Cevabınızı yazın',
+      'quizSubmit': 'Gönder',
+      'quizNext': 'Sonraki',
+      'quizSeeResult': 'Sonucu gör',
+      'quizCorrect': 'Doğru',
+      'quizIncorrect': 'Yanlış',
+      'quizAnswerRecorded': 'Cevap kaydedildi',
+      'quizCorrectAnswer': 'Doğru cevap',
+      'quizYourAnswer': 'Cevabınız',
+      'quizNoAnswer': 'Cevap yok',
+      'quizExplanation': 'Açıklama',
+      'quizNote': 'Not',
+      'quizNoteMissingConstant':
+          'Doğru — belirsiz integrallerde + C sabitini yazmayı unutmayın.',
+      'quizExitTitle': 'Testten çıkılsın mı?',
+      'quizExitBody': 'Bu oturumdaki ilerlemeniz kaybolacak.',
+      'quizExitConfirm': 'Çık',
+      'quizResultTitle': 'Sonuç',
+      'quizScore': 'Puan',
+      'quizResultExcellent': 'Oturmuş. Daha zor bir konuya geçin.',
+      'quizResultGood': 'Az kaldı. Bir tur daha yeterli olacaktır.',
+      'quizResultNeedsWork': 'Kuralları gözden geçirip tekrar çalıştırın.',
+      'quizReviewWrong': 'Yanlışları incele',
+      'quizRetry': 'Tekrar dene',
+      'quizBackToTopics': 'Konulara dön',
+      'quizReviewTitle': 'İnceleme',
+      'quizReviewSubtitle':
+          'Kaçırdığınız sorular ve her birinin arkasındaki kural.',
+      'quizAllCorrectTitle': 'İncelenecek bir şey yok',
+      'quizAllCorrectBody': 'Tüm soruları doğru yanıtladınız.',
+      'quizNoSessionTitle': 'Devam eden test yok',
+      'quizNoSessionBody': 'Sonucunuzu görmek için bir test başlatın.',
+      'quizNoQuestionsTitle': 'Henüz soru yok',
+      'quizNoQuestionsBody': 'Bu konuda seçilen mod için soru bulunmuyor.',
+      'quizDifficultyEasy': 'Kolay',
+      'quizDifficultyMedium': 'Orta',
+      'quizDifficultyHard': 'Zor',
     },
   };
 
@@ -2633,6 +2767,27 @@ class _AppLocalizationsDelegate
   bool shouldReload(_AppLocalizationsDelegate old) => false;
 }
 
+/// Upper-cases [value] under the casing rules of [languageCode].
+///
+/// `String.toUpperCase` is locale-neutral: it maps every `i` to `I`. In Turkish
+/// those are different letters, so "Türevi bulun" came out as "TÜREVI BULUN"
+/// instead of "TÜREVİ BULUN". Only the dotted `i` needs handling here -- the
+/// dotless `ı` already upper-cases to `I`, which is correct.
+String localizedUpperCase(String value, String languageCode) =>
+    languageCode == 'tr'
+    ? value.replaceAll('i', 'İ').toUpperCase()
+    : value.toUpperCase();
+
 extension LocalizationContext on BuildContext {
   AppLocalizations get l10n => AppLocalizations.of(this);
+
+  /// [value] upper-cased for the locale in scope.
+  ///
+  /// Falls back to the locale-neutral rules when there is no [Localizations]
+  /// ancestor, so a widget pumped bare in a test still renders rather than
+  /// throwing.
+  String upperCase(String value) => localizedUpperCase(
+    value,
+    Localizations.maybeLocaleOf(this)?.languageCode ?? 'en',
+  );
 }

@@ -413,6 +413,7 @@ class _ModuleCategorySection extends StatelessWidget {
         AcademyModuleCategory.optimization => Icons.route_rounded,
         AcademyModuleCategory.data => Icons.query_stats_rounded,
         AcademyModuleCategory.finance => Icons.account_balance_rounded,
+        AcademyModuleCategory.practice => Icons.school_rounded,
         AcademyModuleCategory.workspace => Icons.workspaces_outline,
       };
 }

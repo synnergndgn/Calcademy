@@ -6,6 +6,12 @@ import 'package:calcademy/features/home/presentation/coming_soon_page.dart';
 import 'package:calcademy/features/home/presentation/home_page.dart';
 import 'package:calcademy/features/home/presentation/splash_page.dart';
 import 'package:calcademy/features/matrix/presentation/matrix_home_page.dart';
+import 'package:calcademy/features/quiz/presentation/quiz_home_page.dart';
+import 'package:calcademy/features/quiz/presentation/quiz_mode_selection_page.dart';
+import 'package:calcademy/features/quiz/presentation/quiz_result_page.dart';
+import 'package:calcademy/features/quiz/presentation/quiz_review_page.dart';
+import 'package:calcademy/features/quiz/presentation/quiz_session_page.dart';
+import 'package:calcademy/features/quiz/presentation/quiz_topic_page.dart';
 import 'package:calcademy/features/operations_research/presentation/operations_research_page.dart';
 import 'package:calcademy/features/linear_programming/presentation/linear_program_page.dart';
 import 'package:calcademy/features/integer_programming/presentation/integer_program_home_page.dart';
@@ -105,6 +111,40 @@ final appRouter = GoRouter(
     GoRoute(
       path: '/operations-research',
       builder: (context, state) => const OperationsResearchPage(),
+    ),
+    // Quiz keeps literal segments (`subject`, `session`) ahead of the
+    // parameterised ones so a page path can never be read as a subject id.
+    GoRoute(
+      path: '/quiz',
+      builder: (context, state) => const QuizHomePage(),
+      routes: [
+        GoRoute(
+          path: 'session',
+          builder: (context, state) => const QuizSessionPage(),
+        ),
+        GoRoute(
+          path: 'result',
+          builder: (context, state) => const QuizResultPage(),
+        ),
+        GoRoute(
+          path: 'review',
+          builder: (context, state) => const QuizReviewPage(),
+        ),
+        GoRoute(
+          path: 'subject/:subjectId',
+          builder: (context, state) =>
+              QuizTopicPage(subjectId: state.pathParameters['subjectId']!),
+          routes: [
+            GoRoute(
+              path: 'topic/:topicId',
+              builder: (context, state) => QuizModeSelectionPage(
+                subjectId: state.pathParameters['subjectId']!,
+                topicId: state.pathParameters['topicId']!,
+              ),
+            ),
+          ],
+        ),
+      ],
     ),
     GoRoute(
       path: '/formulas',
