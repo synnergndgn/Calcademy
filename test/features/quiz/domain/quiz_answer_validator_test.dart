@@ -137,6 +137,67 @@ void main() {
     });
   });
 
+  /// The display layer polishes the question; the answer field must stay as
+  /// forgiving as a phone keyboard. Every spelling here is one a learner can
+  /// type without reaching for a superscript, and each has to keep grading.
+  group('keyboard-friendly written answers', () {
+    test('caret notation is accepted for every shape the bank asks about', () {
+      for (final (id, typed) in const [
+        ('bd-wr-03', 'n x^(n-1)'),
+        ('bd-wr-08', '-1/x^2'),
+        ('bd-wr-09', '(1/2)x^(-1/2)'),
+        ('bi-wr-01', 'x^(n+1)/(n+1) + C'),
+        ('bi-wr-02', 'ln|x| + C'),
+        ('el-wr-01', 'e^x'),
+        ('el-wr-05', 'e^x + C'),
+        ('el-wr-10', 'e^(kx)/k + C'),
+        ('td-wr-03', 'sec^2 x'),
+        ('td-wr-04', '-csc^2 x'),
+      ]) {
+        expect(
+          QuizAnswerValidator.isCorrect(_question(id), typed),
+          isTrue,
+          reason: '$id rejected "$typed"',
+        );
+      }
+    });
+
+    test('spacing, casing, and exp() are all still the same answer', () {
+      for (final (id, typed) in const [
+        ('el-wr-01', 'exp(x)'),
+        ('el-wr-05', 'exp(x) + C'),
+        ('td-wr-03', 'sec^2x'),
+        ('td-wr-03', 'SEC^2 X'),
+        ('bd-wr-03', 'nx^(n-1)'),
+        ('bi-wr-02', 'ln(|x|)+C'),
+      ]) {
+        expect(
+          QuizAnswerValidator.isCorrect(_question(id), typed),
+          isTrue,
+          reason: '$id rejected "$typed"',
+        );
+      }
+    });
+
+    test('a superscript is accepted but never required', () {
+      // The display draws a real raised exponent; a learner who types the
+      // Unicode form back grades the same as one who types the caret form,
+      // and neither spelling is the only way in.
+      for (final (id, typed) in const [
+        ('bd-wr-03', 'n xⁿ⁻¹'),
+        ('el-wr-01', 'eˣ'),
+        ('td-wr-03', 'sec²x'),
+        ('bi-wr-01', 'xⁿ⁺¹/(n+1) + C'),
+      ]) {
+        expect(
+          QuizAnswerValidator.isCorrect(_question(id), typed),
+          isTrue,
+          reason: '$id rejected "$typed"',
+        );
+      }
+    });
+  });
+
   group('multiple choice', () {
     test('grades to a plain verdict, never to a note', () {
       for (final question in QuizQuestionBank.all.where(

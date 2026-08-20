@@ -6,11 +6,11 @@ import 'package:calcademy/features/quiz/application/quiz_session_controller.dart
 import 'package:calcademy/features/quiz/data/quiz_topic_registry.dart';
 import 'package:calcademy/features/quiz/domain/quiz_answer_validator.dart';
 import 'package:calcademy/features/quiz/domain/quiz_question.dart';
-import 'package:calcademy/features/quiz/presentation/math_display.dart';
 import 'package:calcademy/features/quiz/presentation/quiz_home_page.dart';
 import 'package:calcademy/features/quiz/presentation/quiz_result_page.dart';
 import 'package:calcademy/features/quiz/presentation/quiz_review_page.dart';
 import 'package:calcademy/features/quiz/presentation/quiz_session_page.dart';
+import 'package:calcademy/features/quiz/presentation/widgets/math_formula.dart';
 import 'package:calcademy/l10n/app_localizations.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -83,12 +83,9 @@ void main() {
 
     expect(find.byKey(const Key('quiz-feedback-panel')), findsOneWidget);
     expect(find.text('Incorrect'), findsOneWidget);
-    // Explanations reach the screen through the display helper, so the
-    // rendered string carries superscripts rather than carets.
-    expect(
-      find.text(MathDisplay.format(question.explanation('en'))),
-      findsOneWidget,
-    );
+    // Explanations reach the screen through the formula renderer, not as
+    // printed source, so the assertion is on what was handed to it.
+    expect(_formula(question.explanation('en')), findsOneWidget);
     expect(find.byKey(const Key('quiz-advance')), findsOneWidget);
   });
 
@@ -196,7 +193,11 @@ void main() {
         .single
         .question;
     expect(find.byKey(Key('quiz-review-${missed.id}')), findsOneWidget);
-    expect(find.text(MathDisplay.format(missed.correctAnswer)), findsOneWidget);
+    // The review screen typesets its entries the same way the session does:
+    // the expression, the correct answer, and the rule behind it.
+    expect(_formula(missed.expression), findsOneWidget);
+    expect(_formula(missed.correctAnswer), findsOneWidget);
+    expect(_formula(missed.explanation('en')), findsOneWidget);
   });
 
   testWidgets('a perfect run offers nothing to review', (tester) async {
@@ -436,3 +437,10 @@ Future<void> _systemBack(WidgetTester tester) async {
   );
   await tester.pumpAndSettle();
 }
+
+/// A formula on screen, matched by the source it was given rather than by the
+/// text it drew: an exponent is its own widget, so it is not part of any one
+/// string a text finder could match.
+Finder _formula(String source) => find.byWidgetPredicate(
+  (widget) => widget is MathFormula && widget.source == source,
+);

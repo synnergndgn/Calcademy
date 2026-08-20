@@ -2,11 +2,12 @@ import 'package:calcademy/app/theme/app_radius.dart';
 import 'package:calcademy/app/theme/app_spacing.dart';
 import 'package:calcademy/features/quiz/domain/quiz_question.dart';
 import 'package:calcademy/features/quiz/presentation/quiz_labels.dart';
+import 'package:calcademy/features/quiz/presentation/widgets/math_formula.dart';
 import 'package:calcademy/l10n/app_localizations.dart';
 import 'package:flutter/material.dart';
 
-/// The question itself: localized prompt, subtopic tag, and the expression set
-/// in monospace so it reads like the rest of the calculator surfaces.
+/// The question itself: localized prompt, subtopic tag, and the expression
+/// typeset as mathematics rather than printed as source.
 class QuizQuestionCard extends StatelessWidget {
   const QuizQuestionCard({required this.question, super.key});
 
@@ -42,12 +43,12 @@ class QuizQuestionCard extends StatelessWidget {
             ),
           ),
           const SizedBox(height: AppSpacing.sm),
-          SelectableText(
-            quizExpressionText(question),
+          MathFormula(
+            question.expression,
             key: const Key('quiz-question-expression'),
+            selectable: true,
             style: theme.textTheme.headlineSmall?.copyWith(
               color: colors.onSurface,
-              fontFamily: 'monospace',
               letterSpacing: 0.4,
             ),
           ),

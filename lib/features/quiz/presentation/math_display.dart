@@ -7,9 +7,43 @@
 /// this is the last step before a string reaches a widget, so display can be
 /// polished without making grading stricter.
 ///
-/// Anything the map cannot represent -- `x^(1/2)`, an exponent with a
-/// fraction in it -- is left in caret form rather than half-converted, so a
-/// missing glyph degrades to the source spelling instead of to nonsense.
+/// Two consumers share one reading of a source string. [MathDisplay.tokens] is
+/// the structural one -- a flat run of pieces, each marked as ordinary text, a
+/// raised exponent, or a lowered base -- and is what `MathFormula` paints with
+/// real superscripts. [MathDisplay.format] is the plain-text one, which spends
+/// Unicode glyphs where they exist and falls back to the source spelling where
+/// they do not; it is what screen readers announce and what tests assert
+/// against.
+///
+/// Because both start from the same tokens, the two can disagree about glyph
+/// availability but never about structure: nothing can be an exponent in one
+/// place and a caret in the other.
+library;
+
+/// Where a piece of an expression sits relative to the baseline.
+enum MathLevel { base, superscript, subscript }
+
+/// One run of an expression, already classified.
+class MathToken {
+  const MathToken(this.text, this.level, this.raw);
+
+  const MathToken.base(String text) : this(text, MathLevel.base, text);
+
+  /// The content itself: `n+1` for an exponent, not `^(n+1)`.
+  final String text;
+
+  final MathLevel level;
+
+  /// The slice of the source this came from, `^(n+1)` included. It is what a
+  /// plain-text rendering falls back to when a character has no raised glyph.
+  final String raw;
+
+  MathToken withText(String text) => MathToken(text, level, raw);
+
+  @override
+  String toString() => '${level.name}("$text")';
+}
+
 abstract final class MathDisplay {
   static const _superscripts = {
     '0': '⁰',
@@ -90,50 +124,110 @@ abstract final class MathDisplay {
   static final _simpleRoot = RegExp(r'sqrt\(([A-Za-z0-9]+)\)');
   static final _root = RegExp('sqrt');
 
-  /// `x^(n-1)`. The inner group excludes parentheses so a nested exponent is
-  /// left alone rather than matched across the wrong bracket.
-  static final _parenthesizedExponent = RegExp(r'\^\(([^()]+)\)');
-
-  /// `x^3`, `e^x`, `x^-2`. A bare exponent is a sign plus digits, or a single
-  /// letter: `x^n-1` without parentheses is ambiguous, so only `n` is lifted.
-  static final _bareExponent = RegExp(r'\^([+-]?)([0-9]+|[A-Za-z])');
-
-  /// `log_a`, `log_10`. Anchored on a letter so a stray underscore in prose
-  /// is not read as a base.
-  static final _subscriptBase = RegExp(r'(?<=[A-Za-z])_([0-9]+|[A-Za-z])');
-
-  static final _superscriptRun = RegExp('[${_superscripts.values.join()}]+');
-
-  /// `sec² x` is written `sec²x`: the space between a raised power and the
-  /// function's argument is typographic noise. Restricted to function names so
-  /// the space in `x² dx` -- where it separates two factors -- survives.
-  static final _functionPowerSpace = RegExp(
-    '(sin|cos|tan|cot|sec|csc|ln|log)(${_superscriptRun.pattern}) +',
+  /// An exponent, either parenthesized (`^(n-1)`, `^(-1/2)`) or bare (`^3`,
+  /// `^x`, `^-2`). The parenthesized group excludes brackets so a nested
+  /// exponent is left alone rather than matched across the wrong one, and a
+  /// bare exponent stops after one term because `x^n-1` is ambiguous.
+  static final _exponent = RegExp(
+    r'\^(?:\(([^()]+)\)|([+-]?(?:[0-9]+|[A-Za-z])))',
   );
 
-  /// The display spelling of [source], which is left unchanged when it has
-  /// nothing to raise.
-  static String format(String source) {
-    if (source.isEmpty) return source;
-    var value = source
+  /// `_a`, `_10`. Only read as a base when a letter precedes it, so a stray
+  /// underscore in prose is not mistaken for one.
+  static final _base = RegExp(r'_([0-9]+|[A-Za-z])');
+
+  /// `sec² x` is written `sec²x` and `logₐ x` as `logₐx`: the space between a
+  /// function's own power or base and its argument is typographic noise.
+  /// Restricted to function names so the space in `x² dx` -- where it
+  /// separates two factors -- survives.
+  static final _functionName = RegExp(r'(?:sin|cos|tan|cot|sec|csc|ln|log)$');
+
+  static final _letter = RegExp('[A-Za-z]');
+  static final _leadingSpace = RegExp('^ +');
+
+  /// The structural reading of [source]: ordinary text, raised, and lowered
+  /// runs in the order they appear.
+  static List<MathToken> tokens(String source) {
+    if (source.isEmpty) return const [];
+    final value = source
         .replaceAllMapped(_simpleRoot, (match) => '√${match[1]}')
         .replaceAll(_root, '√');
-    value = value.replaceAllMapped(
-      _parenthesizedExponent,
-      (match) => _raise(match[1]!) ?? match[0]!,
-    );
-    value = value.replaceAllMapped(
-      _bareExponent,
-      (match) => _raise('${match[1]}${match[2]}') ?? match[0]!,
-    );
-    value = value.replaceAllMapped(
-      _subscriptBase,
-      (match) => _lower(match[1]!) ?? match[0]!,
-    );
-    return value.replaceAllMapped(
-      _functionPowerSpace,
-      (match) => '${match[1]}${match[2]}',
-    );
+
+    final parsed = <MathToken>[];
+    final buffer = StringBuffer();
+    void flush() {
+      if (buffer.isEmpty) return;
+      parsed.add(MathToken.base(buffer.toString()));
+      buffer.clear();
+    }
+
+    var index = 0;
+    while (index < value.length) {
+      final character = value[index];
+      if (character == '^') {
+        final match = _exponent.matchAsPrefix(value, index);
+        if (match != null) {
+          flush();
+          parsed.add(
+            MathToken(match[1] ?? match[2]!, MathLevel.superscript, match[0]!),
+          );
+          index = match.end;
+          continue;
+        }
+      } else if (character == '_' &&
+          index > 0 &&
+          _letter.hasMatch(value[index - 1])) {
+        final match = _base.matchAsPrefix(value, index);
+        if (match != null) {
+          flush();
+          parsed.add(MathToken(match[1]!, MathLevel.subscript, match[0]!));
+          index = match.end;
+          continue;
+        }
+      }
+      buffer.write(character);
+      index++;
+    }
+    flush();
+    return _closeFunctionGaps(parsed);
+  }
+
+  /// The display spelling of [source] as plain text, which is left unchanged
+  /// when it has nothing to raise.
+  ///
+  /// Anything Unicode cannot represent -- `x^(1/2)`, an exponent with a
+  /// fraction in it -- stays in caret form rather than being half-converted,
+  /// so a missing glyph degrades to the source spelling instead of to
+  /// nonsense. `MathFormula` has no such limit; this is the plain-text
+  /// fallback, not the path the learner reads.
+  static String format(String source) {
+    final buffer = StringBuffer();
+    for (final token in tokens(source)) {
+      buffer.write(switch (token.level) {
+        MathLevel.base => token.text,
+        MathLevel.superscript => _raise(token.text) ?? token.raw,
+        MathLevel.subscript => _lower(token.text) ?? token.raw,
+      });
+    }
+    return buffer.toString();
+  }
+
+  /// Drops the space a function's own power or base would otherwise leave in
+  /// front of its argument: `sec^2 x` is one term, not two.
+  static List<MathToken> _closeFunctionGaps(List<MathToken> parsed) {
+    for (var index = 1; index < parsed.length - 1; index++) {
+      if (parsed[index].level == MathLevel.base) continue;
+      final before = parsed[index - 1];
+      final after = parsed[index + 1];
+      if (before.level != MathLevel.base || after.level != MathLevel.base) {
+        continue;
+      }
+      if (!_functionName.hasMatch(before.text)) continue;
+      final trimmed = after.text.replaceFirst(_leadingSpace, '');
+      if (trimmed.isEmpty || trimmed == after.text) continue;
+      parsed[index + 1] = after.withText(trimmed);
+    }
+    return parsed;
   }
 
   /// [text] as superscript glyphs, or null when a character has none.

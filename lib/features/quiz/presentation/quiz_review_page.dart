@@ -6,6 +6,7 @@ import 'package:calcademy/features/quiz/application/quiz_session_controller.dart
 import 'package:calcademy/features/quiz/domain/quiz_result.dart';
 import 'package:calcademy/features/quiz/presentation/quiz_labels.dart';
 import 'package:calcademy/features/quiz/presentation/quiz_navigation.dart';
+import 'package:calcademy/features/quiz/presentation/widgets/math_formula.dart';
 import 'package:calcademy/features/quiz/presentation/widgets/quiz_feedback_panel.dart';
 import 'package:calcademy/l10n/app_localizations.dart';
 import 'package:flutter/material.dart';
@@ -95,19 +96,18 @@ class _ReviewEntryCard extends StatelessWidget {
           ),
         ),
         const SizedBox(height: AppSpacing.xxs),
-        SelectableText(
-          quizExpressionText(question),
-          style: theme.textTheme.titleLarge?.copyWith(
-            fontFamily: 'monospace',
-            letterSpacing: 0.4,
-          ),
+        MathFormula(
+          question.expression,
+          key: Key('quiz-review-expression-${question.id}'),
+          selectable: true,
+          style: theme.textTheme.titleLarge?.copyWith(letterSpacing: 0.4),
         ),
         const SizedBox(height: AppSpacing.sm),
         QuizFeedbackPanel(
           isCorrect: false,
-          correctAnswer: quizAnswerText(question.correctAnswer),
-          submittedAnswer: quizSubmittedText(question, entry.submittedText),
-          explanation: quizExplanationText(context, question),
+          correctAnswer: question.correctAnswer,
+          submittedAnswer: quizSubmittedSource(question, entry.submittedText),
+          explanation: quizExplanationSource(context, question),
         ),
       ],
     );

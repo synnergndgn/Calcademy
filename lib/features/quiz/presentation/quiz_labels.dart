@@ -1,6 +1,5 @@
 import 'package:calcademy/features/quiz/domain/quiz_question.dart';
 import 'package:calcademy/features/quiz/domain/quiz_session.dart';
-import 'package:calcademy/features/quiz/presentation/math_display.dart';
 import 'package:calcademy/l10n/app_localizations.dart';
 import 'package:flutter/widgets.dart';
 
@@ -41,31 +40,23 @@ String quizFeedbackModeLabel(BuildContext context, QuizFeedbackMode mode) =>
 /// Explanations live on the row in both languages rather than in the string
 /// table, so this is the one place that picks between them; no screen reads
 /// [QuizQuestion.explanationEn] or [QuizQuestion.explanationTr] directly.
-String quizExplanationText(BuildContext context, QuizQuestion question) =>
-    MathDisplay.format(
-      question.explanation(Localizations.localeOf(context).languageCode),
-    );
-
-/// The mathematics being asked about, set the way it is written on paper.
 ///
-/// The bank stores caret notation because that is what grading and a phone
-/// keyboard agree on; every screen renders it through here instead, so `x^2`
-/// reaches the learner as `x²` without either side of the comparison moving.
-String quizExpressionText(QuizQuestion question) =>
-    MathDisplay.format(question.expression);
+/// The result is still the bank's own notation. Screens hand it to
+/// `MathFormula`, which is what turns it into typeset mathematics; nothing
+/// here formats, so a screen cannot accidentally show a half-polished string.
+String quizExplanationSource(BuildContext context, QuizQuestion question) =>
+    question.explanation(Localizations.localeOf(context).languageCode);
 
-/// The canonical answer, in the same polished notation.
-String quizAnswerText(String answer) => MathDisplay.format(answer);
-
-/// What the learner submitted, as they would recognize it.
+/// What the learner submitted, in the notation it should be shown in.
 ///
-/// A chosen option is bank text and is polished like the rest of it; a typed
-/// answer is echoed exactly as typed, because that is the thing being
-/// discussed.
-String quizSubmittedText(QuizQuestion question, String submitted) =>
+/// A chosen option resolves to that option's own text; a written answer is the
+/// string as typed. Both are rendered by `MathFormula` afterwards, so a typed
+/// `x^2` is shown back as x² -- the same spelling as the correct answer it
+/// sits next to, which is the comparison the panel exists to make.
+String quizSubmittedSource(QuizQuestion question, String submitted) =>
     question.type == QuestionType.written
     ? submitted
-    : MathDisplay.format(submitted);
+    : question.optionById(submitted)?.text ?? submitted;
 
 /// "Question 3 / 10". The string table has no placeholder support, so the
 /// counter is composed rather than interpolated into a translated sentence.

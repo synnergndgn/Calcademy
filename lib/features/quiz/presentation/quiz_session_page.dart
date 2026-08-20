@@ -8,6 +8,7 @@ import 'package:calcademy/features/quiz/domain/quiz_question.dart';
 import 'package:calcademy/features/quiz/domain/quiz_session.dart';
 import 'package:calcademy/features/quiz/presentation/quiz_labels.dart';
 import 'package:calcademy/features/quiz/presentation/quiz_navigation.dart';
+import 'package:calcademy/features/quiz/presentation/widgets/math_token_row.dart';
 import 'package:calcademy/features/quiz/presentation/widgets/quiz_feedback_panel.dart';
 import 'package:calcademy/features/quiz/presentation/widgets/quiz_option_tile.dart';
 import 'package:calcademy/features/quiz/presentation/widgets/quiz_question_card.dart';
@@ -121,12 +122,12 @@ class _QuizSessionPageState extends ConsumerState<QuizSessionPage> {
                         QuizFeedbackPanel(
                           isCorrect: answer.isCorrect,
                           showVerdict: showVerdict,
-                          correctAnswer: quizAnswerText(question.correctAnswer),
+                          correctAnswer: question.correctAnswer,
                           submittedAnswer: answer.isCorrect
                               ? null
-                              : _submittedText(question, answer),
+                              : quizSubmittedSource(question, answer.submitted),
                           noteKey: answer.noteKey,
-                          explanation: quizExplanationText(context, question),
+                          explanation: quizExplanationSource(context, question),
                         ),
                       ],
                     ],
@@ -158,14 +159,6 @@ class _QuizSessionPageState extends ConsumerState<QuizSessionPage> {
       ),
     );
   }
-
-  static String _submittedText(QuizQuestion question, QuizAnswer answer) =>
-      quizSubmittedText(
-        question,
-        question.type == QuestionType.written
-            ? answer.submitted
-            : question.optionById(answer.submitted)?.text ?? '',
-      );
 
   /// Ignores a blank written submission, so the keyboard's done action cannot
   /// lock in an empty answer either.
@@ -279,21 +272,33 @@ class _WrittenAnswerField extends StatelessWidget {
   final ValueChanged<String> onSubmitted;
 
   @override
-  Widget build(BuildContext context) => TextField(
-    key: const Key('quiz-answer-field'),
-    controller: controller,
-    enabled: enabled,
-    autocorrect: false,
-    enableSuggestions: false,
-    textInputAction: TextInputAction.done,
-    onSubmitted: enabled ? onSubmitted : null,
-    style: Theme.of(
-      context,
-    ).textTheme.titleMedium?.copyWith(fontFamily: 'monospace'),
-    decoration: InputDecoration(
-      labelText: context.l10n.t('quizAnswerHint'),
-      prefixIcon: const Icon(Icons.edit_rounded),
-    ),
+  Widget build(BuildContext context) => Column(
+    crossAxisAlignment: CrossAxisAlignment.stretch,
+    children: [
+      // Above the field, not below it: the shortcuts are for composing an
+      // answer, and the keyboard covers everything under the field anyway.
+      MathTokenRow(controller: controller, enabled: enabled),
+      const SizedBox(height: AppSpacing.xs),
+      TextField(
+        key: const Key('quiz-answer-field'),
+        controller: controller,
+        enabled: enabled,
+        autocorrect: false,
+        enableSuggestions: false,
+        textInputAction: TextInputAction.done,
+        onSubmitted: enabled ? onSubmitted : null,
+        // Monospace here and nowhere else on the screen: this is the one
+        // place the learner is typing source rather than reading mathematics,
+        // and a fixed advance makes a caret easy to land on.
+        style: Theme.of(
+          context,
+        ).textTheme.titleMedium?.copyWith(fontFamily: 'monospace'),
+        decoration: InputDecoration(
+          labelText: context.l10n.t('quizAnswerHint'),
+          prefixIcon: const Icon(Icons.edit_rounded),
+        ),
+      ),
+    ],
   );
 }
 

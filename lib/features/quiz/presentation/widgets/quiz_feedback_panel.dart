@@ -1,5 +1,6 @@
 import 'package:calcademy/app/theme/app_radius.dart';
 import 'package:calcademy/app/theme/app_spacing.dart';
+import 'package:calcademy/features/quiz/presentation/widgets/math_formula.dart';
 import 'package:calcademy/l10n/app_localizations.dart';
 import 'package:flutter/material.dart';
 
@@ -17,10 +18,16 @@ class QuizFeedbackPanel extends StatelessWidget {
   });
 
   final bool isCorrect;
+
+  /// In the bank's own notation. Typesetting happens here rather than at the
+  /// call site, so the two answers this panel puts side by side cannot end up
+  /// in different spellings.
   final String correctAnswer;
 
   /// Already resolved to the active locale by the caller, which is the only
-  /// place that knows which question is on screen.
+  /// place that knows which question is on screen, and still in the bank's
+  /// notation: the prose carries formulas too, and they are typeset with the
+  /// rest.
   final String explanation;
 
   /// Localization key for a reminder shown above the explanation, e.g. a
@@ -99,6 +106,7 @@ class QuizFeedbackPanel extends StatelessWidget {
                     ? context.l10n.t('quizNoAnswer')
                     : submittedAnswer,
                 valueColor: colors.error,
+                valueKey: const Key('quiz-feedback-submitted-answer'),
               ),
             ],
             const SizedBox(height: AppSpacing.xs),
@@ -125,7 +133,11 @@ class QuizFeedbackPanel extends StatelessWidget {
             ),
           ),
           const SizedBox(height: AppSpacing.xxs),
-          Text(explanation, style: theme.textTheme.bodyMedium),
+          MathFormula(
+            explanation,
+            key: const Key('quiz-feedback-explanation'),
+            style: theme.textTheme.bodyMedium,
+          ),
         ],
       ),
     );
@@ -202,13 +214,10 @@ class _Line extends StatelessWidget {
             color: theme.colorScheme.onSurfaceVariant,
           ),
         ),
-        Text(
+        MathFormula(
           value,
           key: valueKey,
-          style: theme.textTheme.titleSmall?.copyWith(
-            color: valueColor,
-            fontFamily: 'monospace',
-          ),
+          style: theme.textTheme.titleSmall?.copyWith(color: valueColor),
         ),
       ],
     );

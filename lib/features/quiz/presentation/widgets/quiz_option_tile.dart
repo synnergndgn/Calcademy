@@ -1,7 +1,7 @@
 import 'package:calcademy/app/theme/app_radius.dart';
 import 'package:calcademy/app/theme/app_spacing.dart';
 import 'package:calcademy/features/quiz/domain/quiz_question.dart';
-import 'package:calcademy/features/quiz/presentation/quiz_labels.dart';
+import 'package:calcademy/features/quiz/presentation/widgets/math_formula.dart';
 import 'package:flutter/material.dart';
 
 /// How an option should be painted once the question has been graded.
@@ -91,11 +91,10 @@ class QuizOptionTile extends StatelessWidget {
               ),
               const SizedBox(width: AppSpacing.sm),
               Expanded(
-                child: Text(
-                  quizAnswerText(option.text),
+                child: MathFormula(
+                  option.text,
                   style: theme.textTheme.titleMedium?.copyWith(
                     color: foreground,
-                    fontFamily: 'monospace',
                     fontWeight: emphasized ? FontWeight.w700 : null,
                   ),
                 ),

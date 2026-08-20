@@ -35,7 +35,9 @@ void main() {
     test('writes roots and logarithm bases with their own glyphs', () {
       expect(MathDisplay.format('sqrt(x)'), '√x');
       expect(MathDisplay.format('1/(2sqrt(x))'), '1/(2√x)');
-      expect(MathDisplay.format('d/dx (log_a x)'), 'd/dx (logₐ x)');
+      // The gap after a base closes for the same reason it closes after a
+      // power: `log_a x` is one term, not a logarithm next to an x.
+      expect(MathDisplay.format('d/dx (log_a x)'), 'd/dx (logₐx)');
     });
 
     test('leaves what it cannot represent in caret form', () {
@@ -102,7 +104,100 @@ void main() {
     });
   });
 
+  group('reading a source string structurally', () {
+    /// The tokens as `level(text)`, which is what a rendering has to agree on.
+    List<String> shapeOf(String source) =>
+        MathDisplay.tokens(source).map((token) => token.toString()).toList();
+
+    test('separates an exponent from the term it sits on', () {
+      expect(shapeOf('x^2'), ['base("x")', 'superscript("2")']);
+      expect(shapeOf('x^(n+1)'), ['base("x")', 'superscript("n+1")']);
+      expect(shapeOf('x^(n-1)'), ['base("x")', 'superscript("n-1")']);
+      expect(shapeOf('e^(kx)'), ['base("e")', 'superscript("kx")']);
+      expect(shapeOf('e^x'), ['base("e")', 'superscript("x")']);
+    });
+
+    test('lifts an exponent Unicode has no glyph for', () {
+      // The plain-text spelling gives up on these; the structure does not, so
+      // MathFormula still draws a real raised exponent.
+      expect(shapeOf('x^(1/2)'), ['base("x")', 'superscript("1/2")']);
+      expect(shapeOf('x^(-1/2)'), ['base("x")', 'superscript("-1/2")']);
+    });
+
+    test('reads a function power and a logarithm base the same way', () {
+      expect(shapeOf('sec^2 x'), [
+        'base("sec")',
+        'superscript("2")',
+        'base("x")',
+      ]);
+      expect(shapeOf('csc^2 x'), [
+        'base("csc")',
+        'superscript("2")',
+        'base("x")',
+      ]);
+      expect(shapeOf('log_a x'), [
+        'base("log")',
+        'subscript("a")',
+        'base("x")',
+      ]);
+    });
+
+    test('leaves prose, roots, and the integral sign alone', () {
+      expect(shapeOf('cos x'), ['base("cos x")']);
+      expect(shapeOf('sqrt(x)'), ['base("√x")']);
+      expect(shapeOf('ln|x| + C'), [r'base("ln|x| + C")']);
+      expect(shapeOf('∫ x^n dx, n ≠ -1'), [
+        'base("∫ x")',
+        'superscript("n")',
+        'base(" dx, n ≠ -1")',
+      ]);
+      expect(shapeOf(''), isEmpty);
+    });
+
+    test('keeps the space that separates two factors', () {
+      // `x² dx` is a power times a differential, so its space is not the same
+      // space as the one inside `sec² x`.
+      expect(shapeOf('∫ x^2 dx'), [
+        'base("∫ x")',
+        'superscript("2")',
+        'base(" dx")',
+      ]);
+    });
+  });
+
   group('what the learner sees', () {
+    /// Everything a quiz screen puts in front of the learner, explanations
+    /// included: those are prose, but the prose quotes formulas.
+    List<String> visibleStringsOf(QuizQuestion question) => <String>[
+      question.expression,
+      question.correctAnswer,
+      for (final option in question.options) option.text,
+      question.explanationEn,
+      question.explanationTr,
+    ];
+
+    test('no source notation survives into a rendered token', () {
+      for (final question in QuizQuestionBank.all) {
+        for (final source in visibleStringsOf(question)) {
+          for (final token in MathDisplay.tokens(source)) {
+            if (token.level != MathLevel.base) continue;
+            expect(
+              token.text,
+              isNot(contains('^')),
+              reason:
+                  '${question.id} would show a raw caret in "$source": '
+                  '"${token.text}"',
+            );
+            expect(
+              token.text,
+              isNot(contains('sqrt')),
+              reason: '${question.id} would show "sqrt" rather than √',
+            );
+          }
+        }
+      }
+    });
+
     test('no visible expression or answer is left in caret notation', () {
       for (final question in QuizQuestionBank.all) {
         final visible = <String>[
