@@ -42,6 +42,27 @@ void main() {
     expect(find.text('Open-source packages'), findsWidgets);
   });
 
+  testWidgets('the ad-supported build promises no assistant to open', (
+    tester,
+  ) async {
+    // PR #16 hid the assistant section behind the premium-surface gate on the
+    // About page as it stood then. This page answers the same dead end by
+    // stating the absence: a passive note that names nothing the user could
+    // try to open.
+    await _pumpAbout(tester);
+
+    expect(find.byKey(const Key('about-ai-assistant-section')), findsOneWidget);
+    expect(find.text('Future tools'), findsOneWidget);
+    expect(
+      find.text(
+        'Assistant, account, and camera workflows are reserved for later '
+        'releases.',
+      ),
+      findsOneWidget,
+    );
+    expect(find.text('Ask Calcademy'), findsNothing);
+  });
+
   testWidgets('privacy action launches the verified URL externally', (
     tester,
   ) async {
