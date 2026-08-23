@@ -279,7 +279,7 @@ void main() {
     );
     expect(AppMetadata.contactEmail, isNull);
     expect(AppMetadata.repositoryUrl, isNull);
-    expect(AppMetadata.privacyPolicyEffectiveDate, '2026-08-12');
+    expect(AppMetadata.privacyPolicyEffectiveDate, '2026-08-23');
   });
 
   test(

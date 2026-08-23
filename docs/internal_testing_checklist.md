@@ -9,17 +9,40 @@ dil, tema, uygulama surumu/build numarasi, test tarihi ve sonucu kaydedilmelidir
 | Alan | Beklenen / Kaydedilecek deger | Sonuc |
 | --- | --- | --- |
 | Artifact | `build/app/outputs/bundle/release/app-release.aab` | [ ] |
-| Version | `1.10.0 (32)` | [ ] |
+| Version | `1.10.1 (33)` | [ ] |
 | Package | `com.aligundogan.calcademy` | [ ] |
 | Install source | Play Store Internal Testing opt-in linki | [ ] |
 | Git revision | Test edilen kesin commit SHA | [ ] |
-| AAB SHA-256 | `9006e494766139259e4ce3f98d4ea7d7974035f0ac26383600e6bf1bf604af9e` | [ ] |
+| AAB SHA-256 | `4091d40f542bcfc262c5500fd7e08b5a0722db40506606e29e9d48ceeee371e6` | [ ] |
 | Tester / tarih | Ad ve tarih | [ ] |
 | Cihaz / Android | Model ve Android surumu | [ ] |
 
-> Play Console'da daha once `versionCode 32` yuklendiyse ayni kod yeniden
+> Play Console'da daha once `versionCode 33` yuklendiyse ayni kod yeniden
 > yuklenemez. Bu durumda kaynak metadata'si ve release notlariyla birlikte build
 > numarasi artirilip tum release gate'leri yeniden calistirilmalidir.
+
+## 1.10.1 (33) Surum Notu
+
+Bu surum iki degisiklik tasir:
+
+- **Bilimsel hesap makinesi yerlesim duzeltmesi.** Tus takimi ifade alanini ve
+  sonuc panelini ekranin disina itebiliyordu. Artik ikisi sabit; tus takimi
+  kalan yuksekligi kullanir. Dar gorunumlerde (yatay mod, buyuk yazi olcegi)
+  eski kaydirmali duzene doner.
+- **Testler (practice) modulu bu surumde kullanima sunulmaz.** Kod pakette yer
+  alir; ana sayfa kategorisi, hizli erisim karti, modul aramasi ve kategori
+  filtresi kaldirilmistir (`AppFeatures.practiceEnabled = false`). Uygulama
+  derin baglanti tanimlamadigi icin `/quiz` rotalarina ulasilamaz.
+
+Bu surume ozel dogrulanacaklar:
+
+- [ ] Ana sayfada Testler kategorisi, filtre cipi, hizli erisim karti ve arama
+  sonucu gorunmuyor.
+- [ ] Bilimsel hesap makinesinde ifade alani ve sonuc paneli her zaman
+  gorunur; `+` ve `=` dahil dokuz tus siranin tamami erisilebilir.
+- [ ] Ayni ekran yatay modda ve %200 yazi olceginde tasma vermeden calisiyor.
+- [ ] Yayinlanan gizlilik politikasi sayfasinin yururluk tarihi
+  `AppMetadata.privacyPolicyEffectiveDate` ile ayni: `2026-08-23`.
 
 ## Device Smoke Test
 
@@ -133,7 +156,7 @@ kontrolleri tamamlanmalidir.
   davranislari dogrudur.
 - [ ] App restart sonrasinda tema, dil, angle mode, precision, haptics, sound ve
   scientific notation ayarlari korunur.
-- [ ] About & Legal ekrani `1.10.0 (32)`, package bilgisi ve calisan privacy-policy
+- [ ] About & Legal ekrani `1.10.1 (33)`, package bilgisi ve calisan privacy-policy
   aksiyonunu gosterir.
 
 ## Accessibility
@@ -170,9 +193,9 @@ kontrolleri tamamlanmalidir.
 
 ### Kaynak/artifact tarafinda dogrulananlar
 
-- [x] `versionCode`: **32** (`pubspec.yaml`: `1.10.0+32`; Gradle Flutter
+- [x] `versionCode`: **33** (`pubspec.yaml`: `1.10.1+33`; Gradle Flutter
   metadata'sini kullanir).
-- [x] `versionName`: **1.10.0**; `AppMetadata` ile uyumlu.
+- [x] `versionName`: **1.10.1**; `AppMetadata` ile uyumlu.
 - [x] Package name / application ID: `com.aligundogan.calcademy`; namespace ve
   manifest activity yolu ile uyumlu.
 - [x] App label: `Calcademy`.
@@ -202,7 +225,7 @@ kontrolleri tamamlanmalidir.
 
 ### Play Console / sahip onayi gerekenler
 
-- [ ] Play Console bu uygulama icin `versionCode 32` degerini daha once kabul
+- [ ] Play Console bu uygulama icin `versionCode 33` degerini daha once kabul
   etmemis.
 - [ ] AAB upload validation, Play App Signing ve upload certificate dogrulamasi
   basarili.

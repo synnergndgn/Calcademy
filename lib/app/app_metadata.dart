@@ -38,7 +38,7 @@ abstract final class AppMetadata {
       'https://gundev.dev/gizlilik/calcademy';
   // Must equal the date published on privacyPolicyUrl. Nothing renders this;
   // it is the repository's record of which revision of the page shipped.
-  static const privacyPolicyEffectiveDate = '2026-08-12';
+  static const privacyPolicyEffectiveDate = '2026-08-23';
 
   static Uri? get privacyPolicyUri => parsePublicHttpsUrl(privacyPolicyUrl);
 
