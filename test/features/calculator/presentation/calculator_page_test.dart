@@ -128,6 +128,81 @@ void main() {
     expect(tester.takeException(), isNull);
   });
 
+  testWidgets('phone layout keeps the display and result on screen', (
+    tester,
+  ) async {
+    tester.view.physicalSize = const Size(720, 1600);
+    tester.view.devicePixelRatio = 2;
+    addTearDown(tester.view.resetPhysicalSize);
+    addTearDown(tester.view.resetDevicePixelRatio);
+
+    // A 360x800 phone with a status bar and a three-button navigation bar --
+    // the tightest portrait viewport the keypad has to fit into.
+    await _pump(
+      tester,
+      const MediaQuery(
+        data: MediaQueryData(
+          size: Size(360, 800),
+          devicePixelRatio: 2,
+          padding: EdgeInsets.only(top: 30, bottom: 48),
+        ),
+        child: CalculatorPage(),
+      ),
+    );
+    await tester.pumpAndSettle();
+
+    final safeBottom = 800.0 - 48;
+    final field = tester.getRect(find.byKey(const Key('expressionField')));
+    final result = tester.getRect(find.byKey(const Key('resultPanel')));
+    final equals = tester.getRect(find.text('='));
+
+    // The keypad fits the space left over instead of scrolling the display
+    // and the result off the top of the screen.
+    final keypad = tester.state<ScrollableState>(
+      find.descendant(
+        of: find.byType(CalculatorKeypad),
+        matching: find.byType(Scrollable),
+      ),
+    );
+    expect(keypad.position.maxScrollExtent, 0);
+    expect(result.bottom, lessThanOrEqualTo(safeBottom));
+    expect(equals.bottom, lessThanOrEqualTo(safeBottom));
+    expect(field.top, greaterThan(0));
+    expect(result.top, greaterThan(field.bottom));
+    expect(tester.takeException(), isNull);
+
+    // The keypad still works after being resized to fit.
+    await tester.tap(find.text('7'));
+    await tester.pump();
+    final controller = tester
+        .widget<TextField>(find.byKey(const Key('expressionField')))
+        .controller!;
+    expect(controller.text, '7');
+  });
+
+  testWidgets('short viewports fall back to scrolling the whole workspace', (
+    tester,
+  ) async {
+    tester.view.physicalSize = const Size(800, 360);
+    tester.view.devicePixelRatio = 1;
+    addTearDown(tester.view.resetPhysicalSize);
+    addTearDown(tester.view.resetDevicePixelRatio);
+
+    await _pump(tester, const CalculatorPage());
+    await tester.pumpAndSettle();
+
+    expect(find.byType(CalculatorKeypad), findsOneWidget);
+    await _tapKey(tester, '7');
+    expect(
+      tester
+          .widget<TextField>(find.byKey(const Key('expressionField')))
+          .controller!
+          .text,
+      '7',
+    );
+    expect(tester.takeException(), isNull);
+  });
+
   testWidgets('history shows its empty state', (tester) async {
     await _pump(tester, const HistoryPage());
     expect(find.text('No calculations yet'), findsOneWidget);

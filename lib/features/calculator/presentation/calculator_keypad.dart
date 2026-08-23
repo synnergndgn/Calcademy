@@ -1,3 +1,5 @@
+import 'dart:math' as math;
+
 import 'package:calcademy/core/widgets/calcademy_design.dart';
 import 'package:flutter/material.dart';
 
@@ -7,11 +9,16 @@ class CalculatorKeypad extends StatelessWidget {
     required this.onBackspace,
     required this.onClear,
     super.key,
+    this.fillHeight = false,
   });
 
   final ValueChanged<String> onKey;
   final VoidCallback onBackspace;
   final VoidCallback onClear;
+
+  /// Sizes the keys to the height handed down instead of to their own natural
+  /// height, so a pinned expression display can never be pushed off screen.
+  final bool fillHeight;
 
   static const keys = <String>[
     'sin',
@@ -79,23 +86,48 @@ class CalculatorKeypad extends StatelessWidget {
     '1/x',
   };
 
+  static const _spacing = 7.0;
+
+  /// Keys never shrink below this; the grid scrolls on its own instead. Low
+  /// enough that every portrait phone fits all nine rows, high enough that
+  /// landscape and large text scales scroll rather than turn into slivers.
+  static const _minKeyHeight = 40.0;
+
+  /// Keys never grow taller than this multiple of their width.
+  static const _maxKeyHeightRatio = 1.25;
+
   @override
   Widget build(BuildContext context) {
     return LayoutBuilder(
       builder: (context, constraints) {
         final compact = constraints.maxWidth < 360;
         final columns = compact ? 5 : 6;
-        final ratio = constraints.maxWidth > 600
-            ? 1.75
-            : (compact ? 1.0 : 1.15);
+        var ratio = constraints.maxWidth > 600 ? 1.75 : (compact ? 1.0 : 1.15);
+        var scrolls = false;
+        if (fillHeight && constraints.hasBoundedHeight) {
+          final rows = (keys.length / columns).ceil();
+          final keyWidth =
+              (constraints.maxWidth - _spacing * (columns - 1)) / columns;
+          final keyHeight =
+              (constraints.maxHeight - _spacing * (rows - 1)) / rows;
+          scrolls = keyHeight < _minKeyHeight;
+          ratio =
+              keyWidth /
+              math.min(
+                math.max(keyHeight, _minKeyHeight),
+                keyWidth * _maxKeyHeightRatio,
+              );
+        }
         return GridView.builder(
-          shrinkWrap: true,
-          physics: const NeverScrollableScrollPhysics(),
+          shrinkWrap: !fillHeight,
+          physics: scrolls
+              ? const ClampingScrollPhysics()
+              : const NeverScrollableScrollPhysics(),
           itemCount: keys.length,
           gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
             crossAxisCount: columns,
-            mainAxisSpacing: 7,
-            crossAxisSpacing: 7,
+            mainAxisSpacing: _spacing,
+            crossAxisSpacing: _spacing,
             childAspectRatio: ratio,
           ),
           itemBuilder: (context, index) {

@@ -44,6 +44,10 @@ class _CalculatorPageState extends ConsumerState<CalculatorPage> {
   static final _newExpressionPattern = RegExp(r'^[0-9a-zA-Zπ.(]');
   static final _trailingOperatorPattern = RegExp(r'[+−×÷^]$');
 
+  /// Below this viewport height (landscape phones, extreme text scales) the
+  /// page falls back to scrolling the whole workspace.
+  static const _pinnedLayoutMinHeight = 560.0;
+
   late final TextEditingController _textController;
   final _focusNode = FocusNode();
 
@@ -86,9 +90,16 @@ class _CalculatorPageState extends ConsumerState<CalculatorPage> {
         child: LayoutBuilder(
           builder: (context, constraints) {
             final expanded = constraints.maxWidth >= AppBreakpoints.expanded;
+            // On a phone the keypad is taller than the space left over, so a
+            // single scrolling column would let it push the expression and the
+            // result off the top of the screen. Pin them instead and hand the
+            // keypad whatever height is left.
+            final pinned =
+                !expanded && constraints.maxHeight >= _pinnedLayoutMinHeight;
             final calculator = _CalculatorWorkspace(
               textController: _textController,
               focusNode: _focusNode,
+              fillHeight: pinned,
               onChanged: ref.read(calculatorProvider.notifier).setExpression,
               onSubmitted: (_) => _evaluate(),
               resultPanel: _CalculatorResultPanel(
@@ -100,9 +111,16 @@ class _CalculatorPageState extends ConsumerState<CalculatorPage> {
                   onKey: _handleKey,
                   onBackspace: _backspace,
                   onClear: _clear,
+                  fillHeight: pinned,
                 ),
               ),
             );
+            if (pinned) {
+              return Padding(
+                padding: const EdgeInsets.fromLTRB(16, 8, 16, 8),
+                child: calculator,
+              );
+            }
             return ListView(
               padding: const EdgeInsets.fromLTRB(16, 8, 16, 24),
               children: [
@@ -244,6 +262,7 @@ class _CalculatorWorkspace extends StatelessWidget {
     required this.onSubmitted,
     required this.resultPanel,
     required this.keypad,
+    this.fillHeight = false,
   });
 
   final TextEditingController textController;
@@ -252,10 +271,12 @@ class _CalculatorWorkspace extends StatelessWidget {
   final ValueChanged<String> onSubmitted;
   final Widget resultPanel;
   final Widget keypad;
+  final bool fillHeight;
 
   @override
   Widget build(BuildContext context) => Column(
     crossAxisAlignment: CrossAxisAlignment.stretch,
+    mainAxisSize: fillHeight ? MainAxisSize.max : MainAxisSize.min,
     children: [
       ExpressionDisplay(
         controller: textController,
@@ -267,7 +288,7 @@ class _CalculatorWorkspace extends StatelessWidget {
       const SizedBox(height: AppSpacing.sm),
       resultPanel,
       const SizedBox(height: AppSpacing.md),
-      keypad,
+      if (fillHeight) Expanded(child: keypad) else keypad,
     ],
   );
 }
