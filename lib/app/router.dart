@@ -114,6 +114,10 @@ final appRouter = GoRouter(
     ),
     // Quiz keeps literal segments (`subject`, `session`) ahead of the
     // parameterised ones so a page path can never be read as a subject id.
+    // The practice module is withheld from the 1.10.1 release through
+    // `AppFeatures.practiceEnabled`; these routes stay registered but nothing
+    // links to them, and the app declares no deep-link intent filter, so they
+    // are unreachable until the home entry points come back.
     GoRoute(
       path: '/quiz',
       builder: (context, state) => const QuizHomePage(),

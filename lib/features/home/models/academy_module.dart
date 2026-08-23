@@ -1,3 +1,4 @@
+import 'package:calcademy/app/config/app_features.dart';
 import 'package:flutter/material.dart';
 
 enum AcademyModuleCategory {
@@ -35,12 +36,30 @@ class AcademyModule {
   final bool available;
 }
 
+/// The modules this build exposes. A category held back by [AppFeatures] drops
+/// out here, so every surface -- the grid, quick access, search and the
+/// category filter -- loses it together.
+final academyModules = _allAcademyModules
+    .where(
+      (module) =>
+          AppFeatures.practiceEnabled ||
+          module.category != AcademyModuleCategory.practice,
+    )
+    .toList(growable: false);
+
+/// Categories that still have at least one exposed module.
+final visibleModuleCategories = AcademyModuleCategory.values
+    .where(
+      (category) => academyModules.any((module) => module.category == category),
+    )
+    .toList(growable: false);
+
 List<String> visibleQuickAccessModuleIds() {
   final visible = academyModules.map((module) => module.id).toSet();
   return quickAccessModuleIds.where(visible.contains).toList(growable: false);
 }
 
-const academyModules = [
+const _allAcademyModules = [
   AcademyModule(
     id: 'formula-library',
     titleKey: 'formulaLibraryTitle',

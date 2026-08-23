@@ -235,6 +235,26 @@ void main() {
     );
     expect(tester.takeException(), isNull);
   });
+
+  testWidgets('the practice module is withheld from this release', (
+    tester,
+  ) async {
+    await _pumpHome(tester);
+
+    expect(find.byKey(const Key('home-category-practice')), findsNothing);
+    expect(
+      find.byKey(const Key('home-category-filter-practice')),
+      findsNothing,
+    );
+    expect(find.byKey(const Key('quick-access-quiz')), findsNothing);
+    expect(find.text('Quiz'), findsNothing);
+
+    await tester.enterText(find.byKey(const Key('home-module-search')), 'quiz');
+    await tester.pump();
+
+    expect(find.byKey(const Key('home-search-empty')), findsOneWidget);
+    expect(find.byKey(const Key('module-card-quiz')), findsNothing);
+  });
 }
 
 Future<void> _pumpHome(WidgetTester tester, {bool dark = false}) async {

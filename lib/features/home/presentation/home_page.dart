@@ -127,7 +127,7 @@ class _HomePageState extends ConsumerState<HomePage> {
                               body: context.l10n.t('homeNoResultsBody'),
                             )
                           else ...[
-                            for (final category in AcademyModuleCategory.values)
+                            for (final category in visibleModuleCategories)
                               if (available.any(
                                 (module) => module.category == category,
                               )) ...[
@@ -372,7 +372,7 @@ class _HomeCategoryFilter extends StatelessWidget {
           onSelected: (_) => onSelected(null),
         ),
         const SizedBox(width: AppSpacing.xs),
-        for (final category in AcademyModuleCategory.values) ...[
+        for (final category in visibleModuleCategories) ...[
           ChoiceChip(
             key: Key('home-category-filter-${category.name}'),
             label: Text(context.l10n.t(category.localizationKey)),
