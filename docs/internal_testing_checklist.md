@@ -13,7 +13,7 @@ dil, tema, uygulama surumu/build numarasi, test tarihi ve sonucu kaydedilmelidir
 | Package | `com.aligundogan.calcademy` | [ ] |
 | Install source | Play Store Internal Testing opt-in linki | [ ] |
 | Git revision | Test edilen kesin commit SHA | [ ] |
-| AAB SHA-256 | Bu release icin yeniden hesaplanacak | [ ] |
+| AAB SHA-256 | `cc51163f94777749e7b811828cd53a4281f995e4a08a628bb07c770dfb319923` | [ ] |
 | Tester / tarih | Ad ve tarih | [ ] |
 | Cihaz / Android | Model ve Android surumu | [ ] |
 
