@@ -1,6 +1,6 @@
 # Calcademy Privacy Policy
 
-**Status:** Current for Calcademy **1.9.4–1.10.1 (builds 28–33)**, the offline,
+**Status:** Current for Calcademy **1.9.4–1.10.2 (builds 28–34)**, the offline,
 accountless, ad-supported release line.
 
 **Developer/publisher name:** `Ali Gündoğan`
@@ -28,11 +28,12 @@ English. The two are maintained by hand and must be revised together.
 
 | Version | Distribution | Advertising and features |
 |---|---|---|
-| 1.10.1 (build 33) | Google Play production | Same as 1.9.5. The offline Quiz/Testler practice module is compiled into the package but is not exposed: no screen, search result or link reaches it, so it cannot be opened in this build. No account, sign-in, subscription, remote AI or camera feature. |
+| 1.10.2 (build 34) | Google Play production | Same as 1.9.5. The offline Quiz/Testler practice module is compiled into the package but is not exposed: no screen, search result or link reaches it, so it cannot be opened in this build. No account, sign-in, subscription, remote AI or camera feature. |
+| 1.10.1 (build 33) | Google Play internal testing, superseded by 1.10.2 | Same as 1.10.0, with the practice module still offered. |
 | 1.10.0 (builds 31–32) | Google Play internal testing | Same as 1.9.5, plus the offline Quiz/Testler practice module. No account, sign-in, subscription, remote AI or camera feature. |
 | 1.9.5 (build 30) | Google Play production | Google AdMob banner on Home and Saved, behind a UMP consent flow. No account, sign-in, subscription, remote AI or camera feature. |
 | 1.9.4 (builds 28–29) | Google Play production, superseded by 1.9.5 | Same as above. |
-| 1.8.0 (build 20) and earlier | closed/internal testing, superseded | See the release history in Git. Those builds variously included an optional Supabase account client, the Play Billing foundation and an entitlement backend stub. **None of that is present in 1.9.4, 1.9.5, 1.10.0 or 1.10.1.** |
+| 1.8.0 (build 20) and earlier | closed/internal testing, superseded | See the release history in Git. Those builds variously included an optional Supabase account client, the Play Billing foundation and an entitlement backend stub. **None of that is present in 1.9.4, 1.9.5, 1.10.0, 1.10.1 or 1.10.2.** |
 
 Calculation, graph, matrix, optimization and practice screens display no ads
 in any build.
@@ -49,13 +50,16 @@ module adds no permission, no third-party SDK, no account and no new stored or
 transmitted data over 1.9.5, so everything below holds identically for builds
 28–31.
 
-1.10.1 (build 33) is the first production build of this line and a corrective
+1.10.1 (build 33) went to internal testing only and is superseded; it still
+offered the practice module and carried the calculator defect described below.
+
+1.10.2 (build 34) is the first production build of this line and a corrective
 release: it fixes the scientific calculator layout, where the keypad could push
 the expression display and the result off the top of the screen. It also
 withholds the Quiz/Testler practice module. That module's code is compiled into
 the package, but every entry point to it — the home category, the quick-access
 tile, the module search result and the category filter — is withdrawn, and the
-application declares no deep link, so the module cannot be started. 1.10.1 adds
+application declares no deep link, so the module cannot be started. 1.10.2 adds
 no permission, no third-party SDK and no new data processing over 1.9.5.
 
 ## What Calcademy does
@@ -80,10 +84,10 @@ Quiz/Testler sessions are deliberately absent from that list. A session's
 questions, submitted answers, score and review list exist only in memory while
 the session is open, and are discarded when it ends or the app is closed.
 Calcademy 1.10.0 keeps no quiz history and transmits no quiz answer or result
-anywhere, and 1.10.1 does not offer the module at all.
+anywhere, and 1.10.2 does not offer the module at all.
 
 Calcademy does not upload this content to its own server and offers no account
-or cloud synchronization. The 1.9.4–1.10.1 Android configuration excludes
+or cloud synchronization. The 1.9.4–1.10.2 Android configuration excludes
 application data from Android Auto Backup, cloud backup and device-to-device
 transfer.
 Uninstalling the app or clearing its storage through Android Settings removes
@@ -187,7 +191,7 @@ inputs and numerical methods.
 
 ## Future features
 
-Calcademy 1.9.4–1.10.1 contains no Supabase, no account or sign-in, no in-app
+Calcademy 1.9.4–1.10.2 contains no Supabase, no account or sign-in, no in-app
 purchase or subscription, no remote AI, no camera and no analytics or
 crash-reporting SDK. Sources for several of these remain in the repository
 for reference but are excluded from the analyzer and are not linked into the
@@ -224,7 +228,7 @@ of compliance.
 
 ## Türkçe özet
 
-Bu politika Calcademy **1.9.4–1.10.1 (sürüm 28–33)** için geçerlidir. Bu
+Bu politika Calcademy **1.9.4–1.10.2 (sürüm 28–34)** için geçerlidir. Bu
 sürümler, çevrimdışı ve hesapsız çalışan hesaplama araçları ile Ana Sayfa ve
 Kayıtlı ekranlarında Google AdMob banner reklamları içerir. Supabase, hesap
 oluşturma veya oturum açma, uygulama içi satın alma/abonelik, uzaktan AI
@@ -241,13 +245,17 @@ veya uygulama kapandığında silinir. Calcademy test geçmişi saklamaz ve test
 cevaplarını ya da sonuçlarını hiçbir yere göndermez. Hesaplama, grafik, matris,
 optimizasyon ve alıştırma ekranlarında reklam gösterilmez.
 
-1.10.1 (sürüm 33) bu serinin üretime çıkan ilk yapısıdır ve bir hata düzeltme
+1.10.1 (sürüm 33) yalnızca iç teste çıkmıştır ve yerini 1.10.2'ye bırakmıştır;
+o yapıda Testler modülü hâlâ sunuluyordu ve aşağıda anlatılan hesap makinesi
+hatası mevcuttu.
+
+1.10.2 (sürüm 34) bu serinin üretime çıkan ilk yapısıdır ve bir hata düzeltme
 sürümüdür: bilimsel hesap makinesinde tuş takımının ifade alanını ve sonucu
 ekranın dışına itebildiği yerleşim hatası giderilmiştir. Bu sürümde **Testler**
 modülü kullanıma sunulmaz. Modülün kodu paketin içinde yer alır; ancak ona
 ulaştıran tüm giriş noktaları — ana sayfa kategorisi, hızlı erişim kartı, modül
 araması ve kategori filtresi — kaldırılmıştır ve uygulama derin bağlantı
-tanımlamaz, dolayısıyla modül başlatılamaz. 1.10.1, 1.9.5'e kıyasla yeni izin,
+tanımlamaz, dolayısıyla modül başlatılamaz. 1.10.2, 1.9.5'e kıyasla yeni izin,
 ek üçüncü taraf SDK'sı veya yeni veri işleme getirmez.
 
 Hesaplamalar cihazda yapılır; ayarlar, geçmiş ve kaydedilen çalışmalar yalnızca

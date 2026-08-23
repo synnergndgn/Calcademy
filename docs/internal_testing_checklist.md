@@ -9,21 +9,24 @@ dil, tema, uygulama surumu/build numarasi, test tarihi ve sonucu kaydedilmelidir
 | Alan | Beklenen / Kaydedilecek deger | Sonuc |
 | --- | --- | --- |
 | Artifact | `build/app/outputs/bundle/release/app-release.aab` | [ ] |
-| Version | `1.10.1 (33)` | [ ] |
+| Version | `1.10.2 (34)` | [ ] |
 | Package | `com.aligundogan.calcademy` | [ ] |
 | Install source | Play Store Internal Testing opt-in linki | [ ] |
 | Git revision | Test edilen kesin commit SHA | [ ] |
-| AAB SHA-256 | `4091d40f542bcfc262c5500fd7e08b5a0722db40506606e29e9d48ceeee371e6` | [ ] |
+| AAB SHA-256 | Bu release icin yeniden hesaplanacak | [ ] |
 | Tester / tarih | Ad ve tarih | [ ] |
 | Cihaz / Android | Model ve Android surumu | [ ] |
 
-> Play Console'da daha once `versionCode 33` yuklendiyse ayni kod yeniden
-> yuklenemez. Bu durumda kaynak metadata'si ve release notlariyla birlikte build
-> numarasi artirilip tum release gate'leri yeniden calistirilmalidir.
+> Play Console ayni `versionCode` degerini iki kez kabul etmez. `33` ic teste
+> yuklenerek tuketildigi icin bu release `34` ile cikar; kaynak metadata'si ve
+> release notlari da birlikte guncellenmis, tum release gate'leri yeniden
+> calistirilmistir.
 
-## 1.10.1 (33) Surum Notu
+## 1.10.2 (34) Surum Notu
 
-Bu surum iki degisiklik tasir:
+`versionCode 33` (1.10.1) ic teste yuklenmis ve tuketilmistir; o yapi Testler
+modulunu hala sunuyordu ve asagidaki hesap makinesi hatasini tasiyordu. Bu
+surum uretime cikacak yapidir ve iki degisiklik tasir:
 
 - **Bilimsel hesap makinesi yerlesim duzeltmesi.** Tus takimi ifade alanini ve
   sonuc panelini ekranin disina itebiliyordu. Artik ikisi sabit; tus takimi
@@ -156,7 +159,7 @@ kontrolleri tamamlanmalidir.
   davranislari dogrudur.
 - [ ] App restart sonrasinda tema, dil, angle mode, precision, haptics, sound ve
   scientific notation ayarlari korunur.
-- [ ] About & Legal ekrani `1.10.1 (33)`, package bilgisi ve calisan privacy-policy
+- [ ] About & Legal ekrani `1.10.2 (34)`, package bilgisi ve calisan privacy-policy
   aksiyonunu gosterir.
 
 ## Accessibility
@@ -193,9 +196,9 @@ kontrolleri tamamlanmalidir.
 
 ### Kaynak/artifact tarafinda dogrulananlar
 
-- [x] `versionCode`: **33** (`pubspec.yaml`: `1.10.1+33`; Gradle Flutter
+- [x] `versionCode`: **34** (`pubspec.yaml`: `1.10.2+34`; Gradle Flutter
   metadata'sini kullanir).
-- [x] `versionName`: **1.10.1**; `AppMetadata` ile uyumlu.
+- [x] `versionName`: **1.10.2**; `AppMetadata` ile uyumlu.
 - [x] Package name / application ID: `com.aligundogan.calcademy`; namespace ve
   manifest activity yolu ile uyumlu.
 - [x] App label: `Calcademy`.
@@ -225,7 +228,7 @@ kontrolleri tamamlanmalidir.
 
 ### Play Console / sahip onayi gerekenler
 
-- [ ] Play Console bu uygulama icin `versionCode 33` degerini daha once kabul
+- [ ] Play Console bu uygulama icin `versionCode 34` degerini daha once kabul
   etmemis.
 - [ ] AAB upload validation, Play App Signing ve upload certificate dogrulamasi
   basarili.
