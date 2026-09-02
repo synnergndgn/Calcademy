@@ -18,6 +18,7 @@ include: package:flutter_lints/flutter.yaml
 # this list; see test_dormant/README.md.
 analyzer:
   exclude:
+    - build/**
     - lib/app/auth/**
     - lib/app/billing/**
     - lib/app/config/app_config.dart
