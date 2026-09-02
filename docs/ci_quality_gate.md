@@ -6,7 +6,7 @@ Calcademy's production signing material should not be added to CI merely to auto
 
 ```bash
 flutter pub get
-dart format --set-exit-if-changed .
+dart format --set-exit-if-changed lib test test_dormant
 flutter analyze
 flutter test --concurrency=1
 flutter build apk --debug
@@ -19,6 +19,13 @@ When the authorized production upload key is configured locally:
 flutter build appbundle --release
 flutter build apk --release
 ```
+
+`dart format` is pointed at the source directories rather than `.`. On macOS
+with Xcode present, `flutter pub get` materialises
+`build/ios/SourcePackages/google_mobile_ads-*/example/`, whose
+`analysis_options.yaml` includes a path that does not exist in the checkout;
+`dart format .` walks into it and dies with a `PathNotFoundException` before it
+reaches any of our code. Build output is not ours to format in any case.
 
 - Record Flutter/Dart/Java versions for release reproducibility.
 - Run the gate on the exact release revision.

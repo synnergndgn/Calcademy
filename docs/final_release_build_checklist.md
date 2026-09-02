@@ -16,12 +16,19 @@ Run this checklist on the exact source revision intended for upload. Production 
 
 ```bash
 flutter pub get
-dart format --set-exit-if-changed .
+dart format --set-exit-if-changed lib test test_dormant
 flutter analyze
 flutter test --concurrency=1
 flutter build apk --debug
 git diff --check
 ```
+
+`dart format` is pointed at the source directories rather than `.`. On macOS
+with Xcode present, `flutter pub get` materialises
+`build/ios/SourcePackages/google_mobile_ads-*/example/`, whose
+`analysis_options.yaml` includes a path that does not exist in the checkout;
+`dart format .` walks into it and dies with a `PathNotFoundException` before it
+reaches any of our code. Build output is not ours to format in any case.
 
 - [ ] Every command exits successfully.
 - [ ] Test count/result is recorded.
