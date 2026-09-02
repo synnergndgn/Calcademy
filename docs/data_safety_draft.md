@@ -1,5 +1,118 @@
 # Google Play Data Safety Draft
 
+## 1.8.0 (build 20) — the answers to actually submit
+
+**Declare what this build does, not what the codebase can do.** 1.8.0+20 is
+compiled without Supabase config, so accounts, subscriptions, the assistant, and
+the camera solver do not exist in it — not as dormant code paths, but as
+surfaces the user cannot reach and network calls that are never made. Declaring
+them would describe collection that does not happen, and that claim is the one
+you would have to defend later.
+
+What this build actually does: shows an AdMob banner on Home and Saved, gathers
+advertising consent through UMP first, and keeps every calculation on the
+device.
+
+### Top-level
+
+| Question | Answer | Why |
+| --- | --- | --- |
+| Does the app collect or share required user-data types? | **Yes** | Not by Calcademy's own features, but the AdMob SDK collects and shares advertising identifiers |
+| Is all collected data encrypted in transit? | **Yes** | AdMob traffic is HTTPS |
+| Do users have a way to request deletion? | See below | Calcademy holds no server-side user data in this build |
+
+### Data types
+
+Only one row is a yes.
+
+| Data type | Collected | Shared | Notes |
+| --- | --- | --- | --- |
+| **Device or other IDs** | **Yes** | **Yes** | AdMob advertising ID and device identifiers, for advertising. Confirm the exact set against AdMob's current Data Safety guidance rather than from memory |
+| Personal info (name, email, …) | No | No | No account exists in this build |
+| Financial info | No | No | No purchase is possible; the Premium surface is compiled out |
+| Location | No | No | No permission, no feature |
+| Contacts, Messages, Calendar | No | No | Not accessed |
+| Photos, videos, audio | No | No | Sharing a graph is user-initiated to an app of their choosing; nothing reaches a developer server |
+| Files and docs | No | No | No upload |
+| App activity | No | No | No analytics SDK |
+| Web browsing | No | No | No browsing feature |
+| App info and performance | No | No | No crash reporting |
+| Other user-generated content | No | No | The assistant is local-only and compiled out of this build; this becomes **Yes** the day the Gemini build ships |
+
+### Purpose and control for Device IDs
+
+- Purpose: **Advertising or marketing**. Not analytics, not personalisation of
+  app content, not fraud prevention on Calcademy's behalf.
+- Whether to mark collection **optional**: users are asked through UMP and can
+  decline, but declining yields non-personalised ads rather than no ad
+  identifiers at all. Read the form's exact wording before choosing — "users can
+  choose whether this data is collected" means something narrower than "users
+  can decline personalisation".
+
+### Deletion
+
+Calcademy stores nothing on a server in this build. Calculations, history, and
+saved work live only on the device and are removed by the in-app clear actions
+or by uninstalling. Advertising identifiers are managed by the device's own
+Android settings, not by Calcademy, so the app cannot delete them on request.
+
+Answer the deletion question about **Calcademy's own** collection, not Google's.
+Do not claim an account-deletion mechanism: there are no accounts here.
+
+### Submitted answers — 2026-08-06
+
+Recorded because the next release re-opens this form, and reconstructing why an
+answer was chosen is harder than writing it down once.
+
+**Device or other IDs** — the only data type declared.
+
+| Field | Answer |
+| --- | --- |
+| Collected | Yes |
+| Shared | Yes |
+| Processed ephemerally | No |
+| Required or optional | **Required** |
+| Purposes (collection) | Advertising or marketing; Fraud prevention, security, and compliance |
+| Purposes (sharing) | Advertising or marketing |
+
+Every other data type: not collected, not shared.
+
+**Why "required" rather than "users can choose".** The UMP prompt appears only
+where consent law applies, and the Settings privacy-options row follows the same
+rule — so most users have no in-app way to switch this off. Declaring it
+optional would print "optional" on the store listing for every user, including
+the ones who are never offered the choice. It understates an EEA user's control,
+who does get a real prompt, but overstating control for everyone else is the
+worse error.
+
+**Why fraud prevention is a collection purpose but not a sharing purpose.** The
+privacy policy already tells users that Google processes this data to serve,
+measure, cap the frequency of, **and prevent fraud in** these ads; omitting it
+here would put the two declarations in conflict. Sharing with ad partners,
+though, is for serving and measurement — invalid-traffic detection is Google's
+own processing, not an onward transfer.
+
+**Not declared, and why:** app functionality (the ad ID is not needed by any
+Calcademy feature), analytics (no SDK), personalisation (that field means
+personalising *app content*, not ads), account management (no accounts in this
+build).
+
+**Account questions.** Users cannot sign in with externally created accounts:
+No. A way to request data deletion: No — Calcademy holds nothing server-side in
+this build, so there is nothing to request deletion of. That is not a withheld
+right; it becomes Yes when the account build ships and `delete-account` is the
+mechanism.
+
+### Before submitting
+
+- [ ] Answers describe build 20, not the repository.
+- [ ] Device IDs confirmed against AdMob's current published guidance.
+- [ ] The privacy policy URL in the form matches `AppMetadata.privacyPolicyUrl`.
+- [ ] "Contains ads" is declared in App content.
+- [ ] Re-open this form before the first build that ships accounts or the
+      Gemini assistant — both change the answers, and Play expects the
+      declaration to be correct *before* that version goes live.
+
 ## 1.7 entitlement backend foundation reassessment
 
 Calcademy 1.7 adds source code for account-scoped subscription entitlement
