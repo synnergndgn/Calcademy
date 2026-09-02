@@ -57,11 +57,7 @@ void main() {
   testWidgets('a zero cell is written out rather than left blank', (
     tester,
   ) async {
-    await _pumpGrid(
-      tester,
-      label: 'Matrix A',
-      value: MatrixValue.zero(2, 2),
-    );
+    await _pumpGrid(tester, label: 'Matrix A', value: MatrixValue.zero(2, 2));
 
     for (var row = 0; row < 2; row++) {
       for (var column = 0; column < 2; column++) {
@@ -94,10 +90,7 @@ void main() {
     addTearDown(tester.view.resetDevicePixelRatio);
     await _pumpMatrixPage(tester);
 
-    await tester.enterText(
-      find.byKey(const ValueKey('Matrix B-0-1')),
-      '',
-    );
+    await tester.enterText(find.byKey(const ValueKey('Matrix B-0-1')), '');
     await tester.pump();
     expect(_cellText(tester, 'Matrix B', 0, 1), '');
 

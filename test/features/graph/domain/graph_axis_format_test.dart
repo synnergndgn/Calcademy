@@ -78,10 +78,7 @@ void main() {
 
   group('showsAxisLabel', () {
     test('hides a tick sitting on the chart bound', () {
-      expect(
-        showsAxisLabel(-1.2, min: -1.2, max: 1.2, interval: 0.2),
-        isFalse,
-      );
+      expect(showsAxisLabel(-1.2, min: -1.2, max: 1.2, interval: 0.2), isFalse);
       expect(showsAxisLabel(1.2, min: -1.2, max: 1.2, interval: 0.2), isFalse);
     });
 

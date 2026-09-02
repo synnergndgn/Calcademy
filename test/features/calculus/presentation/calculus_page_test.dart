@@ -159,21 +159,16 @@ void main() {
       (bar) => bar.dashArray != null,
     );
     expect(
-      tangent.spots.where(
-        (spot) => spot.y < data.minY || spot.y > data.maxY,
-      ),
+      tangent.spots.where((spot) => spot.y < data.minY || spot.y > data.maxY),
       isNotEmpty,
       reason: 'the sample the defect was found with must leave the y-range',
     );
-    expect(
-      [
-        data.clipData.left,
-        data.clipData.top,
-        data.clipData.right,
-        data.clipData.bottom,
-      ],
-      everyElement(isTrue),
-    );
+    expect([
+      data.clipData.left,
+      data.clipData.top,
+      data.clipData.right,
+      data.clipData.bottom,
+    ], everyElement(isTrue));
   });
 
   testWidgets('the shaded integral area is clipped to the plot area', (
@@ -197,15 +192,12 @@ void main() {
       data.lineBarsData.where((bar) => bar.belowBarData.show),
       hasLength(1),
     );
-    expect(
-      [
-        data.clipData.left,
-        data.clipData.top,
-        data.clipData.right,
-        data.clipData.bottom,
-      ],
-      everyElement(isTrue),
-    );
+    expect([
+      data.clipData.left,
+      data.clipData.top,
+      data.clipData.right,
+      data.clipData.bottom,
+    ], everyElement(isTrue));
   });
 
   testWidgets('integration solve shows result and shaded area graph', (
