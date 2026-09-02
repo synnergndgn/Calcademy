@@ -12,8 +12,8 @@ dil, tema, uygulama surumu/build numarasi, test tarihi ve sonucu kaydedilmelidir
 | Version | `1.10.3 (35)` | [ ] |
 | Package | `com.aligundogan.calcademy` | [ ] |
 | Install source | Play Store Internal Testing opt-in linki | [ ] |
-| Git revision | Test edilen kesin commit SHA | [ ] |
-| AAB SHA-256 | Bu release icin yeniden hesaplanacak | [ ] |
+| Git revision | `0ea48403f2f5e93909b222c387f557d9ff012736` | [ ] |
+| AAB SHA-256 | `df88dce91789eaba46f6b2e6411ef6abe6960a8baa7f0ce2355aa50e4077f8c0` | [ ] |
 | Tester / tarih | Ad ve tarih | [ ] |
 | Cihaz / Android | Model ve Android surumu | [ ] |
 
@@ -22,6 +22,14 @@ dil, tema, uygulama surumu/build numarasi, test tarihi ve sonucu kaydedilmelidir
 > birlikte guncellenmis, tum release gate'leri yeniden calistirilmistir.
 
 ## 1.10.3 (35) Surum Notu
+
+Yukaridaki AAB `0ea4840` agacindan uretildi; manifest `versionName 1.10.3`,
+package `com.aligundogan.calcademy` bildiriyor. Imza sertifikasi
+`CN=Ali Gundogan, OU=Calcademy`, SHA-256
+`8D:C0:F8:44:C9:FB:C9:F1:B8:FF:69:64:DB:FD:39:85:46:B5:C2:E3:17:95:07:40:64:9A:34:2F:F0:08:BC:D1`.
+Yuklemeden once bu parmak izi Play Console > App integrity > App signing >
+Upload key certificate degeriyle karsilastirilmalidir.
+
 
 Bu surum yalnizca yerlesim duzeltmesi tasir. **1.10.2 (34) ayni hatayi
 duzelttigini kaydetmisti; duzeltme eksikti.** 34'teki cozum tek bir hedefte --
