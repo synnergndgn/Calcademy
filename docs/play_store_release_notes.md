@@ -3,6 +3,42 @@
 Play Console allows 500 characters per language. Paste the block for each
 language exactly as written; both are within the limit.
 
+## Calcademy 1.10.3 (35)
+
+A layout-only corrective release for the scientific calculator. 1.10.2 (34)
+claimed this fix; it held at 360x800 dp with a three-button navigation bar and
+nothing else, and the bottom key rows were still cut off at other display
+sizes, at raised text scales, and as soon as a result appeared. See
+`docs/calculator_keypad_layout_1_10_3.md`.
+
+### Türkçe
+
+```
+Bilimsel hesap makinesinin yerleşimi yeniden yazıldı. Tuş takımı, ifade alanı ve sonuç paneli artık ekranın gerçek boyutuna göre ölçeklenir; büyütülmüş ekran boyutu ve yazı tipi ayarlarında, üç düğmeli ve hareketle gezinmede 0, ondalık ayırıcı, silme, temizleme ve eşittir tuşlarının tamamı görünür kalır. Sonuç oluştuğunda panel büyüyüp alt tuş satırlarını ekran dışına itmiyor. Tuşlar dar ekranlarda daha dengeli yerleşiyor. Hesaplama sonuçları değişmedi.
+```
+
+### English
+
+```
+The scientific calculator layout is rebuilt. The keypad, the expression display and the result panel now scale to the screen they are actually on, so the 0, decimal, delete, clear and equals keys all stay visible at larger display-size and font-size settings and in both three-button and gesture navigation. The result panel no longer grows when a result appears and pushes the bottom key rows off screen. Keys fall into a more even arrangement on narrow screens. Calculation results are unchanged.
+```
+
+### Build command
+
+```bash
+flutter build appbundle --release
+```
+
+**No `--dart-define`.** Same as the 1.9.4-onward line: supplying the Supabase
+values would turn on the account and Premium surface this release does not
+ship.
+
+### Verify before upload
+
+- `versionName` **1.10.3**, `versionCode` **35** in the AAB's merged manifest.
+- Install over 1.10.2 (34) on a device with display size raised one step, and
+  confirm the bottom key row is on screen without scrolling.
+
 ## Calcademy 1.9.4 (28)
 
 ### Türkçe

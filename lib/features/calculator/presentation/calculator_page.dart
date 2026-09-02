@@ -44,9 +44,25 @@ class _CalculatorPageState extends ConsumerState<CalculatorPage> {
   static final _newExpressionPattern = RegExp(r'^[0-9a-zA-Zπ.(]');
   static final _trailingOperatorPattern = RegExp(r'[+−×÷^]$');
 
-  /// Below this viewport height (landscape phones, extreme text scales) the
-  /// page falls back to scrolling the whole workspace.
-  static const _pinnedLayoutMinHeight = 560.0;
+  /// Padding around the pinned workspace.
+  static const _pinnedPadding = EdgeInsets.fromLTRB(16, 8, 16, 8);
+
+  /// Whether the display, the result and every key fit the viewport at once.
+  /// Measured rather than assumed from a viewport height: the same panel is a
+  /// different number of logical pixels at a different display size, and the
+  /// two panels are a different number of them at a different text scale.
+  /// When they do not all fit -- landscape, extreme text scales -- the page
+  /// falls back to scrolling the whole workspace.
+  bool _fitsPinned(BuildContext context, BoxConstraints constraints) {
+    if (!constraints.hasBoundedHeight) return false;
+    final tightest =
+        ExpressionDisplay.heightFor(context, lines: 1) +
+        AppSpacing.xs +
+        ResultPanel.heightFor(context, minHeight: 0) +
+        AppSpacing.xs +
+        CalculatorKeypad.minimumHeight();
+    return constraints.maxHeight - _pinnedPadding.vertical >= tightest;
+  }
 
   late final TextEditingController _textController;
   final _focusNode = FocusNode();
@@ -94,8 +110,7 @@ class _CalculatorPageState extends ConsumerState<CalculatorPage> {
             // single scrolling column would let it push the expression and the
             // result off the top of the screen. Pin them instead and hand the
             // keypad whatever height is left.
-            final pinned =
-                !expanded && constraints.maxHeight >= _pinnedLayoutMinHeight;
+            final pinned = !expanded && _fitsPinned(context, constraints);
             final calculator = _CalculatorWorkspace(
               textController: _textController,
               focusNode: _focusNode,
@@ -116,10 +131,7 @@ class _CalculatorPageState extends ConsumerState<CalculatorPage> {
               ),
             );
             if (pinned) {
-              return Padding(
-                padding: const EdgeInsets.fromLTRB(16, 8, 16, 8),
-                child: calculator,
-              );
+              return Padding(padding: _pinnedPadding, child: calculator);
             }
             return ListView(
               padding: const EdgeInsets.fromLTRB(16, 8, 16, 24),
@@ -274,23 +286,70 @@ class _CalculatorWorkspace extends StatelessWidget {
   final bool fillHeight;
 
   @override
-  Widget build(BuildContext context) => Column(
-    crossAxisAlignment: CrossAxisAlignment.stretch,
-    mainAxisSize: fillHeight ? MainAxisSize.max : MainAxisSize.min,
-    children: [
-      ExpressionDisplay(
-        controller: textController,
-        focusNode: focusNode,
-        hintText: context.l10n.t('expressionHint'),
-        onChanged: onChanged,
-        onSubmitted: onSubmitted,
-      ),
-      const SizedBox(height: AppSpacing.sm),
-      resultPanel,
-      const SizedBox(height: AppSpacing.md),
-      if (fillHeight) Expanded(child: keypad) else keypad,
-    ],
-  );
+  Widget build(BuildContext context) {
+    if (!fillHeight) return _column(context, dense: false);
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        // The keypad gets whatever the display and the result leave behind, so
+        // budget that space before laying anything out: if the comfortable
+        // header would push the keypad under the height it needs for all of
+        // its rows, the header gives way first. Shrinking the two panels costs
+        // far less than losing the equals key off the bottom of the grid.
+        final comfortable =
+            ExpressionDisplay.heightFor(context) +
+            AppSpacing.sm +
+            ResultPanel.heightFor(context) +
+            AppSpacing.md;
+        final dense =
+            constraints.maxHeight - comfortable <
+            CalculatorKeypad.minimumHeight();
+        return _column(context, dense: dense);
+      },
+    );
+  }
+
+  Widget _column(BuildContext context, {required bool dense}) {
+    final gap = dense ? AppSpacing.xs : AppSpacing.sm;
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      mainAxisSize: fillHeight ? MainAxisSize.max : MainAxisSize.min,
+      children: [
+        ExpressionDisplay(
+          controller: textController,
+          focusNode: focusNode,
+          hintText: context.l10n.t('expressionHint'),
+          onChanged: onChanged,
+          onSubmitted: onSubmitted,
+          lines: dense ? 1 : 2,
+          // Pinned, the field cannot grow into the keypad's rows; it scrolls
+          // its own content instead.
+          growsTo: fillHeight ? (dense ? 1 : 2) : 4,
+        ),
+        SizedBox(height: gap),
+        _CalculatorResultSlot(dense: dense, child: resultPanel),
+        SizedBox(height: dense ? AppSpacing.xs : AppSpacing.md),
+        if (fillHeight) Expanded(child: keypad) else keypad,
+      ],
+    );
+  }
+}
+
+/// Hands the density decision down to [ResultPanel] without the workspace
+/// having to know how the calculator builds its result panel.
+class _CalculatorResultSlot extends InheritedWidget {
+  const _CalculatorResultSlot({required this.dense, required super.child});
+
+  final bool dense;
+
+  static bool of(BuildContext context) =>
+      context
+          .dependOnInheritedWidgetOfExactType<_CalculatorResultSlot>()
+          ?.dense ??
+      false;
+
+  @override
+  bool updateShouldNotify(_CalculatorResultSlot oldWidget) =>
+      oldWidget.dense != dense;
 }
 
 class _CalculatorNotebookPane extends ConsumerWidget {
@@ -427,10 +486,15 @@ class _CalculatorResultPanel extends ConsumerWidget {
     final errorText = panelState.error == null
         ? null
         : _errorText(context, panelState.error!);
+    final dense = _CalculatorResultSlot.of(context);
     return ResultPanel(
       label: context.l10n.t('result'),
       value: panelState.result,
       error: errorText,
+      minHeight: dense ? 0 : ResultPanel.comfortableMinHeight,
+      // Keeps the panel the same height before and after a result lands, so
+      // pressing equals cannot push the equals key out of the keypad.
+      actionsInHeader: true,
       actions: panelState.hasResult
           ? [
               IconButton(

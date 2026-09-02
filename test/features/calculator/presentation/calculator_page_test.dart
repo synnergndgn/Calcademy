@@ -128,56 +128,266 @@ void main() {
     expect(tester.takeException(), isNull);
   });
 
-  testWidgets('phone layout keeps the display and result on screen', (
+  // Every phone viewport the keypad has to fit into. The heights are the
+  // logical ones, which shrink when the user raises Android's display size --
+  // 1080x2400 is 360x800 at the default density but 328x729 one step up -- so
+  // a single "tightest phone" is not a thing that exists.
+  for (final viewport in const [
+    (
+      name: '360x800, three-button navigation',
+      size: Size(360, 800),
+      padding: EdgeInsets.only(top: 30, bottom: 48),
+      textScale: 1.0,
+    ),
+    (
+      name: '360x800, gesture navigation',
+      size: Size(360, 800),
+      padding: EdgeInsets.only(top: 30, bottom: 24),
+      textScale: 1.0,
+    ),
+    (
+      name: '328x729, larger display size',
+      size: Size(328, 729),
+      padding: EdgeInsets.only(top: 38, bottom: 36),
+      textScale: 1.0,
+    ),
+    (
+      name: '320x711, largest display size',
+      size: Size(320, 711),
+      padding: EdgeInsets.only(top: 40, bottom: 36),
+      textScale: 1.0,
+    ),
+    (
+      name: '360x740, 1080x2220 panel',
+      size: Size(360, 740),
+      padding: EdgeInsets.only(top: 28, bottom: 48),
+      textScale: 1.0,
+    ),
+    (
+      name: '360x800 at 130% text',
+      size: Size(360, 800),
+      padding: EdgeInsets.only(top: 30, bottom: 48),
+      textScale: 1.3,
+    ),
+    (
+      name: '360x800 at 200% text',
+      size: Size(360, 800),
+      padding: EdgeInsets.only(top: 30, bottom: 48),
+      textScale: 2.0,
+    ),
+    (
+      name: '412x915, large phone',
+      size: Size(412, 915),
+      padding: EdgeInsets.only(top: 40, bottom: 24),
+      textScale: 1.0,
+    ),
+  ]) {
+    testWidgets('every key stays on screen at ${viewport.name}', (
+      tester,
+    ) async {
+      tester.view.physicalSize = viewport.size * 3;
+      tester.view.devicePixelRatio = 3;
+      addTearDown(tester.view.resetPhysicalSize);
+      addTearDown(tester.view.resetDevicePixelRatio);
+
+      await _pump(
+        tester,
+        MediaQuery(
+          data: MediaQueryData(
+            size: viewport.size,
+            devicePixelRatio: 3,
+            padding: viewport.padding,
+            viewPadding: viewport.padding,
+            textScaler: TextScaler.linear(viewport.textScale),
+          ),
+          child: const CalculatorPage(),
+        ),
+      );
+      await tester.pumpAndSettle();
+
+      final safeBottom = viewport.size.height - viewport.padding.bottom;
+      void expectEveryKeyReachable(String when) {
+        final keypad = tester.getRect(find.byType(CalculatorKeypad));
+        expect(
+          keypad.bottom,
+          lessThanOrEqualTo(safeBottom + 0.01),
+          reason: 'keypad runs under the navigation bar $when',
+        );
+        expect(
+          tester
+              .state<ScrollableState>(
+                find.descendant(
+                  of: find.byType(CalculatorKeypad),
+                  matching: find.byType(Scrollable),
+                ),
+              )
+              .position
+              .maxScrollExtent,
+          0,
+          reason: 'keys are hidden behind a scroll $when',
+        );
+        for (final key in CalculatorKeypad.keys) {
+          final finder = find.descendant(
+            of: find.byType(CalculatorKeypad),
+            matching: find.text(key),
+          );
+          expect(finder, findsOneWidget, reason: '"$key" is not built $when');
+          final rect = tester.getRect(finder);
+          expect(
+            rect.left >= keypad.left - 0.01 &&
+                rect.right <= keypad.right + 0.01 &&
+                rect.top >= keypad.top - 0.01 &&
+                rect.bottom <= keypad.bottom + 0.01,
+            isTrue,
+            reason: '"$key" at $rect falls outside the keypad $keypad $when',
+          );
+        }
+      }
+
+      final field = tester.getRect(find.byKey(const Key('expressionField')));
+      final result = tester.getRect(find.byKey(const Key('resultPanel')));
+      expect(field.top, greaterThan(0));
+      expect(result.top, greaterThan(field.bottom));
+      expectEveryKeyReachable('before a calculation');
+
+      await tester.tap(_key(tester, '1'));
+      await tester.pump();
+      await tester.tap(_key(tester, '+'));
+      await tester.pump();
+      await tester.tap(_key(tester, '2'));
+      await tester.pump();
+      await tester.tap(_key(tester, '='));
+      await tester.pumpAndSettle();
+
+      expect(
+        tester.widget<SelectableText>(find.byKey(const Key('resultText'))).data,
+        '3',
+      );
+      // The result panel carries its actions on the label row, so landing a
+      // result does not grow it into the rows below it.
+      expect(tester.getRect(find.byKey(const Key('resultPanel'))), result);
+      expectEveryKeyReachable('after a calculation');
+
+      // The controls a calculation ends on still work where they landed.
+      await tester.tap(_key(tester, '⌫'));
+      await tester.pump();
+      await tester.tap(_key(tester, '0'));
+      await tester.pump();
+      await tester.tap(_key(tester, '.'));
+      await tester.pump();
+      await tester.tap(_key(tester, '5'));
+      await tester.pump();
+      expect(
+        tester
+            .widget<TextField>(find.byKey(const Key('expressionField')))
+            .controller!
+            .text,
+        '1+0.5',
+      );
+      await tester.tap(_key(tester, 'AC'));
+      await tester.pump();
+      expect(
+        tester
+            .widget<TextField>(find.byKey(const Key('expressionField')))
+            .controller!
+            .text,
+        isEmpty,
+      );
+      expect(tester.takeException(), isNull);
+    });
+  }
+
+  testWidgets('a keypad with less room than it needs scrolls, and says so', (
     tester,
   ) async {
-    tester.view.physicalSize = const Size(720, 1600);
-    tester.view.devicePixelRatio = 2;
+    // The page only pins the keypad when every key fits, but a result that
+    // wraps can still eat into the space afterwards. The grid then scrolls --
+    // with a thumb, rather than silently cutting the bottom rows off.
+    var tapped = '';
+    await _pump(
+      tester,
+      Scaffold(
+        body: Center(
+          child: SizedBox(
+            width: 320,
+            height: 200,
+            child: CalculatorKeypad(
+              fillHeight: true,
+              onKey: (key) => tapped = key,
+              onBackspace: () {},
+              onClear: () {},
+            ),
+          ),
+        ),
+      ),
+    );
+    await tester.pumpAndSettle();
+
+    final scrollable = tester.state<ScrollableState>(
+      find.descendant(
+        of: find.byType(CalculatorKeypad),
+        matching: find.byType(Scrollable),
+      ),
+    );
+    expect(scrollable.position.maxScrollExtent, greaterThan(0));
+    expect(
+      find.descendant(
+        of: find.byType(CalculatorKeypad),
+        matching: find.byType(Scrollbar),
+      ),
+      findsOneWidget,
+    );
+
+    // Every key is still reachable, and still works, once scrolled to.
+    final grid = find.descendant(
+      of: find.byType(CalculatorKeypad),
+      matching: find.byType(Scrollable),
+    );
+    for (final key in ['0', '.', '=', '+']) {
+      final finder = _key(tester, key);
+      await tester.scrollUntilVisible(finder, 60, scrollable: grid);
+      await tester.pumpAndSettle();
+      await tester.tap(finder);
+      await tester.pump();
+      expect(tapped, key);
+    }
+    expect(tester.takeException(), isNull);
+  });
+
+  testWidgets('extreme text scales scroll the page instead of overflowing', (
+    tester,
+  ) async {
+    const size = Size(360, 800);
+    tester.view.physicalSize = size * 3;
+    tester.view.devicePixelRatio = 3;
     addTearDown(tester.view.resetPhysicalSize);
     addTearDown(tester.view.resetDevicePixelRatio);
 
-    // A 360x800 phone with a status bar and a three-button navigation bar --
-    // the tightest portrait viewport the keypad has to fit into.
     await _pump(
       tester,
       const MediaQuery(
         data: MediaQueryData(
-          size: Size(360, 800),
-          devicePixelRatio: 2,
+          size: size,
+          devicePixelRatio: 3,
           padding: EdgeInsets.only(top: 30, bottom: 48),
+          textScaler: TextScaler.linear(3),
         ),
         child: CalculatorPage(),
       ),
     );
     await tester.pumpAndSettle();
 
-    final safeBottom = 800.0 - 48;
-    final field = tester.getRect(find.byKey(const Key('expressionField')));
-    final result = tester.getRect(find.byKey(const Key('resultPanel')));
-    final equals = tester.getRect(find.text('='));
-
-    // The keypad fits the space left over instead of scrolling the display
-    // and the result off the top of the screen.
-    final keypad = tester.state<ScrollableState>(
-      find.descendant(
-        of: find.byType(CalculatorKeypad),
-        matching: find.byType(Scrollable),
-      ),
-    );
-    expect(keypad.position.maxScrollExtent, 0);
-    expect(result.bottom, lessThanOrEqualTo(safeBottom));
-    expect(equals.bottom, lessThanOrEqualTo(safeBottom));
-    expect(field.top, greaterThan(0));
-    expect(result.top, greaterThan(field.bottom));
     expect(tester.takeException(), isNull);
-
-    // The keypad still works after being resized to fit.
-    await tester.tap(find.text('7'));
-    await tester.pump();
-    final controller = tester
-        .widget<TextField>(find.byKey(const Key('expressionField')))
-        .controller!;
-    expect(controller.text, '7');
+    await _tapKey(tester, '7');
+    expect(
+      tester
+          .widget<TextField>(find.byKey(const Key('expressionField')))
+          .controller!
+          .text,
+      '7',
+    );
+    await _tapKey(tester, '=');
+    expect(tester.takeException(), isNull);
   });
 
   testWidgets('short viewports fall back to scrolling the whole workspace', (
@@ -247,6 +457,11 @@ void main() {
     expect(tester.takeException(), isNull);
   });
 }
+
+Finder _key(WidgetTester tester, String label) => find.descendant(
+  of: find.byType(CalculatorKeypad),
+  matching: find.text(label),
+);
 
 Future<void> _tapKey(WidgetTester tester, String label) async {
   final finder = find.text(label);

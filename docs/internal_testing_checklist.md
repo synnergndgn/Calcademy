@@ -9,18 +9,57 @@ dil, tema, uygulama surumu/build numarasi, test tarihi ve sonucu kaydedilmelidir
 | Alan | Beklenen / Kaydedilecek deger | Sonuc |
 | --- | --- | --- |
 | Artifact | `build/app/outputs/bundle/release/app-release.aab` | [ ] |
-| Version | `1.10.2 (34)` | [ ] |
+| Version | `1.10.3 (35)` | [ ] |
 | Package | `com.aligundogan.calcademy` | [ ] |
 | Install source | Play Store Internal Testing opt-in linki | [ ] |
 | Git revision | Test edilen kesin commit SHA | [ ] |
-| AAB SHA-256 | `cc51163f94777749e7b811828cd53a4281f995e4a08a628bb07c770dfb319923` | [ ] |
+| AAB SHA-256 | Bu release icin yeniden hesaplanacak | [ ] |
 | Tester / tarih | Ad ve tarih | [ ] |
 | Cihaz / Android | Model ve Android surumu | [ ] |
 
-> Play Console ayni `versionCode` degerini iki kez kabul etmez. `33` ic teste
-> yuklenerek tuketildigi icin bu release `34` ile cikar; kaynak metadata'si ve
-> release notlari da birlikte guncellenmis, tum release gate'leri yeniden
-> calistirilmistir.
+> Play Console ayni `versionCode` degerini iki kez kabul etmez. `34` uretime
+> cikmistir; bu release `35` ile cikar. Kaynak metadata'si ve release notlari da
+> birlikte guncellenmis, tum release gate'leri yeniden calistirilmistir.
+
+## 1.10.3 (35) Surum Notu
+
+Bu surum yalnizca yerlesim duzeltmesi tasir. **1.10.2 (34) ayni hatayi
+duzelttigini kaydetmisti; duzeltme eksikti.** 34'teki cozum tek bir hedefte --
+360x800 dp, uc dugmeli gezinme -- dogrulanmisti ve yalnizca orada yetiyordu:
+
+- Android **ekran boyutu (display size)** ayari yukseltildiginde ayni panel daha
+  az mantiksal dp olur (ornegin 1080x2400 varsayilanda 360x800 dp iken bir
+  kademe yukaride ~328x729 dp'dir). Kalan yukseklik dokuz tus sirasina yetmez.
+- **Yazi olcegi** buyudugunde ifade alani ve sonuc paneli buyur, tus takimina
+  kalan yukseklik azalir.
+- `=` tusuna basildiginda sonuc paneline aksiyon satiri eklendigi icin panel
+  116 dp'den 149 dp'ye cikiyordu; **duzeltmenin dogrulandigi 360x800 hedefinde
+  bile** alt iki tus sirasi bu anda ekran disina itiliyordu.
+
+Yetersiz kalan durumda tus takimi sessizce kendi icinde kaydirilabilir hale
+geliyor, fakat hicbir kaydirma isareti gostermiyordu; kullanici alt tuslarin
+var oldugunu goremiyordu.
+
+35'te tus takimi, ifade alani ve sonuc paneli yerlesimden **once** olculur:
+sonuc paneli sabit yukseklikte kalir, yer daralinca once ifade alani ve panel
+kuculur, gerekirse tus takimi 5 sutun/9 satir yerine 6 sutun/7 satir duzenine
+gecer, ve hicbiri yetmezse grid gorunur bir kaydirma cubugu ile kaydirilir.
+
+Bu surume ozel dogrulanacaklar:
+
+- [ ] **Ekran boyutu matrisi.** Ayarlar > Ekran > Ekran boyutu: varsayilan,
+  bir kademe buyuk ve en buyuk degerde bilimsel hesap makinesi acilir ve
+  `0`, `.`, `AC`, `⌫`, `+`, `=` tuslarinin tamami kaydirmadan gorunur.
+- [ ] **Yazi tipi boyutu matrisi.** Ayni ekran varsayilan, buyuk ve en buyuk
+  yazi tipi boyutunda tasma vermeden calisir.
+- [ ] Yukaridaki her kombinasyonda `1+2=` hesaplandiktan **sonra** da alt tus
+  sirasi ayni yerde durur; sonuc paneli buyuyup tuslari disari itmez.
+- [ ] Uc dugmeli gezinme ve hareketle gezinme modlarinin ikisinde de alt tus
+  sirasi sistem cubugunun altina girmez.
+- [ ] Yatay modda sayfanin tamami kaydirilabilir; `=` tusuna erisilir.
+- [ ] Hesaplama sonuclari degismemistir (Calculator Manual Test tablosu).
+- [ ] Yayinlanan gizlilik politikasi sayfasinin yururluk tarihi
+  `AppMetadata.privacyPolicyEffectiveDate` ile ayni: `2026-09-02`.
 
 ## 1.10.2 (34) Surum Notu
 
@@ -42,7 +81,9 @@ Bu surume ozel dogrulanacaklar:
 - [ ] Ana sayfada Testler kategorisi, filtre cipi, hizli erisim karti ve arama
   sonucu gorunmuyor.
 - [ ] Bilimsel hesap makinesinde ifade alani ve sonuc paneli her zaman
-  gorunur; `+` ve `=` dahil dokuz tus siranin tamami erisilebilir.
+  gorunur; `+` ve `=` dahil tum tus siralari erisilebilir. (34'te bu madde
+  yalnizca varsayilan ekran boyutunda ve hesaplama yapilmadan dogrulanmisti;
+  35 icin yukaridaki matris gecerlidir.)
 - [ ] Ayni ekran yatay modda ve %200 yazi olceginde tasma vermeden calisiyor.
 - [ ] Yayinlanan gizlilik politikasi sayfasinin yururluk tarihi
   `AppMetadata.privacyPolicyEffectiveDate` ile ayni: `2026-08-23`.

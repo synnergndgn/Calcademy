@@ -277,8 +277,8 @@ void main() {
     expect(AppMetadata.adsStatus, 'admob-banner');
     expect(AppMetadata.analyticsStatus, 'not-included');
     expect(AppMetadata.cloudSyncStatus, 'not-included');
-    expect(AppMetadata.versionName, '1.10.2');
-    expect(AppMetadata.buildNumber, 34);
+    expect(AppMetadata.versionName, '1.10.3');
+    expect(AppMetadata.buildNumber, 35);
     expect(
       AppMetadata.privacyPolicyUrl,
       'https://gundev.dev/gizlilik/calcademy',
@@ -300,7 +300,7 @@ void main() {
     );
     expect(AppMetadata.contactEmail, isNull);
     expect(AppMetadata.repositoryUrl, isNull);
-    expect(AppMetadata.privacyPolicyEffectiveDate, '2026-08-23');
+    expect(AppMetadata.privacyPolicyEffectiveDate, '2026-09-02');
   });
 
   test(

@@ -338,6 +338,8 @@ class ExpressionDisplay extends StatelessWidget {
     required this.onChanged,
     super.key,
     this.onSubmitted,
+    this.lines = 2,
+    this.growsTo = 4,
   });
 
   final TextEditingController controller;
@@ -345,6 +347,29 @@ class ExpressionDisplay extends StatelessWidget {
   final String hintText;
   final ValueChanged<String> onChanged;
   final ValueChanged<String>? onSubmitted;
+
+  /// Lines the field always reserves.
+  final int lines;
+
+  /// Lines it may grow to before it scrolls its own content instead. Pass
+  /// [lines] on a pinned layout, where growing would steal keypad rows.
+  final int growsTo;
+
+  static const _lineSpacing = 1.35;
+
+  /// Padding and borders around the text, which do not scale with the text.
+  static const _chrome = AppSpacing.sm + AppSpacing.xs + 3;
+
+  /// The height this display occupies for [lines] lines of text at the
+  /// ambient text scale. Lets a caller budget the space around it without
+  /// laying it out first.
+  static double heightFor(BuildContext context, {int lines = 2}) {
+    final fontSize = Theme.of(context).textTheme.headlineSmall?.fontSize ?? 24;
+    return MediaQuery.textScalerOf(context).scale(fontSize) *
+            _lineSpacing *
+            lines +
+        _chrome;
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -370,8 +395,8 @@ class ExpressionDisplay extends StatelessWidget {
         focusNode: focusNode,
         readOnly: true,
         showCursor: true,
-        minLines: 2,
-        maxLines: 4,
+        minLines: lines,
+        maxLines: math.max(lines, growsTo),
         scrollPadding: const EdgeInsets.all(AppSpacing.xxl),
         textAlign: TextAlign.end,
         style: theme.textTheme.headlineSmall?.copyWith(
@@ -400,12 +425,55 @@ class ResultPanel extends StatelessWidget {
     super.key,
     this.error,
     this.actions = const [],
+    this.minHeight = comfortableMinHeight,
+    this.actionsInHeader = false,
   });
+
+  /// The floor the panel keeps when it has room to breathe.
+  static const comfortableMinHeight = 116.0;
+
+  /// Side of the compact icon buttons used by [actionsInHeader].
+  static const _headerActionSize = 36.0;
+
+  /// Line box for a style that leaves its height to the font. Deliberately
+  /// generous: [heightFor] is a budget, and over-reserving costs a few
+  /// logical pixels where under-reserving costs a row of keys.
+  static const _defaultLineSpacing = 1.4;
+
+  /// The height the panel takes for a single-line value at the ambient text
+  /// scale, so a caller can budget around it before laying it out.
+  static double heightFor(
+    BuildContext context, {
+    double minHeight = comfortableMinHeight,
+  }) {
+    final textTheme = Theme.of(context).textTheme;
+    final scaler = MediaQuery.textScalerOf(context);
+    double lineOf(TextStyle? style, double fallbackSize) =>
+        scaler.scale(style?.fontSize ?? fallbackSize) *
+        (style?.height ?? _defaultLineSpacing);
+    return math.max(
+      minHeight,
+      AppSpacing.md * 2 +
+          math.max(_headerActionSize, lineOf(textTheme.labelMedium, 12)) +
+          AppSpacing.xs +
+          lineOf(textTheme.headlineMedium, 28),
+    );
+  }
 
   final String label;
   final String value;
   final String? error;
   final List<Widget> actions;
+
+  /// Height the panel never drops below. Pinned layouts pass a smaller floor
+  /// so the keypad below keeps its rows.
+  final double minHeight;
+
+  /// Puts [actions] on the label row instead of a row of their own, so the
+  /// panel is the same height with and without a result. A pinned layout that
+  /// sizes the keypad from the space left over cannot afford a panel that
+  /// grows the moment a result lands in it.
+  final bool actionsInHeader;
 
   @override
   Widget build(BuildContext context) {
@@ -413,10 +481,11 @@ class ResultPanel extends StatelessWidget {
     final colors = theme.colorScheme;
     final hasError = error != null;
     final displayValue = hasError ? error! : (value.isEmpty ? '—' : value);
+    final showActions = !hasError && value.isNotEmpty && actions.isNotEmpty;
     return AnimatedContainer(
       key: const Key('resultPanel'),
       duration: const Duration(milliseconds: 180),
-      constraints: const BoxConstraints(minHeight: 116),
+      constraints: BoxConstraints(minHeight: minHeight),
       padding: const EdgeInsets.all(AppSpacing.md),
       decoration: BoxDecoration(
         gradient: LinearGradient(
@@ -437,30 +506,61 @@ class ResultPanel extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          Row(
-            children: [
-              Expanded(
-                child: Text(
-                  context.upperCase(label),
-                  style: theme.textTheme.labelMedium?.copyWith(
-                    color: hasError ? colors.error : colors.primary,
-                    fontWeight: FontWeight.w700,
-                    letterSpacing: 1.1,
+          ConstrainedBox(
+            // Reserves the action row's height whether or not a result is in
+            // the panel, so [actionsInHeader] really does keep the panel the
+            // same size in both states.
+            constraints: BoxConstraints(
+              minHeight: actionsInHeader ? _headerActionSize : 0,
+            ),
+            child: Row(
+              children: [
+                Expanded(
+                  child: Text(
+                    context.upperCase(label),
+                    style: theme.textTheme.labelMedium?.copyWith(
+                      color: hasError ? colors.error : colors.primary,
+                      fontWeight: FontWeight.w700,
+                      letterSpacing: 1.1,
+                    ),
                   ),
                 ),
-              ),
-              if (!hasError && value.isNotEmpty) ...[
-                const SizedBox(width: AppSpacing.xs),
-                Container(
-                  width: 7,
-                  height: 7,
-                  decoration: BoxDecoration(
-                    color: colors.tertiary,
-                    shape: BoxShape.circle,
+                if (!hasError && value.isNotEmpty) ...[
+                  const SizedBox(width: AppSpacing.xs),
+                  Container(
+                    width: 7,
+                    height: 7,
+                    decoration: BoxDecoration(
+                      color: colors.tertiary,
+                      shape: BoxShape.circle,
+                    ),
                   ),
-                ),
+                ],
+                if (actionsInHeader && showActions) ...[
+                  const SizedBox(width: AppSpacing.xs),
+                  IconButtonTheme(
+                    data: const IconButtonThemeData(
+                      style: ButtonStyle(
+                        padding: WidgetStatePropertyAll(EdgeInsets.zero),
+                        visualDensity: VisualDensity.compact,
+                        tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                        minimumSize: WidgetStatePropertyAll(
+                          Size(_headerActionSize, _headerActionSize),
+                        ),
+                        fixedSize: WidgetStatePropertyAll(
+                          Size(_headerActionSize, _headerActionSize),
+                        ),
+                        iconSize: WidgetStatePropertyAll(20),
+                      ),
+                    ),
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: actions,
+                    ),
+                  ),
+                ],
               ],
-            ],
+            ),
           ),
           const SizedBox(height: AppSpacing.xs),
           SelectableText(
@@ -473,7 +573,7 @@ class ResultPanel extends StatelessWidget {
               fontFamily: hasError ? null : 'monospace',
             ),
           ),
-          if (!hasError && value.isNotEmpty && actions.isNotEmpty) ...[
+          if (!actionsInHeader && showActions) ...[
             const SizedBox(height: AppSpacing.xs),
             Wrap(
               alignment: WrapAlignment.end,
@@ -558,16 +658,21 @@ class _SoftCalculatorKeyState extends State<SoftCalculatorKey> {
             onHighlightChanged: (value) => setState(() => _pressed = value),
             onTap: widget.onTap,
             onLongPress: widget.onLongPress,
-            child: Center(
-              child: FittedBox(
-                fit: BoxFit.scaleDown,
-                child: Text(
-                  widget.label,
-                  style: theme.textTheme.titleMedium?.copyWith(
-                    color: foreground,
-                    fontWeight: widget.kind == CalculatorKeyKind.number
-                        ? FontWeight.w500
-                        : FontWeight.w700,
+            child: Padding(
+              // Keeps the longest labels off the key's border when a narrow
+              // column count shrinks them to the full width of the key.
+              padding: const EdgeInsets.symmetric(horizontal: 3, vertical: 2),
+              child: Center(
+                child: FittedBox(
+                  fit: BoxFit.scaleDown,
+                  child: Text(
+                    widget.label,
+                    style: theme.textTheme.titleMedium?.copyWith(
+                      color: foreground,
+                      fontWeight: widget.kind == CalculatorKeyKind.number
+                          ? FontWeight.w500
+                          : FontWeight.w700,
+                    ),
                   ),
                 ),
               ),

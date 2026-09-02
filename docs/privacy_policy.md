@@ -1,11 +1,11 @@
 # Calcademy Privacy Policy
 
-**Status:** Current for Calcademy **1.9.4–1.10.2 (builds 28–34)**, the offline,
+**Status:** Current for Calcademy **1.9.4–1.10.3 (builds 28–35)**, the offline,
 accountless, ad-supported release line.
 
 **Developer/publisher name:** `Ali Gündoğan`
 
-**Effective date:** `2026-08-23`
+**Effective date:** `2026-09-02`
 
 **Contact email:** `calcademyapp@gmail.com`
 
@@ -28,12 +28,13 @@ English. The two are maintained by hand and must be revised together.
 
 | Version | Distribution | Advertising and features |
 |---|---|---|
-| 1.10.2 (build 34) | Google Play production | Same as 1.9.5. The offline Quiz/Testler practice module is compiled into the package but is not exposed: no screen, search result or link reaches it, so it cannot be opened in this build. No account, sign-in, subscription, remote AI or camera feature. |
+| 1.10.3 (build 35) | Google Play production | Same as 1.10.2. A scientific calculator layout fix only. No account, sign-in, subscription, remote AI or camera feature. |
+| 1.10.2 (build 34) | Google Play production, superseded by 1.10.3 | Same as 1.9.5. The offline Quiz/Testler practice module is compiled into the package but is not exposed: no screen, search result or link reaches it, so it cannot be opened in this build. No account, sign-in, subscription, remote AI or camera feature. |
 | 1.10.1 (build 33) | Google Play internal testing, superseded by 1.10.2 | Same as 1.10.0, with the practice module still offered. |
 | 1.10.0 (builds 31–32) | Google Play internal testing | Same as 1.9.5, plus the offline Quiz/Testler practice module. No account, sign-in, subscription, remote AI or camera feature. |
 | 1.9.5 (build 30) | Google Play production | Google AdMob banner on Home and Saved, behind a UMP consent flow. No account, sign-in, subscription, remote AI or camera feature. |
 | 1.9.4 (builds 28–29) | Google Play production, superseded by 1.9.5 | Same as above. |
-| 1.8.0 (build 20) and earlier | closed/internal testing, superseded | See the release history in Git. Those builds variously included an optional Supabase account client, the Play Billing foundation and an entitlement backend stub. **None of that is present in 1.9.4, 1.9.5, 1.10.0, 1.10.1 or 1.10.2.** |
+| 1.8.0 (build 20) and earlier | closed/internal testing, superseded | See the release history in Git. Those builds variously included an optional Supabase account client, the Play Billing foundation and an entitlement backend stub. **None of that is present in 1.9.4, 1.9.5, 1.10.0, 1.10.1, 1.10.2 or 1.10.3.** |
 
 Calculation, graph, matrix, optimization and practice screens display no ads
 in any build.
@@ -54,13 +55,21 @@ transmitted data over 1.9.5, so everything below holds identically for builds
 offered the practice module and carried the calculator defect described below.
 
 1.10.2 (build 34) is the first production build of this line and a corrective
-release: it fixes the scientific calculator layout, where the keypad could push
-the expression display and the result off the top of the screen. It also
+release: it addresses the scientific calculator layout, where the keypad could
+push the expression display and the result off the top of the screen. That fix
+turned out to be partial and is completed in 1.10.3. It also
 withholds the Quiz/Testler practice module. That module's code is compiled into
 the package, but every entry point to it — the home category, the quick-access
 tile, the module search result and the category filter — is withdrawn, and the
 application declares no deep link, so the module cannot be started. 1.10.2 adds
 no permission, no third-party SDK and no new data processing over 1.9.5.
+
+1.10.3 (build 35) is a further corrective release for the same defect. The
+scientific calculator now sizes its keypad, its expression display and its
+result panel to the screen it is actually on, so every key stays reachable at
+display sizes, text scales and navigation modes where 1.10.2 still cut the
+bottom rows off. It touches layout only: no calculation behaviour, permission,
+third-party SDK, stored field or transmitted value changes from 1.10.2.
 
 ## What Calcademy does
 
@@ -84,10 +93,10 @@ Quiz/Testler sessions are deliberately absent from that list. A session's
 questions, submitted answers, score and review list exist only in memory while
 the session is open, and are discarded when it ends or the app is closed.
 Calcademy 1.10.0 keeps no quiz history and transmits no quiz answer or result
-anywhere, and 1.10.2 does not offer the module at all.
+anywhere, and 1.10.2 and 1.10.3 do not offer the module at all.
 
 Calcademy does not upload this content to its own server and offers no account
-or cloud synchronization. The 1.9.4–1.10.2 Android configuration excludes
+or cloud synchronization. The 1.9.4–1.10.3 Android configuration excludes
 application data from Android Auto Backup, cloud backup and device-to-device
 transfer.
 Uninstalling the app or clearing its storage through Android Settings removes
@@ -191,7 +200,7 @@ inputs and numerical methods.
 
 ## Future features
 
-Calcademy 1.9.4–1.10.2 contains no Supabase, no account or sign-in, no in-app
+Calcademy 1.9.4–1.10.3 contains no Supabase, no account or sign-in, no in-app
 purchase or subscription, no remote AI, no camera and no analytics or
 crash-reporting SDK. Sources for several of these remain in the repository
 for reference but are excluded from the analyzer and are not linked into the
@@ -228,7 +237,7 @@ of compliance.
 
 ## Türkçe özet
 
-Bu politika Calcademy **1.9.4–1.10.2 (sürüm 28–34)** için geçerlidir. Bu
+Bu politika Calcademy **1.9.4–1.10.3 (sürüm 28–35)** için geçerlidir. Bu
 sürümler, çevrimdışı ve hesapsız çalışan hesaplama araçları ile Ana Sayfa ve
 Kayıtlı ekranlarında Google AdMob banner reklamları içerir. Supabase, hesap
 oluşturma veya oturum açma, uygulama içi satın alma/abonelik, uzaktan AI
@@ -251,12 +260,21 @@ hatası mevcuttu.
 
 1.10.2 (sürüm 34) bu serinin üretime çıkan ilk yapısıdır ve bir hata düzeltme
 sürümüdür: bilimsel hesap makinesinde tuş takımının ifade alanını ve sonucu
-ekranın dışına itebildiği yerleşim hatası giderilmiştir. Bu sürümde **Testler**
+ekranın dışına itebildiği yerleşim hatası ele alınmıştır; bu düzeltmenin eksik
+kaldığı sonradan görülmüş ve 1.10.3 ile tamamlanmıştır. Bu sürümde **Testler**
 modülü kullanıma sunulmaz. Modülün kodu paketin içinde yer alır; ancak ona
 ulaştıran tüm giriş noktaları — ana sayfa kategorisi, hızlı erişim kartı, modül
 araması ve kategori filtresi — kaldırılmıştır ve uygulama derin bağlantı
 tanımlamaz, dolayısıyla modül başlatılamaz. 1.10.2, 1.9.5'e kıyasla yeni izin,
 ek üçüncü taraf SDK'sı veya yeni veri işleme getirmez.
+
+1.10.3 (sürüm 35) aynı hatanın devamı için çıkarılan bir düzeltme sürümüdür.
+Bilimsel hesap makinesi artık tuş takımını, ifade alanını ve sonuç panelini
+gerçekte bulunduğu ekrana göre boyutlandırır; böylece 1.10.2'nin alt tuş
+satırlarını kestiği ekran boyutu, yazı ölçeği ve gezinme modlarında da tüm
+tuşlara erişilebilir. Değişiklik yalnızca yerleşimle ilgilidir: hesaplama
+davranışı, izinler, üçüncü taraf SDK'ları, saklanan alanlar ve aktarılan
+veriler 1.10.2 ile aynıdır.
 
 Hesaplamalar cihazda yapılır; ayarlar, geçmiş ve kaydedilen çalışmalar yalnızca
 uygulamanın yerel depolamasında tutulur. Calcademy bu içeriği kendi sunucusuna

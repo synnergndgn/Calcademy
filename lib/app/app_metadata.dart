@@ -3,8 +3,8 @@ abstract final class AppMetadata {
   static const name = appName;
   static const applicationId = 'com.aligundogan.calcademy';
   static const publisherName = 'Ali Gündoğan';
-  static const versionName = '1.10.2';
-  static const buildNumber = 34;
+  static const versionName = '1.10.3';
+  static const buildNumber = 35;
   static const versionCode = buildNumber;
   static const tagline = 'Calculate. Visualize. Optimize. Learn.';
   static const shortDescription =
@@ -38,7 +38,7 @@ abstract final class AppMetadata {
       'https://gundev.dev/gizlilik/calcademy';
   // Must equal the date published on privacyPolicyUrl. Nothing renders this;
   // it is the repository's record of which revision of the page shipped.
-  static const privacyPolicyEffectiveDate = '2026-08-23';
+  static const privacyPolicyEffectiveDate = '2026-09-02';
 
   static Uri? get privacyPolicyUri => parsePublicHttpsUrl(privacyPolicyUrl);
 
